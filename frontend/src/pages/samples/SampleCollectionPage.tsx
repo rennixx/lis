@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Search, CheckCircle, Clock, AlertTriangle, Package, Printer, Barcode, Filter, MoreHorizontal } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -8,114 +8,20 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Textarea } from '@/components/ui/textarea';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
-
-// Types for sample data
-interface Sample {
-  id: string;
-  sampleId: string;
-  barcode: string;
-  patient: {
-    name: string;
-    patientId: string;
-    age?: number;
-    gender?: string;
-  };
-  order: {
-    orderNumber: string;
-    priority: 'routine' | 'urgent' | 'stat' | 'critical';
-  };
-  tests: Array<{
-    name: string;
-    code: string;
-  }>;
-  sampleType: string;
-  collectionStatus: 'pending' | 'collected' | 'in_process' | 'processing' | 'completed' | 'cancelled' | 'rejected';
-  scheduledCollectionTime?: string;
-  actualCollectionTime?: string;
-  collectedBy?: string;
-  collectionNotes?: string;
-  priority: 'routine' | 'urgent' | 'stat' | 'critical';
-}
-
-// Mock data for demonstration
-const mockSamples: Sample[] = [
-  {
-    id: '1',
-    sampleId: 'SPL-2024-000001',
-    barcode: 'SMP-20241030-000001',
-    patient: {
-      name: 'John Doe',
-      patientId: 'PAT-2024-000001',
-      age: 45,
-      gender: 'Male'
-    },
-    order: {
-      orderNumber: 'ORD-2024-000001',
-      priority: 'routine'
-    },
-    tests: [
-      { name: 'Complete Blood Count', code: 'CBC' },
-      { name: 'Comprehensive Metabolic Panel', code: 'CMP' }
-    ],
-    sampleType: 'blood',
-    collectionStatus: 'pending',
-    scheduledCollectionTime: '2024-10-30T09:00:00Z',
-    priority: 'routine'
-  },
-  {
-    id: '2',
-    sampleId: 'SPL-2024-000002',
-    barcode: 'SMP-20241030-000002',
-    patient: {
-      name: 'Jane Smith',
-      patientId: 'PAT-2024-000002',
-      age: 32,
-      gender: 'Female'
-    },
-    order: {
-      orderNumber: 'ORD-2024-000002',
-      priority: 'urgent'
-    },
-    tests: [
-      { name: 'Urinalysis', code: 'UA' },
-      { name: 'Urine Culture', code: 'UC' }
-    ],
-    sampleType: 'urine',
-    collectionStatus: 'pending',
-    scheduledCollectionTime: '2024-10-30T08:30:00Z',
-    priority: 'urgent'
-  },
-  {
-    id: '3',
-    sampleId: 'SPL-2024-000003',
-    barcode: 'SMP-20241030-000003',
-    patient: {
-      name: 'Robert Johnson',
-      patientId: 'PAT-2024-000003',
-      age: 67,
-      gender: 'Male'
-    },
-    order: {
-      orderNumber: 'ORD-2024-000003',
-      priority: 'stat'
-    },
-    tests: [
-      { name: 'Cardiac Enzyme Panel', code: 'CEP' },
-      { name: 'Troponin T', code: 'TROP' }
-    ],
-    sampleType: 'blood',
-    collectionStatus: 'collected',
-    actualCollectionTime: '2024-10-30T07:45:00Z',
-    collectedBy: 'Nurse Williams',
-    priority: 'stat'
-  }
-];
+import {
+  useSamples,
+  useSamplesByStatusCounts,
+  useConfirmCollection,
+  useBulkUpdateStatus,
+  usePrintSampleLabels,
+  useSearchSamples,
+  Sample
+} from '@/api/hooks/useSamples';
 
 const SampleCollectionPage: React.FC = () => {
-  const [samples, setSamples] = useState<Sample[]>(mockSamples);
   const [selectedSamples, setSelectedSamples] = useState<string[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
@@ -127,12 +33,33 @@ const SampleCollectionPage: React.FC = () => {
   const [actualVolume, setActualVolume] = useState('');
   const { toast } = useToast();
 
-  // Filter samples based on search and filters
+  // API hooks
+  const { data: samplesData, isLoading, error, refetch } = useSamples({
+    search: searchTerm,
+    status: statusFilter !== 'all' ? statusFilter : undefined,
+    priority: priorityFilter !== 'all' ? priorityFilter : undefined,
+    limit: 100
+  });
+
+  const { data: statusCountsData } = useSamplesByStatusCounts();
+  const confirmCollectionMutation = useConfirmCollection();
+  const bulkUpdateMutation = useBulkUpdateStatus();
+  const printLabelsMutation = usePrintSampleLabels();
+
+  // Search by barcode or ID
+  const { data: searchResults, refetch: refetchSearch } = useSearchSamples(barcodeInput, 1);
+
+  const samples = samplesData?.data || [];
+  const statusCounts = statusCountsData?.statusCounts || [];
+
+  // Filter samples based on search and filters (client-side filtering as backup)
   const filteredSamples = samples.filter(sample => {
-    const matchesSearch = sample.patient.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         sample.sampleId.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         sample.barcode.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         sample.order.orderNumber.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesSearch = !searchTerm ||
+      sample.patient.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      sample.patient.lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      sample.sampleId.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      sample.barcode.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      sample.order.orderNumber.toLowerCase().includes(searchTerm.toLowerCase());
 
     const matchesStatus = statusFilter === 'all' || sample.collectionStatus === statusFilter;
     const matchesPriority = priorityFilter === 'all' || sample.priority === priorityFilter;
@@ -190,7 +117,7 @@ const SampleCollectionPage: React.FC = () => {
   // Handle select all
   const handleSelectAll = (checked: boolean) => {
     if (checked) {
-      setSelectedSamples(filteredSamples.map(sample => sample.id));
+      setSelectedSamples(filteredSamples.map(sample => sample._id));
     } else {
       setSelectedSamples([]);
     }
@@ -208,58 +135,75 @@ const SampleCollectionPage: React.FC = () => {
   const processCollectionConfirmation = () => {
     if (!selectedSample) return;
 
-    // Update sample status
-    setSamples(samples.map(sample =>
-      sample.id === selectedSample.id
-        ? {
-            ...sample,
-            collectionStatus: 'collected' as const,
-            actualCollectionTime: new Date().toISOString(),
-            collectedBy: 'Current User',
-            collectionNotes: collectionNotes || undefined
-          }
-        : sample
-    ));
+    const collectionData: any = {};
+    if (collectionNotes.trim()) {
+      collectionData.collectionNotes = collectionNotes.trim();
+    }
+    if (actualVolume.trim()) {
+      collectionData.actualVolume = parseFloat(actualVolume.trim());
+    }
 
-    toast({
-      title: "Collection Confirmed",
-      description: `Sample ${selectedSample.sampleId} has been marked as collected.`,
+    confirmCollectionMutation.mutate({
+      sampleId: selectedSample._id,
+      collectionData
+    }, {
+      onSuccess: () => {
+        toast({
+          title: "Collection Confirmed",
+          description: `Sample ${selectedSample.sampleId} has been marked as collected.`,
+        });
+        setCollectionDialogOpen(false);
+        setSelectedSample(null);
+        setCollectionNotes('');
+        setActualVolume('');
+        refetch();
+      },
+      onError: (error: any) => {
+        toast({
+          title: "Collection Failed",
+          description: error.message || "Failed to confirm sample collection",
+          variant: "destructive",
+        });
+      }
     });
-
-    setCollectionDialogOpen(false);
-    setSelectedSample(null);
-    setCollectionNotes('');
-    setActualVolume('');
   };
 
   // Bulk update sample status
   const handleBulkStatusUpdate = (newStatus: string) => {
     if (selectedSamples.length === 0) return;
 
-    setSamples(samples.map(sample =>
-      selectedSamples.includes(sample.id)
-        ? { ...sample, collectionStatus: newStatus as any }
-        : sample
-    ));
-
-    toast({
-      title: "Bulk Update Complete",
-      description: `${selectedSamples.length} samples have been updated.`,
+    bulkUpdateMutation.mutate({
+      sampleIds: selectedSamples,
+      newStatus,
+      notes: `Bulk status update to ${newStatus}`
+    }, {
+      onSuccess: (result) => {
+        toast({
+          title: "Bulk Update Complete",
+          description: `${result.modifiedCount} samples have been updated.`,
+        });
+        setSelectedSamples([]);
+        refetch();
+      },
+      onError: (error: any) => {
+        toast({
+          title: "Bulk Update Failed",
+          description: error.message || "Failed to update sample status",
+          variant: "destructive",
+        });
+      }
     });
-
-    setSelectedSamples([]);
   };
 
   // Handle barcode scanning
   const handleBarcodeScan = () => {
     if (!barcodeInput.trim()) return;
 
-    const foundSample = samples.find(sample =>
-      sample.barcode === barcodeInput.trim() ||
-      sample.sampleId === barcodeInput.trim()
-    );
+    // Search for sample by barcode or ID
+    refetchSearch();
 
-    if (foundSample) {
+    if (searchResults && searchResults.length > 0) {
+      const foundSample = searchResults[0];
       setSelectedSample(foundSample);
       setCollectionDialogOpen(true);
       setBarcodeInput('');
@@ -274,9 +218,7 @@ const SampleCollectionPage: React.FC = () => {
 
   // Print sample labels
   const handlePrintLabels = () => {
-    const samplesToPrint = selectedSamples.length > 0
-      ? samples.filter(sample => selectedSamples.includes(sample.id))
-      : samples;
+    const samplesToPrint = selectedSamples.length > 0 ? selectedSamples : samples.map(s => s._id);
 
     if (samplesToPrint.length === 0) {
       toast({
@@ -287,18 +229,30 @@ const SampleCollectionPage: React.FC = () => {
       return;
     }
 
-    // In a real application, this would trigger label printing
-    toast({
-      title: "Printing Labels",
-      description: `Printing ${samplesToPrint.length} sample labels...`,
+    printLabelsMutation.mutate(samplesToPrint, {
+      onSuccess: (result) => {
+        toast({
+          title: "Labels Generated",
+          description: `Successfully generated ${result.count} sample labels.`,
+        });
+        // In a real application, you would trigger the actual printing here
+        console.log('Generated labels:', result.labels);
+      },
+      onError: (error: any) => {
+        toast({
+          title: "Label Generation Failed",
+          description: error.message || "Failed to generate sample labels",
+          variant: "destructive",
+        });
+      }
     });
   };
 
-  // Status counts for dashboard
-  const statusCounts = samples.reduce((acc, sample) => {
-    acc[sample.collectionStatus] = (acc[sample.collectionStatus] || 0) + 1;
-    return acc;
-  }, {} as Record<string, number>);
+  // Get status count by status
+  const getStatusCount = (status: string) => {
+    const statusItem = statusCounts.find((item: any) => item.status === status);
+    return statusItem?.count || 0;
+  };
 
   return (
     <div className="space-y-6">
@@ -328,7 +282,7 @@ const SampleCollectionPage: React.FC = () => {
               </div>
               <div>
                 <p className="text-sm font-medium text-gray-600">Pending</p>
-                <p className="text-2xl font-bold">{statusCounts.pending || 0}</p>
+                <p className="text-2xl font-bold">{getStatusCount('pending')}</p>
               </div>
             </div>
           </CardContent>
@@ -342,7 +296,7 @@ const SampleCollectionPage: React.FC = () => {
               </div>
               <div>
                 <p className="text-sm font-medium text-blue-600">Collected</p>
-                <p className="text-2xl font-bold">{statusCounts.collected || 0}</p>
+                <p className="text-2xl font-bold">{getStatusCount('collected')}</p>
               </div>
             </div>
           </CardContent>
@@ -356,7 +310,9 @@ const SampleCollectionPage: React.FC = () => {
               </div>
               <div>
                 <p className="text-sm font-medium text-yellow-600">In Process</p>
-                <p className="text-2xl font-bold">{(statusCounts.in_process || 0) + (statusCounts.processing || 0)}</p>
+                <p className="text-2xl font-bold">
+                  {getStatusCount('in_process') + getStatusCount('processing')}
+                </p>
               </div>
             </div>
           </CardContent>
@@ -370,7 +326,7 @@ const SampleCollectionPage: React.FC = () => {
               </div>
               <div>
                 <p className="text-sm font-medium text-green-600">Completed</p>
-                <p className="text-2xl font-bold">{statusCounts.completed || 0}</p>
+                <p className="text-2xl font-bold">{getStatusCount('completed')}</p>
               </div>
             </div>
           </CardContent>
@@ -457,6 +413,7 @@ const SampleCollectionPage: React.FC = () => {
                   size="sm"
                   variant="outline"
                   onClick={() => handleBulkStatusUpdate('collected')}
+                  disabled={bulkUpdateMutation.isPending}
                 >
                   <CheckCircle className="mr-2 h-4 w-4" />
                   Mark Collected
@@ -465,6 +422,7 @@ const SampleCollectionPage: React.FC = () => {
                   size="sm"
                   variant="outline"
                   onClick={() => handleBulkStatusUpdate('in_process')}
+                  disabled={bulkUpdateMutation.isPending}
                 >
                   <Package className="mr-2 h-4 w-4" />
                   Mark In Process
@@ -473,6 +431,7 @@ const SampleCollectionPage: React.FC = () => {
                   size="sm"
                   variant="outline"
                   onClick={() => handleBulkStatusUpdate('completed')}
+                  disabled={bulkUpdateMutation.isPending}
                 >
                   <CheckCircle className="mr-2 h-4 w-4" />
                   Mark Completed
@@ -492,114 +451,140 @@ const SampleCollectionPage: React.FC = () => {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="rounded-md border">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="w-12">
-                    <Checkbox
-                      checked={selectedSamples.length === filteredSamples.length && filteredSamples.length > 0}
-                      onCheckedChange={handleSelectAll}
-                    />
-                  </TableHead>
-                  <TableHead>Sample ID</TableHead>
-                  <TableHead>Patient</TableHead>
-                  <TableHead>Tests</TableHead>
-                  <TableHead>Type</TableHead>
-                  <TableHead>Priority</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Scheduled Time</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filteredSamples.map((sample) => (
-                  <TableRow key={sample.id} className="hover:bg-muted/50">
-                    <TableCell>
+          {isLoading ? (
+            <div className="flex items-center justify-center py-8">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-600"></div>
+              <span className="ml-2">Loading samples...</span>
+            </div>
+          ) : error ? (
+            <div className="text-center py-8 text-red-600">
+              <AlertTriangle className="mx-auto h-12 w-12 mb-4" />
+              <p>Failed to load samples. Please try again.</p>
+              <Button onClick={() => refetch()} className="mt-4">
+                Retry
+              </Button>
+            </div>
+          ) : (
+            <div className="rounded-md border">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="w-12">
                       <Checkbox
-                        checked={selectedSamples.includes(sample.id)}
-                        onCheckedChange={(checked: boolean) => handleSelectSample(sample.id, checked)}
+                        checked={selectedSamples.length === filteredSamples.length && filteredSamples.length > 0}
+                        onCheckedChange={handleSelectAll}
                       />
-                    </TableCell>
-                    <TableCell>
-                      <div>
-                        <div className="font-medium">{sample.sampleId}</div>
-                        <div className="text-sm text-muted-foreground font-mono">{sample.barcode}</div>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <div>
-                        <div className="font-medium">{sample.patient.name}</div>
-                        <div className="text-sm text-muted-foreground">
-                          ID: {sample.patient.patientId}
-                          {sample.patient.age && ` • ${sample.patient.age}y`}
-                          {sample.patient.gender && ` • ${sample.patient.gender}`}
-                        </div>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <div className="max-w-48">
-                        <div className="flex flex-wrap gap-1">
-                          {sample.tests.map((test, index) => (
-                            <Badge key={index} variant="secondary" className="text-xs">
-                              {test.code}
-                            </Badge>
-                          ))}
-                        </div>
-                        <div className="text-xs text-muted-foreground mt-1">
-                          {sample.tests.map(test => test.name).join(', ')}
-                        </div>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant="outline" className="capitalize">
-                        {sample.sampleType}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      <Badge className={getPriorityColor(sample.priority)}>
-                        {sample.priority}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      <Badge className={getStatusColor(sample.collectionStatus)}>
-                        {sample.collectionStatus.replace('_', ' ')}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      <div className="text-sm">
-                        {sample.scheduledCollectionTime && (
-                          <div>{new Date(sample.scheduledCollectionTime).toLocaleString()}</div>
-                        )}
-                        {sample.actualCollectionTime && (
-                          <div className="text-green-600">
-                            Collected: {new Date(sample.actualCollectionTime).toLocaleTimeString()}
-                          </div>
-                        )}
-                      </div>
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex items-center justify-end gap-1">
-                        {sample.collectionStatus === 'pending' && (
-                          <Button
-                            size="sm"
-                            onClick={() => handleConfirmCollection(sample)}
-                            className="bg-teal-600 hover:bg-teal-700"
-                          >
-                            <CheckCircle className="mr-1 h-3 w-3" />
-                            Collect
-                          </Button>
-                        )}
-                        <Button size="sm" variant="outline">
-                          <MoreHorizontal className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </TableCell>
+                    </TableHead>
+                    <TableHead>Sample ID</TableHead>
+                    <TableHead>Patient</TableHead>
+                    <TableHead>Tests</TableHead>
+                    <TableHead>Type</TableHead>
+                    <TableHead>Priority</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead>Scheduled Time</TableHead>
+                    <TableHead className="text-right">Actions</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
+                </TableHeader>
+                <TableBody>
+                  {filteredSamples.map((sample) => (
+                    <TableRow key={sample._id} className="hover:bg-muted/50">
+                      <TableCell>
+                        <Checkbox
+                          checked={selectedSamples.includes(sample._id)}
+                          onCheckedChange={(checked: boolean) => handleSelectSample(sample._id, checked)}
+                        />
+                      </TableCell>
+                      <TableCell>
+                        <div>
+                          <div className="font-medium">{sample.sampleId}</div>
+                          <div className="text-sm text-muted-foreground font-mono">{sample.barcode}</div>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <div>
+                          <div className="font-medium">
+                            {sample.patient.firstName} {sample.patient.lastName}
+                          </div>
+                          <div className="text-sm text-muted-foreground">
+                            ID: {sample.patient.patientId}
+                            {sample.patient.dateOfBirth && (
+                              <span> • Age: {new Date().getFullYear() - new Date(sample.patient.dateOfBirth).getFullYear()}y
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <div className="max-w-48">
+                          <div className="flex flex-wrap gap-1">
+                            {sample.tests.slice(0, 3).map((test, index) => (
+                              <Badge key={index} variant="secondary" className="text-xs">
+                                {test.code}
+                              </Badge>
+                            ))}
+                            {sample.tests.length > 3 && (
+                              <Badge variant="secondary" className="text-xs">
+                                +{sample.tests.length - 3}
+                              </Badge>
+                            )}
+                          </div>
+                          <div className="text-xs text-muted-foreground mt-1">
+                            {sample.tests.slice(0, 2).map(test => test.name).join(', ')}
+                            {sample.tests.length > 2 && '...'}
+                          </div>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant="outline" className="capitalize">
+                          {sample.sampleType}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
+                        <Badge className={getPriorityColor(sample.priority)}>
+                          {sample.priority}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
+                        <Badge className={getStatusColor(sample.collectionStatus)}>
+                          {sample.collectionStatus.replace('_', ' ')}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
+                        <div className="text-sm">
+                          {sample.scheduledCollectionTime && (
+                            <div>{new Date(sample.scheduledCollectionTime).toLocaleString()}</div>
+                          )}
+                          {sample.actualCollectionTime && (
+                            <div className="text-green-600">
+                              Collected: {new Date(sample.actualCollectionTime).toLocaleTimeString()}
+                            </div>
+                          )}
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <div className="flex items-center justify-end gap-1">
+                          {sample.collectionStatus === 'pending' && (
+                            <Button
+                              size="sm"
+                              onClick={() => handleConfirmCollection(sample)}
+                              className="bg-teal-600 hover:bg-teal-700"
+                              disabled={confirmCollectionMutation.isPending}
+                            >
+                              <CheckCircle className="mr-1 h-3 w-3" />
+                              Collect
+                            </Button>
+                          )}
+                          <Button size="sm" variant="outline">
+                            <MoreHorizontal className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          )}
         </CardContent>
       </Card>
 
@@ -620,7 +605,9 @@ const SampleCollectionPage: React.FC = () => {
                     Patient
                   </Label>
                   <div className="col-span-3">
-                    <div className="font-medium">{selectedSample.patient.name}</div>
+                    <div className="font-medium">
+                      {selectedSample.patient.firstName} {selectedSample.patient.lastName}
+                    </div>
                     <div className="text-sm text-muted-foreground">{selectedSample.patient.patientId}</div>
                   </div>
                 </div>
@@ -630,11 +617,16 @@ const SampleCollectionPage: React.FC = () => {
                   </Label>
                   <div className="col-span-3">
                     <div className="flex flex-wrap gap-1">
-                      {selectedSample.tests.map((test, index) => (
+                      {selectedSample.tests.slice(0, 3).map((test: any, index: number) => (
                         <Badge key={index} variant="secondary" className="text-xs">
                           {test.code}
                         </Badge>
                       ))}
+                      {selectedSample.tests.length > 3 && (
+                        <Badge variant="secondary" className="text-xs">
+                          +{selectedSample.tests.length - 3}
+                        </Badge>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -669,8 +661,22 @@ const SampleCollectionPage: React.FC = () => {
             <Button variant="outline" onClick={() => setCollectionDialogOpen(false)}>
               Cancel
             </Button>
-            <Button onClick={processCollectionConfirmation} className="bg-teal-600 hover:bg-teal-700">
-              Confirm Collection
+            <Button
+              onClick={processCollectionConfirmation}
+              className="bg-teal-600 hover:bg-teal-700"
+              disabled={confirmCollectionMutation.isPending}
+            >
+              {confirmCollectionMutation.isPending ? (
+                <>
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                  Confirming...
+                </>
+              ) : (
+                <>
+                  <CheckCircle className="mr-2 h-4 w-4" />
+                  Confirm Collection
+                </>
+              )}
             </Button>
           </DialogFooter>
         </DialogContent>

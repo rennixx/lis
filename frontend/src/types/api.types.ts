@@ -352,3 +352,152 @@ export interface ReportQueryParams extends PaginationParams {
   type?: string;
   deliveryMethod?: string;
 }
+
+// Sample types
+export interface Sample {
+  _id: string;
+  sampleId: string;
+  barcode: string;
+  order: {
+    _id: string;
+    orderNumber: string;
+    priority: string;
+    clinicalNotes?: string;
+  };
+  patient: {
+    _id: string;
+    firstName: string;
+    lastName: string;
+    patientId: string;
+    dateOfBirth: string;
+    phone?: string;
+  };
+  tests: Array<{
+    _id: string;
+    name: string;
+    code: string;
+    category: string;
+    description?: string;
+    normalRange?: any;
+  }>;
+
+  // Sample information
+  sampleType: 'blood' | 'urine' | 'swab' | 'tissue' | 'fluid' | 'stool' | 'sputum' | 'other';
+  containerType: string;
+  volume: number;
+  volumeUnit: string;
+
+  // Collection details
+  collectionStatus: 'pending' | 'collected' | 'in_process' | 'processing' | 'completed' | 'cancelled' | 'rejected' | 'expired';
+  priority: 'routine' | 'urgent' | 'stat' | 'critical';
+  collectionMethod?: 'venipuncture' | 'catheter' | 'lumbar_puncture' | 'swab' | 'voided' | 'biopsy' | 'other';
+  scheduledCollectionTime?: string;
+  actualCollectionTime?: string;
+  collectedBy?: {
+    _id: string;
+    fullName: string;
+  };
+  collectionNotes?: string;
+
+  // Processing details
+  receivedTime?: string;
+  receivedBy?: {
+    _id: string;
+    fullName: string;
+  };
+  processingStartTime?: string;
+  processingEndTime?: string;
+  processedBy?: {
+    _id: string;
+    fullName: string;
+  };
+
+  // Quality control
+  qualityChecks: Array<{
+    checkType: string;
+    result: 'pass' | 'fail' | 'warning';
+    notes?: string;
+    checkedBy: {
+      _id: string;
+      fullName: string;
+    };
+    checkedAt: string;
+  }>;
+
+  // Storage information
+  storageLocation?: string;
+  storageTemperature?: number;
+  storageConditions?: string;
+  expiryDate?: string;
+
+  // Status tracking
+  statusHistory: Array<{
+    status: string;
+    changedBy: {
+      _id: string;
+      fullName: string;
+    };
+    changedAt: string;
+    notes?: string;
+  }>;
+
+  // Rejection information
+  rejectionReason?: string;
+  rejectedBy?: {
+    _id: string;
+    fullName: string;
+  };
+  rejectedAt?: string;
+
+  // Metadata
+  createdAt: string;
+  updatedAt: string;
+  createdBy: {
+    _id: string;
+    fullName: string;
+  };
+  lastModifiedBy?: {
+    _id: string;
+    fullName: string;
+  };
+}
+
+export interface CreateSampleRequest {
+  orderId: string;
+  patientId: string;
+  testIds: string[];
+  sampleType: string;
+  containerType: string;
+  volume: number;
+  volumeUnit: string;
+  collectionMethod?: string;
+  scheduledCollectionTime?: string;
+  priority?: 'routine' | 'urgent' | 'stat' | 'critical';
+  collectionNotes?: string;
+}
+
+export interface UpdateSampleRequest {
+  sampleType?: string;
+  containerType?: string;
+  volume?: number;
+  volumeUnit?: string;
+  collectionMethod?: string;
+  scheduledCollectionTime?: string;
+  priority?: 'routine' | 'urgent' | 'stat' | 'critical';
+  collectionNotes?: string;
+  storageLocation?: string;
+  storageTemperature?: number;
+  storageConditions?: string;
+}
+
+export interface SampleQueryParams extends PaginationParams {
+  status?: string;
+  priority?: string;
+  sampleType?: string;
+  patientId?: string;
+  orderId?: string;
+  dateFrom?: string;
+  dateTo?: string;
+  collectedBy?: string;
+  search?: string;
+}

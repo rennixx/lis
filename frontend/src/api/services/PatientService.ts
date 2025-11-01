@@ -55,8 +55,13 @@ class PatientService {
       return {
         success: response.success,
         message: response.message,
-        data: response.data,
-        pagination: response.pagination
+        data: response.data.data,
+        pagination: response.data.pagination || {
+          page: 1,
+          limit: Number(queryParams.limit) || 10,
+          total: 0,
+          pages: 0
+        }
       };
     }
 

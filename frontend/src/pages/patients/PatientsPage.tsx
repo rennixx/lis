@@ -16,7 +16,7 @@ export const PatientsPage: React.FC = () => {
     limit: 10
   });
 
-  const patients = patientsData?.patients || [];
+  const patients = patientsData?.data || [];
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(e.target.value);

@@ -60,6 +60,27 @@ export const ENDPOINTS = {
     SEARCH: '/orders/search',
   },
 
+  // Sample endpoints
+  SAMPLES: {
+    LIST: '/samples',
+    CREATE: '/samples',
+    GET: (id: string) => `/samples/${id}`,
+    UPDATE: (id: string) => `/samples/${id}`,
+    DELETE: (id: string) => `/samples/${id}`,
+    QUEUE: '/samples/queue',
+    STATISTICS: '/samples/statistics',
+    STATUS_COUNTS: '/samples/status-counts',
+    SEARCH: '/samples/search',
+    BARCODE: (barcode: string) => `/samples/barcode/${barcode}`,
+    BULK_STATUS: '/samples/bulk-status',
+    RECEIVE: '/samples/receive',
+    START_PROCESSING: '/samples/start-processing',
+    COMPLETE_PROCESSING: '/samples/complete-processing',
+    PRINT_LABELS: '/samples/print-labels',
+    CONFIRM_COLLECTION: (id: string) => `/samples/${id}/confirm-collection`,
+    GENERATE_BARCODE: (id: string) => `/samples/${id}/barcode`,
+  },
+
   // Result endpoints
   RESULTS: {
     LIST: '/results',
