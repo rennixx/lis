@@ -1,0 +1,433 @@
+import { User, IUser } from '../models/User.model';
+import { CounterModel } from '../models/Counter.model';
+import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
+import { JWTService, jwtConfig } from '../config/jwt.config';
+import { emailService } from './email.service';
+import { ApiError } from '../utils/ApiError';
+import { ApiResponse } from '../utils/ApiResponse';
+import { USER_ROLES } from '../utils/constants';
+import { redisService } from '../config/redis.config';
+import type { LoginRequest, RegisterRequest } from '../types/api.types';
+
+export interface AuthResult {
+  user: IUser;
+  accessToken: string;
+  refreshToken: string;
+}
+
+export class AuthService {
+  // User Registration
+  async register(userData: RegisterRequest): Promise<{ user: IUser }> {
+    const { email, username, password, ...otherData } = userData;
+
+    // Check if user already exists
+    const existingUser = await User.findOne({
+      $or: [{ email: email.toLowerCase() }, { username }]
+    });
+
+    if (existingUser) {
+      throw new ApiError(400, 'User with this email or username already exists');
+    }
+
+    // Hash password
+    const saltRounds = 12;
+    const hashedPassword = await bcrypt.hash(password, saltRounds);
+
+    // Generate MRN for patients
+    let mrn: string | undefined;
+    if (userData.role === USER_ROLES.RECEPTIONIST || !userData.role) {
+      mrn = await this.generateMRN();
+    }
+
+    // Create user
+    const user = await User.create({
+      ...otherData,
+      email: email.toLowerCase(),
+      username,
+      password: hashedPassword,
+      mrn,
+      isVerified: false,
+      isActive: true,
+      lastLogin: new Date()
+    });
+
+    // Remove password from response
+    const userResponse = user.toObject();
+    delete userResponse.password;
+
+    return { user: userResponse };
+  }
+
+  // User Login
+  async login(email: string, password: string): Promise<AuthResult> {
+    // Find user by email
+    const user = await User.findOne({
+      email: email.toLowerCase(),
+      isActive: true
+    }).select('+password');
+
+    if (!user) {
+      throw new ApiError(401, 'Invalid credentials');
+    }
+
+    // Check password
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+
+    if (!isPasswordValid) {
+      throw new ApiError(401, 'Invalid credentials');
+    }
+
+    // Update last login
+    user.lastLogin = new Date();
+    await user.save();
+
+    // Generate tokens
+    const tokens = JWTService.generateTokens({
+      userId: user._id,
+      email: user.email,
+      role: user.role
+    });
+    const accessToken = tokens.accessToken;
+    const refreshToken = tokens.refreshToken;
+
+    // Save refresh token
+    user.refreshTokens = user.refreshTokens || [];
+    user.refreshTokens.push(refreshToken);
+
+    // Keep only last 5 refresh tokens
+    if (user.refreshTokens.length > 5) {
+      user.refreshTokens = user.refreshTokens.slice(-5);
+    }
+
+    await user.save();
+
+    // Remove password from response
+    const userResponse = user.toObject();
+    delete userResponse.password;
+
+    return {
+      user: userResponse,
+      accessToken,
+      refreshToken
+    };
+  }
+
+  // Refresh Access Token
+  async refreshAccessToken(refreshToken: string): Promise<{ accessToken: string }> {
+    try {
+      // Verify refresh token
+      const decoded = JWTService.verifyRefreshToken(refreshToken);
+
+      const user = await User.findOne({
+        _id: decoded.userId,
+        isActive: true,
+        refreshTokens: refreshToken
+      });
+
+      if (!user) {
+        throw new ApiError(401, 'Invalid refresh token');
+      }
+
+      // Generate new access token
+      const accessToken = JWTService.generateAccessToken({
+        userId: user._id,
+        email: user.email,
+        role: user.role
+      });
+
+      return { accessToken };
+    } catch (error) {
+      throw new ApiError(401, 'Invalid refresh token');
+    }
+  }
+
+  // Logout User
+  async logout(userId: string, refreshToken: string): Promise<void> {
+    // Remove refresh token from user's refreshTokens array
+    await User.updateOne(
+      { _id: userId },
+      { $pull: { refreshTokens: refreshToken } }
+    );
+
+    // Blacklist the access token (optional - if we want to immediately invalidate access tokens)
+    // This would require storing all active access tokens, which has privacy implications
+    // For now, we'll just invalidate the refresh token
+  }
+
+  // Blacklist access token on logout
+  async blacklistToken(token: string): Promise<void> {
+    try {
+      // Decode token to get expiry
+      const decoded = jwt.decode(token) as any;
+
+      if (!decoded || !decoded.exp) {
+        return;
+      }
+
+      // Calculate remaining time until token expires
+      const expiryTime = decoded.exp * 1000; // Convert to milliseconds
+      const currentTime = Date.now();
+      const remainingTime = Math.max(0, expiryTime - currentTime);
+
+      if (remainingTime > 0) {
+        // Store blacklisted token in Redis with TTL
+        await redisService.set(`blacklisted_token:${token}`, 'true', Math.ceil(remainingTime / 1000));
+      }
+    } catch (error) {
+      // If we can't decode the token, don't blacklist it
+      console.warn('Failed to decode token for blacklisting:', error);
+    }
+  }
+
+  // Check if token is blacklisted
+  async isTokenBlacklisted(token: string): Promise<boolean> {
+    try {
+      const isBlacklisted = await redisService.get(`blacklisted_token:${token}`);
+      return isBlacklisted === 'true';
+    } catch (error) {
+      return false;
+    }
+  }
+
+  // Get User by ID
+  async getUserById(userId: string): Promise<IUser> {
+    const user = await User.findById(userId);
+
+    if (!user) {
+      throw new ApiError(404, 'User not found');
+    }
+
+    return user;
+  }
+
+  // Update Profile
+  async updateProfile(userId: string, updateData: any): Promise<IUser> {
+    const user = await User.findByIdAndUpdate(
+      userId,
+      {
+        ...updateData,
+        updatedAt: new Date()
+      },
+      { new: true, runValidators: true }
+    );
+
+    if (!user) {
+      throw new ApiError(404, 'User not found');
+    }
+
+    return user;
+  }
+
+  // Change Password
+  async changePassword(userId: string, currentPassword: string, newPassword: string): Promise<void> {
+    const user = await User.findById(userId).select('+password');
+
+    if (!user) {
+      throw new ApiError(404, 'User not found');
+    }
+
+    // Verify current password
+    const isCurrentPasswordValid = await bcrypt.compare(currentPassword, user.password);
+
+    if (!isCurrentPasswordValid) {
+      throw new ApiError(400, 'Current password is incorrect');
+    }
+
+    // Hash new password
+    const saltRounds = 12;
+    const hashedNewPassword = await bcrypt.hash(newPassword, saltRounds);
+
+    // Update password and invalidate all refresh tokens
+    user.password = hashedNewPassword;
+    user.refreshTokens = [];
+    await user.save();
+  }
+
+  // Forgot Password
+  async forgotPassword(email: string): Promise<void> {
+    const user = await User.findOne({ email: email.toLowerCase(), isActive: true });
+
+    if (!user) {
+      // Don't reveal if user exists or not
+      return;
+    }
+
+    // Generate reset token and send email
+    await emailService.sendPasswordResetEmail(email, user._id.toString());
+  }
+
+  // Reset Password
+  async resetPassword(token: string, newPassword: string): Promise<void> {
+    try {
+      const tokenValidation = await emailService.verifyResetToken(token);
+
+      if (!tokenValidation.valid) {
+        throw new ApiError(400, 'Invalid or expired reset token');
+      }
+
+      const user = await User.findById(tokenValidation.userId);
+
+      if (!user) {
+        throw new ApiError(400, 'Invalid or expired reset token');
+      }
+
+      // Hash new password
+      const saltRounds = 12;
+      const hashedNewPassword = await bcrypt.hash(newPassword, saltRounds);
+
+      // Update password and invalidate all refresh tokens
+      user.password = hashedNewPassword;
+      user.refreshTokens = [];
+      await user.save();
+
+      // Invalidate the reset token
+      await emailService.invalidateResetToken(tokenValidation.userId);
+    } catch (error) {
+      throw new ApiError(400, 'Invalid or expired reset token');
+    }
+  }
+
+  // Verify Email
+  async verifyEmail(token: string): Promise<void> {
+    try {
+      const tokenValidation = await emailService.verifyEmailToken(token);
+
+      if (!tokenValidation.valid) {
+        throw new ApiError(400, 'Invalid verification token');
+      }
+
+      const user = await User.findById(tokenValidation.userId);
+
+      if (!user) {
+        throw new ApiError(400, 'Invalid verification token');
+      }
+
+      if (user.isVerified) {
+        throw new ApiError(400, 'Email already verified');
+      }
+
+      user.isVerified = true;
+      await user.save();
+
+      // Invalidate the verification token
+      await emailService.invalidateVerificationToken(tokenValidation.userId);
+    } catch (error) {
+      throw new ApiError(400, 'Invalid or expired verification token');
+    }
+  }
+
+  // Resend Verification Email
+  async resendVerificationEmail(userId: string, email: string): Promise<void> {
+    const user = await User.findById(userId);
+
+    if (!user) {
+      throw new ApiError(404, 'User not found');
+    }
+
+    if (user.isVerified) {
+      throw new ApiError(400, 'Email already verified');
+    }
+
+    // Send verification email
+    await emailService.sendVerificationEmail(email, userId);
+  }
+
+  // Get All Users (Admin only)
+  async getAllUsers(filters: any): Promise<{ users: IUser[]; total: number }> {
+    const {
+      page = 1,
+      limit = 10,
+      search,
+      role,
+      isActive,
+      sortBy = 'createdAt',
+      sortOrder = 'desc'
+    } = filters;
+
+    const skip = (page - 1) * limit;
+    const sort: any = {};
+    sort[sortBy] = sortOrder === 'desc' ? -1 : 1;
+
+    let query: any = {};
+
+    if (search) {
+      query.$or = [
+        { firstName: { $regex: search, $options: 'i' } },
+        { lastName: { $regex: search, $options: 'i' } },
+        { email: { $regex: search, $options: 'i' } },
+        { username: { $regex: search, $options: 'i' } }
+      ];
+    }
+
+    if (role) query.role = role;
+    if (isActive !== undefined) query.isActive = isActive;
+
+    const users = await User.find(query)
+      .sort(sort)
+      .skip(skip)
+      .limit(limit);
+
+    const total = await User.countDocuments(query);
+
+    return { users, total };
+  }
+
+  // Update User Status (Admin only)
+  async updateUserStatus(userId: string, isActive: boolean): Promise<IUser> {
+    const user = await User.findByIdAndUpdate(
+      userId,
+      { isActive, updatedAt: new Date() },
+      { new: true, runValidators: true }
+    );
+
+    if (!user) {
+      throw new ApiError(404, 'User not found');
+    }
+
+    return user;
+  }
+
+  // Update User Role (Admin only)
+  async updateUserRole(userId: string, role: string): Promise<IUser> {
+    const user = await User.findByIdAndUpdate(
+      userId,
+      { role, updatedAt: new Date() },
+      { new: true, runValidators: true }
+    );
+
+    if (!user) {
+      throw new ApiError(404, 'User not found');
+    }
+
+    return user;
+  }
+
+  // Delete User (Admin only)
+  async deleteUser(userId: string): Promise<void> {
+    const user = await User.findById(userId);
+
+    if (!user) {
+      throw new ApiError(404, 'User not found');
+    }
+
+    // Soft delete
+    user.isActive = false;
+    await user.save();
+  }
+
+  
+  private async generateMRN(): Promise<string> {
+    const counter = await CounterModel.findByIdAndUpdate(
+      'patient_mrn',
+      { $inc: { sequence: 1 } },
+      { new: true, upsert: true }
+    );
+
+    const date = new Date();
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+
+    return `PT${year}${month}${String(counter.sequence).padStart(6, '0')}`;
+  }
+}
