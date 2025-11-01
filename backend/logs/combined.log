@@ -130155,3 +130155,318 @@
   message: '🚀 Server started successfully',
   timestamp: '2025-11-01 19:01:25'
 }
+{
+  message: '🔌 Initializing database connection...',
+  level: 'info',
+  service: 'lis-backend',
+  timestamp: '2025-11-01 19:01:58'
+}
+{
+  message: 'MongoDB connection established successfully',
+  level: 'info',
+  service: 'lis-backend',
+  timestamp: '2025-11-01 19:01:58'
+}
+{
+  message: '🔴 Initializing Redis connection...',
+  level: 'info',
+  service: 'lis-backend',
+  timestamp: '2025-11-01 19:01:58'
+}
+{
+  message: '🔗 Redis connection simulated for development',
+  level: 'info',
+  service: 'lis-backend',
+  timestamp: '2025-11-01 19:01:58'
+}
+{
+  service: 'lis-backend',
+  port: 3000,
+  environment: 'development',
+  processId: 17264,
+  level: 'info',
+  message: '🚀 Server started successfully',
+  timestamp: '2025-11-01 19:01:58'
+}
+{
+  message: '::ffff:127.0.0.1 - - [01/Nov/2025:16:02:33 +0000] "GET /api/v1/auth/profile HTTP/1.1" 200 510 "http://localhost:5173/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:144.0) Gecko/20100101 Firefox/144.0"',
+  level: 'info',
+  service: 'lis-backend',
+  timestamp: '2025-11-01 19:02:33'
+}
+{
+  message: '::ffff:127.0.0.1 - - [01/Nov/2025:16:02:33 +0000] "GET /api/v1/auth/profile HTTP/1.1" 200 510 "http://localhost:5173/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:144.0) Gecko/20100101 Firefox/144.0"',
+  level: 'info',
+  service: 'lis-backend',
+  timestamp: '2025-11-01 19:02:33'
+}
+{
+  message: '::ffff:127.0.0.1 - - [01/Nov/2025:16:02:34 +0000] "GET /api/v1/tests/available HTTP/1.1" 304 - "http://localhost:5173/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:144.0) Gecko/20100101 Firefox/144.0"',
+  level: 'info',
+  service: 'lis-backend',
+  timestamp: '2025-11-01 19:02:34'
+}
+{
+  message: '::ffff:127.0.0.1 - - [01/Nov/2025:16:02:34 +0000] "GET /api/v1/tests/panels/popular?limit=5 HTTP/1.1" 304 - "http://localhost:5173/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:144.0) Gecko/20100101 Firefox/144.0"',
+  level: 'info',
+  service: 'lis-backend',
+  timestamp: '2025-11-01 19:02:34'
+}
+{
+  message: '::ffff:127.0.0.1 - - [01/Nov/2025:16:02:34 +0000] "GET /api/v1/patients?limit=10 HTTP/1.1" 200 - "http://localhost:5173/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:144.0) Gecko/20100101 Firefox/144.0"',
+  level: 'info',
+  service: 'lis-backend',
+  timestamp: '2025-11-01 19:02:34'
+}
+{
+  message: '::ffff:127.0.0.1 - - [01/Nov/2025:16:02:35 +0000] "GET /api/v1/tests/available HTTP/1.1" 304 - "http://localhost:5173/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:144.0) Gecko/20100101 Firefox/144.0"',
+  level: 'info',
+  service: 'lis-backend',
+  timestamp: '2025-11-01 19:02:35'
+}
+{
+  message: '::ffff:127.0.0.1 - - [01/Nov/2025:16:02:35 +0000] "GET /api/v1/tests/panels/popular?limit=5 HTTP/1.1" 304 - "http://localhost:5173/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:144.0) Gecko/20100101 Firefox/144.0"',
+  level: 'info',
+  service: 'lis-backend',
+  timestamp: '2025-11-01 19:02:35'
+}
+{
+  message: '::ffff:127.0.0.1 - - [01/Nov/2025:16:02:37 +0000] "GET /api/v1/tests/available HTTP/1.1" 304 - "http://localhost:5173/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:144.0) Gecko/20100101 Firefox/144.0"',
+  level: 'info',
+  service: 'lis-backend',
+  timestamp: '2025-11-01 19:02:37'
+}
+{
+  message: '::ffff:127.0.0.1 - - [01/Nov/2025:16:02:37 +0000] "GET /api/v1/tests/panels/popular?limit=5 HTTP/1.1" 304 - "http://localhost:5173/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:144.0) Gecko/20100101 Firefox/144.0"',
+  level: 'info',
+  service: 'lis-backend',
+  timestamp: '2025-11-01 19:02:37'
+}
+{
+  message: '::ffff:127.0.0.1 - - [01/Nov/2025:16:02:44 +0000] "GET /api/v1/patients?limit=10&search=r HTTP/1.1" 200 - "http://localhost:5173/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:144.0) Gecko/20100101 Firefox/144.0"',
+  level: 'info',
+  service: 'lis-backend',
+  timestamp: '2025-11-01 19:02:44'
+}
+{
+  message: '::ffff:127.0.0.1 - - [01/Nov/2025:16:02:44 +0000] "GET /api/v1/patients?limit=10&search=re HTTP/1.1" 200 - "http://localhost:5173/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:144.0) Gecko/20100101 Firefox/144.0"',
+  level: 'info',
+  service: 'lis-backend',
+  timestamp: '2025-11-01 19:02:44'
+}
+{
+  message: '::ffff:127.0.0.1 - - [01/Nov/2025:16:02:44 +0000] "GET /api/v1/patients?limit=10&search=ren HTTP/1.1" 200 - "http://localhost:5173/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:144.0) Gecko/20100101 Firefox/144.0"',
+  level: 'info',
+  service: 'lis-backend',
+  timestamp: '2025-11-01 19:02:44'
+}
+{
+  message: '::ffff:127.0.0.1 - - [01/Nov/2025:16:02:47 +0000] "GET /api/v1/patients?limit=10&search=ren+ HTTP/1.1" 200 125 "http://localhost:5173/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:144.0) Gecko/20100101 Firefox/144.0"',
+  level: 'info',
+  service: 'lis-backend',
+  timestamp: '2025-11-01 19:02:47'
+}
+{
+  message: '::ffff:127.0.0.1 - - [01/Nov/2025:16:04:52 +0000] "GET /api/v1/patients?limit=10&search=ren HTTP/1.1" 304 - "http://localhost:5173/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:144.0) Gecko/20100101 Firefox/144.0"',
+  level: 'info',
+  service: 'lis-backend',
+  timestamp: '2025-11-01 19:04:52'
+}
+{
+  message: '::ffff:127.0.0.1 - - [01/Nov/2025:16:04:52 +0000] "GET /api/v1/tests/available HTTP/1.1" 304 - "http://localhost:5173/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:144.0) Gecko/20100101 Firefox/144.0"',
+  level: 'info',
+  service: 'lis-backend',
+  timestamp: '2025-11-01 19:04:52'
+}
+{
+  message: '::ffff:127.0.0.1 - - [01/Nov/2025:16:04:52 +0000] "GET /api/v1/tests/panels/popular?limit=5 HTTP/1.1" 304 - "http://localhost:5173/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:144.0) Gecko/20100101 Firefox/144.0"',
+  level: 'info',
+  service: 'lis-backend',
+  timestamp: '2025-11-01 19:04:52'
+}
+{
+  message: '::ffff:127.0.0.1 - - [01/Nov/2025:16:05:19 +0000] "GET /api/v1/tests/available HTTP/1.1" 304 - "http://localhost:5173/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:144.0) Gecko/20100101 Firefox/144.0"',
+  level: 'info',
+  service: 'lis-backend',
+  timestamp: '2025-11-01 19:05:19'
+}
+{
+  message: '::ffff:127.0.0.1 - - [01/Nov/2025:16:05:19 +0000] "GET /api/v1/tests/panels/popular?limit=5 HTTP/1.1" 304 - "http://localhost:5173/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:144.0) Gecko/20100101 Firefox/144.0"',
+  level: 'info',
+  service: 'lis-backend',
+  timestamp: '2025-11-01 19:05:19'
+}
+{
+  message: '::ffff:127.0.0.1 - - [01/Nov/2025:16:05:21 +0000] "GET /api/v1/tests/available HTTP/1.1" 304 - "http://localhost:5173/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:144.0) Gecko/20100101 Firefox/144.0"',
+  level: 'info',
+  service: 'lis-backend',
+  timestamp: '2025-11-01 19:05:21'
+}
+{
+  message: '::ffff:127.0.0.1 - - [01/Nov/2025:16:05:21 +0000] "GET /api/v1/tests/panels/popular?limit=5 HTTP/1.1" 304 - "http://localhost:5173/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:144.0) Gecko/20100101 Firefox/144.0"',
+  level: 'info',
+  service: 'lis-backend',
+  timestamp: '2025-11-01 19:05:21'
+}
+{
+  message: '::ffff:127.0.0.1 - - [01/Nov/2025:16:05:26 +0000] "GET /api/v1/patients?limit=10&search=ren HTTP/1.1" 304 - "http://localhost:5173/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:144.0) Gecko/20100101 Firefox/144.0"',
+  level: 'info',
+  service: 'lis-backend',
+  timestamp: '2025-11-01 19:05:26'
+}
+{
+  message: '::ffff:127.0.0.1 - - [01/Nov/2025:16:05:26 +0000] "GET /api/v1/tests/available HTTP/1.1" 304 - "http://localhost:5173/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:144.0) Gecko/20100101 Firefox/144.0"',
+  level: 'info',
+  service: 'lis-backend',
+  timestamp: '2025-11-01 19:05:26'
+}
+{
+  message: '::ffff:127.0.0.1 - - [01/Nov/2025:16:05:26 +0000] "GET /api/v1/tests/panels/popular?limit=5 HTTP/1.1" 304 - "http://localhost:5173/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:144.0) Gecko/20100101 Firefox/144.0"',
+  level: 'info',
+  service: 'lis-backend',
+  timestamp: '2025-11-01 19:05:26'
+}
+{
+  message: '::ffff:127.0.0.1 - - [01/Nov/2025:16:05:35 +0000] "GET /api/v1/tests/available HTTP/1.1" 304 - "http://localhost:5173/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:144.0) Gecko/20100101 Firefox/144.0"',
+  level: 'info',
+  service: 'lis-backend',
+  timestamp: '2025-11-01 19:05:35'
+}
+{
+  message: '::ffff:127.0.0.1 - - [01/Nov/2025:16:05:35 +0000] "GET /api/v1/tests/panels/popular?limit=5 HTTP/1.1" 304 - "http://localhost:5173/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:144.0) Gecko/20100101 Firefox/144.0"',
+  level: 'info',
+  service: 'lis-backend',
+  timestamp: '2025-11-01 19:05:35'
+}
+{
+  message: '::ffff:127.0.0.1 - - [01/Nov/2025:16:05:37 +0000] "GET /api/v1/tests/available HTTP/1.1" 304 - "http://localhost:5173/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:144.0) Gecko/20100101 Firefox/144.0"',
+  level: 'info',
+  service: 'lis-backend',
+  timestamp: '2025-11-01 19:05:37'
+}
+{
+  message: '::ffff:127.0.0.1 - - [01/Nov/2025:16:05:37 +0000] "GET /api/v1/tests/panels/popular?limit=5 HTTP/1.1" 304 - "http://localhost:5173/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:144.0) Gecko/20100101 Firefox/144.0"',
+  level: 'info',
+  service: 'lis-backend',
+  timestamp: '2025-11-01 19:05:37'
+}
+{
+  message: '::ffff:127.0.0.1 - - [01/Nov/2025:16:05:47 +0000] "GET /api/v1/patients?limit=10&search=re HTTP/1.1" 304 - "http://localhost:5173/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:144.0) Gecko/20100101 Firefox/144.0"',
+  level: 'info',
+  service: 'lis-backend',
+  timestamp: '2025-11-01 19:05:47'
+}
+{
+  message: '::ffff:127.0.0.1 - - [01/Nov/2025:16:05:50 +0000] "GET /api/v1/patients?limit=10&search=ren+ HTTP/1.1" 304 - "http://localhost:5173/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:144.0) Gecko/20100101 Firefox/144.0"',
+  level: 'info',
+  service: 'lis-backend',
+  timestamp: '2025-11-01 19:05:50'
+}
+{
+  message: '::ffff:127.0.0.1 - - [01/Nov/2025:16:05:52 +0000] "GET /api/v1/patients?limit=10&search=r HTTP/1.1" 304 - "http://localhost:5173/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:144.0) Gecko/20100101 Firefox/144.0"',
+  level: 'info',
+  service: 'lis-backend',
+  timestamp: '2025-11-01 19:05:52'
+}
+{
+  message: '::ffff:127.0.0.1 - - [01/Nov/2025:16:05:52 +0000] "GET /api/v1/patients?limit=10 HTTP/1.1" 304 - "http://localhost:5173/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:144.0) Gecko/20100101 Firefox/144.0"',
+  level: 'info',
+  service: 'lis-backend',
+  timestamp: '2025-11-01 19:05:52'
+}
+{
+  message: '::ffff:127.0.0.1 - - [01/Nov/2025:16:05:59 +0000] "GET /api/v1/patients?limit=10&search=ren HTTP/1.1" 304 - "http://localhost:5173/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:144.0) Gecko/20100101 Firefox/144.0"',
+  level: 'info',
+  service: 'lis-backend',
+  timestamp: '2025-11-01 19:05:59'
+}
+{
+  message: '::ffff:127.0.0.1 - - [01/Nov/2025:16:06:21 +0000] "GET /api/v1/auth/profile HTTP/1.1" 304 - "http://localhost:5173/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:144.0) Gecko/20100101 Firefox/144.0"',
+  level: 'info',
+  service: 'lis-backend',
+  timestamp: '2025-11-01 19:06:21'
+}
+{
+  message: '::ffff:127.0.0.1 - - [01/Nov/2025:16:06:21 +0000] "GET /api/v1/auth/profile HTTP/1.1" 200 510 "http://localhost:5173/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:144.0) Gecko/20100101 Firefox/144.0"',
+  level: 'info',
+  service: 'lis-backend',
+  timestamp: '2025-11-01 19:06:21'
+}
+{
+  message: '::ffff:127.0.0.1 - - [01/Nov/2025:16:06:21 +0000] "GET /api/v1/patients?limit=10 HTTP/1.1" 304 - "http://localhost:5173/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:144.0) Gecko/20100101 Firefox/144.0"',
+  level: 'info',
+  service: 'lis-backend',
+  timestamp: '2025-11-01 19:06:21'
+}
+{
+  message: '::ffff:127.0.0.1 - - [01/Nov/2025:16:06:21 +0000] "GET /api/v1/tests/available HTTP/1.1" 304 - "http://localhost:5173/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:144.0) Gecko/20100101 Firefox/144.0"',
+  level: 'info',
+  service: 'lis-backend',
+  timestamp: '2025-11-01 19:06:21'
+}
+{
+  message: '::ffff:127.0.0.1 - - [01/Nov/2025:16:06:21 +0000] "GET /api/v1/tests/panels/popular?limit=5 HTTP/1.1" 304 - "http://localhost:5173/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:144.0) Gecko/20100101 Firefox/144.0"',
+  level: 'info',
+  service: 'lis-backend',
+  timestamp: '2025-11-01 19:06:21'
+}
+{
+  message: '::ffff:127.0.0.1 - - [01/Nov/2025:16:06:22 +0000] "GET /api/v1/tests/available HTTP/1.1" 304 - "http://localhost:5173/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:144.0) Gecko/20100101 Firefox/144.0"',
+  level: 'info',
+  service: 'lis-backend',
+  timestamp: '2025-11-01 19:06:22'
+}
+{
+  message: '::ffff:127.0.0.1 - - [01/Nov/2025:16:06:22 +0000] "GET /api/v1/tests/panels/popular?limit=5 HTTP/1.1" 304 - "http://localhost:5173/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:144.0) Gecko/20100101 Firefox/144.0"',
+  level: 'info',
+  service: 'lis-backend',
+  timestamp: '2025-11-01 19:06:22'
+}
+{
+  message: '::ffff:127.0.0.1 - - [01/Nov/2025:16:06:23 +0000] "GET /api/v1/patients?limit=10&search=r HTTP/1.1" 304 - "http://localhost:5173/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:144.0) Gecko/20100101 Firefox/144.0"',
+  level: 'info',
+  service: 'lis-backend',
+  timestamp: '2025-11-01 19:06:23'
+}
+{
+  message: '::ffff:127.0.0.1 - - [01/Nov/2025:16:06:23 +0000] "GET /api/v1/patients?limit=10&search=re HTTP/1.1" 304 - "http://localhost:5173/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:144.0) Gecko/20100101 Firefox/144.0"',
+  level: 'info',
+  service: 'lis-backend',
+  timestamp: '2025-11-01 19:06:23'
+}
+{
+  message: '::ffff:127.0.0.1 - - [01/Nov/2025:16:06:23 +0000] "GET /api/v1/patients?limit=10&search=ren HTTP/1.1" 304 - "http://localhost:5173/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:144.0) Gecko/20100101 Firefox/144.0"',
+  level: 'info',
+  service: 'lis-backend',
+  timestamp: '2025-11-01 19:06:23'
+}
+{
+  message: '::ffff:127.0.0.1 - - [01/Nov/2025:16:06:24 +0000] "GET /api/v1/tests/available HTTP/1.1" 304 - "http://localhost:5173/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:144.0) Gecko/20100101 Firefox/144.0"',
+  level: 'info',
+  service: 'lis-backend',
+  timestamp: '2025-11-01 19:06:24'
+}
+{
+  message: '::ffff:127.0.0.1 - - [01/Nov/2025:16:06:24 +0000] "GET /api/v1/tests/panels/popular?limit=5 HTTP/1.1" 304 - "http://localhost:5173/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:144.0) Gecko/20100101 Firefox/144.0"',
+  level: 'info',
+  service: 'lis-backend',
+  timestamp: '2025-11-01 19:06:24'
+}
+{
+  message: '::ffff:127.0.0.1 - - [01/Nov/2025:16:17:04 +0000] "GET /api/v1/tests/available HTTP/1.1" 304 - "http://localhost:5173/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:144.0) Gecko/20100101 Firefox/144.0"',
+  level: 'info',
+  service: 'lis-backend',
+  timestamp: '2025-11-01 19:17:04'
+}
+{
+  message: '::ffff:127.0.0.1 - - [01/Nov/2025:16:17:04 +0000] "GET /api/v1/tests/panels/popular?limit=5 HTTP/1.1" 304 - "http://localhost:5173/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:144.0) Gecko/20100101 Firefox/144.0"',
+  level: 'info',
+  service: 'lis-backend',
+  timestamp: '2025-11-01 19:17:04'
+}
+{
+  message: '::ffff:127.0.0.1 - - [01/Nov/2025:16:17:04 +0000] "GET /api/v1/patients?limit=10&search=ren HTTP/1.1" 304 - "http://localhost:5173/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:144.0) Gecko/20100101 Firefox/144.0"',
+  level: 'info',
+  service: 'lis-backend',
+  timestamp: '2025-11-01 19:17:04'
+}

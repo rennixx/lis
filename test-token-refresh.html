@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Token Refresh</title>
+</head>
+<body>
+    <h1>Token Refresh Test</h1>
+    <button onclick="checkTokens()">Check Tokens</button>
+    <button onclick="testRefresh()">Test Refresh</button>
+    <button onclick="clearTokens()">Clear Tokens</button>
+
+    <div id="output" style="margin-top: 20px; font-family: monospace; white-space: pre-wrap;"></div>
+
+    <script>
+        const API_BASE_URL = 'http://localhost:3000/api/v1';
+
+        function log(message) {
+            const output = document.getElementById('output');
+            output.textContent += new Date().toLocaleTimeString() + ': ' + message + '\n';
+        }
+
+        function checkTokens() {
+            log('=== Checking Tokens ===');
+            const authToken = localStorage.getItem('lis_auth_token');
+            const refreshToken = localStorage.getItem('lis_refresh_token');
+            const user = localStorage.getItem('lis_user');
+
+            log('Auth Token: ' + (authToken ? 'Present (first 10 chars: ' + authToken.substring(0, 10) + '...)' : 'Missing'));
+            log('Refresh Token: ' + (refreshToken ? 'Present (first 10 chars: ' + refreshToken.substring(0, 10) + '...)' : 'Missing'));
+            log('User Data: ' + (user ? 'Present' : 'Missing'));
+
+            if (authToken) {
+                try {
+                    const payload = JSON.parse(atob(authToken.split('.')[1]));
+                    log('Auth Token Payload:');
+                    log('  User ID: ' + payload.userId);
+                    log('  Email: ' + payload.email);
+                    log('  Role: ' + payload.role);
+                    log('  Issued At: ' + new Date(payload.iat * 1000).toLocaleString());
+                    log('  Expires At: ' + new Date(payload.exp * 1000).toLocaleString());
+                    log('  Is Expired: ' + (Date.now() / 1000 > payload.exp));
+                } catch (e) {
+                    log('Error parsing auth token: ' + e.message);
+                }
+            }
+
+            if (refreshToken) {
+                try {
+                    const payload = JSON.parse(atob(refreshToken.split('.')[1]));
+                    log('Refresh Token Payload:');
+                    log('  User ID: ' + payload.userId);
+                    log('  Issued At: ' + new Date(payload.iat * 1000).toLocaleString());
+                    log('  Expires At: ' + new Date(payload.exp * 1000).toLocaleString());
+                    log('  Is Expired: ' + (Date.now() / 1000 > payload.exp));
+                } catch (e) {
+                    log('Error parsing refresh token: ' + e.message);
+                }
+            }
+        }
+
+        async function testRefresh() {
+            log('=== Testing Token Refresh ===');
+            const refreshToken = localStorage.getItem('lis_refresh_token');
+
+            if (!refreshToken) {
+                log('❌ No refresh token available');
+                return;
+            }
+
+            try {
+                log('🔄 Sending refresh request to: ' + API_BASE_URL + '/auth/refresh');
+
+                const response = await fetch(API_BASE_URL + '/auth/refresh', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ refreshToken })
+                });
+
+                log('📡 Response status: ' + response.status);
+                log('📡 Response ok: ' + response.ok);
+
+                const data = await response.json();
+                log('📡 Response data:');
+                log(JSON.stringify(data, null, 2));
+
+                if (response.ok && data.data && data.data.accessToken) {
+                    localStorage.setItem('lis_auth_token', data.data.accessToken);
+                    log('✅ New access token stored successfully');
+                } else {
+                    log('❌ Refresh failed: ' + (data.message || 'Unknown error'));
+                }
+            } catch (error) {
+                log('❌ Network error: ' + error.message);
+            }
+        }
+
+        function clearTokens() {
+            log('=== Clearing Tokens ===');
+            localStorage.removeItem('lis_auth_token');
+            localStorage.removeItem('lis_refresh_token');
+            localStorage.removeItem('lis_user');
+            log('✅ All tokens cleared');
+        }
+
+        // Check tokens on page load
+        log('Token Refresh Test Tool Loaded');
+        checkTokens();
+    </script>
+</body>
+</html>
