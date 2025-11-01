@@ -12,3 +12,5 @@ logs/
 .idea/
 *.tgz
 *.tar.gz
+test-token-refresh.html
+.claude
