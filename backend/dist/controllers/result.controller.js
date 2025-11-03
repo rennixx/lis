@@ -3,10 +3,14 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.ResultController = void 0;
 const result_validator_1 = require("../validators/result.validator");
 const result_service_1 = require("../services/result.service");
+const pdfResult_service_1 = require("../services/pdfResult.service");
+const gridfs_1 = require("../utils/gridfs");
 const asyncHandler_1 = require("../utils/asyncHandler");
 const ApiResponse_1 = require("../utils/ApiResponse");
 const ApiError_1 = require("../utils/ApiError");
+const result_schema_1 = require("../schemas/result.schema");
 const resultService = new result_service_1.ResultService();
+const pdfResultService = new pdfResult_service_1.PDFResultService();
 class ResultController {
     constructor() {
         this.createResult = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
@@ -35,6 +39,9 @@ class ResultController {
                 sortOrder: sortOrder
             };
             const result = await resultService.getAllResults(filters);
+            res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+            res.setHeader('Pragma', 'no-cache');
+            res.setHeader('Expires', '0');
             return res.status(200).json(new ApiResponse_1.ApiResponse(200, 'Results retrieved successfully', {
                 data: {
                     results: result.results,
@@ -179,6 +186,229 @@ class ResultController {
             return res.status(200).json(new ApiResponse_1.ApiResponse(200, 'Results search completed', {
                 data: results
             }));
+        });
+        this.bulkCreateResults = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
+            const { results } = req.body;
+            const userId = req.user.id;
+            const createdResults = await resultService.createBulkResults(results, userId);
+            return res.status(201).json(new ApiResponse_1.ApiResponse(201, 'Bulk results created successfully', {
+                data: createdResults
+            }));
+        });
+        this.generateResultPDF = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
+            const { resultId } = req.params;
+            const { template = 'standard', includePatientInfo = true, includeLabInfo = true } = req.body;
+            console.log(`🔧 [RESULT PDF] Generating PDF for result: ${resultId}`);
+            const result = await result_schema_1.Result.findById(resultId)
+                .populate('patient')
+                .populate('order')
+                .populate('test')
+                .populate('enteredBy', 'firstName lastName')
+                .populate('verifiedBy', 'firstName lastName')
+                .lean();
+            if (!result) {
+                console.log(`❌ [RESULT PDF] Result not found: ${resultId}`);
+                throw new ApiError_1.ApiError(404, 'Result not found');
+            }
+            console.log(`✅ [RESULT PDF] Result found: ${result.testName}`);
+            if (result.pdfFileId) {
+                console.log(`🔧 [RESULT PDF] PDF already exists for result: ${resultId}`);
+                return res.status(200).json(new ApiResponse_1.ApiResponse(200, 'PDF already exists for this result', {
+                    pdfFileId: result.pdfFileId,
+                    message: 'PDF already generated'
+                }));
+            }
+            try {
+                const pdfGenerationPromise = pdfResultService.generateResultPDF({
+                    result,
+                    patient: result.patient,
+                    order: result.order,
+                    test: result.test
+                }, {
+                    template,
+                    includePatientInfo,
+                    includeLabInfo
+                });
+                const timeoutPromise = new Promise((_, reject) => {
+                    setTimeout(() => reject(new Error('PDF generation timeout')), 25000);
+                });
+                const pdfResult = await Promise.race([pdfGenerationPromise, timeoutPromise]);
+                console.log(`✅ [RESULT PDF] PDF generated successfully for result: ${resultId}`);
+                let pdfFileId = null;
+                try {
+                    const uploadPromise = (0, gridfs_1.uploadPDFToGridFS)(pdfResult.fileBuffer, pdfResult.filename, {
+                        resultId: result._id.toString(),
+                        template,
+                        generatedBy: req.user?.id,
+                        generatedAt: new Date(),
+                        fileSize: pdfResult.fileSize
+                    });
+                    const uploadTimeoutPromise = new Promise((_, reject) => {
+                        setTimeout(() => reject(new Error('GridFS upload timeout')), 20000);
+                    });
+                    pdfFileId = await Promise.race([uploadPromise, uploadTimeoutPromise]);
+                    console.log(`✅ [RESULT PDF] PDF uploaded to GridFS: ${pdfFileId}`);
+                }
+                catch (uploadError) {
+                    console.warn(`⚠️ [RESULT PDF] GridFS upload failed, returning PDF directly:`, uploadError);
+                    res.setHeader('Content-Type', 'application/pdf');
+                    res.setHeader('Content-Disposition', `attachment; filename="${pdfResult.filename}"`);
+                    res.setHeader('Content-Length', pdfResult.fileSize);
+                    return res.send(pdfResult.fileBuffer);
+                }
+                await result_schema_1.Result.findByIdAndUpdate(resultId, {
+                    pdfFileId,
+                    pdfGeneration: {
+                        generatedAt: new Date(),
+                        pdfVersion: '1.0',
+                        generationTime: Date.now() - Date.now(),
+                        templateUsed: template
+                    }
+                });
+                console.log(`🔧 [RESULT PDF] Result updated with PDF file ID: ${pdfFileId}`);
+                return res.status(200).json(new ApiResponse_1.ApiResponse(200, 'Result PDF generated successfully', {
+                    pdfFileId,
+                    filename: pdfResult.filename,
+                    fileSize: pdfResult.fileSize,
+                    message: 'PDF generated and saved successfully'
+                }));
+            }
+            catch (error) {
+                console.error(`❌ [RESULT PDF] PDF generation failed for result: ${resultId}`, error);
+                throw new ApiError_1.ApiError(500, 'Failed to generate result PDF');
+            }
+        });
+        this.downloadResultPDF = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
+            const { resultId } = req.params;
+            console.log(`🔧 [RESULT PDF] Downloading PDF for result: ${resultId}`);
+            const result = await result_schema_1.Result.findById(resultId);
+            if (!result) {
+                console.log(`❌ [RESULT PDF] Result not found: ${resultId}`);
+                throw new ApiError_1.ApiError(404, 'Result not found');
+            }
+            let pdfBuffer;
+            let filename;
+            try {
+                if (result.pdfFileId) {
+                    try {
+                        pdfBuffer = await (0, gridfs_1.downloadPDFFromGridFS)(result.pdfFileId);
+                        console.log(`🔧 [RESULT PDF] PDF downloaded from GridFS successfully`);
+                        filename = `Result_${result.testCode || result.testName}_${new Date().toISOString().split('T')[0]}.pdf`;
+                    }
+                    catch (gridfsError) {
+                        console.warn(`🔧 [RESULT PDF] GridFS download failed, generating PDF on-demand:`, gridfsError);
+                        const populatedResult = await result_schema_1.Result.findById(resultId)
+                            .populate('patient')
+                            .populate('order')
+                            .populate('test')
+                            .lean();
+                        const pdfResult = await pdfResultService.generateResultPDF({
+                            result: populatedResult,
+                            patient: populatedResult.patient,
+                            order: populatedResult.order,
+                            test: populatedResult.test
+                        }, { template: 'standard' });
+                        pdfBuffer = pdfResult.fileBuffer;
+                        filename = pdfResult.filename;
+                        console.log(`🔧 [RESULT PDF] PDF generated on-demand successfully`);
+                    }
+                }
+                else {
+                    console.log(`🔧 [RESULT PDF] No PDF exists, generating on-demand`);
+                    const populatedResult = await result_schema_1.Result.findById(resultId)
+                        .populate('patient')
+                        .populate('order')
+                        .populate('test')
+                        .lean();
+                    const pdfResult = await pdfResultService.generateResultPDF({
+                        result: populatedResult,
+                        patient: populatedResult.patient,
+                        order: populatedResult.order,
+                        test: populatedResult.test
+                    }, { template: 'standard' });
+                    pdfBuffer = pdfResult.fileBuffer;
+                    filename = pdfResult.filename;
+                    console.log(`🔧 [RESULT PDF] PDF generated on-demand successfully`);
+                }
+                res.setHeader('Content-Type', 'application/pdf');
+                res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+                res.setHeader('Content-Length', pdfBuffer.length);
+                res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+                res.setHeader('Pragma', 'no-cache');
+                res.setHeader('Expires', '0');
+                console.log(`🔧 [RESULT PDF] Sending PDF buffer (${pdfBuffer.length} bytes)`);
+                return res.send(pdfBuffer);
+            }
+            catch (error) {
+                console.error(`❌ [RESULT PDF] Failed to download PDF for result: ${resultId}`, error);
+                throw new ApiError_1.ApiError(500, 'Failed to download result PDF');
+            }
+        });
+        this.viewResultPDF = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
+            const { resultId } = req.params;
+            console.log(`🔧 [RESULT PDF] Viewing PDF for result: ${resultId}`);
+            const result = await result_schema_1.Result.findById(resultId);
+            if (!result) {
+                console.log(`❌ [RESULT PDF] Result not found: ${resultId}`);
+                throw new ApiError_1.ApiError(404, 'Result not found');
+            }
+            let pdfBuffer;
+            let filename;
+            try {
+                if (result.pdfFileId) {
+                    try {
+                        pdfBuffer = await (0, gridfs_1.downloadPDFFromGridFS)(result.pdfFileId);
+                        console.log(`🔧 [RESULT PDF] PDF downloaded from GridFS successfully`);
+                        filename = `Result_${result.testCode || result.testName}_${new Date().toISOString().split('T')[0]}.pdf`;
+                    }
+                    catch (gridfsError) {
+                        console.warn(`🔧 [RESULT PDF] GridFS download failed, generating PDF on-demand:`, gridfsError);
+                        const populatedResult = await result_schema_1.Result.findById(resultId)
+                            .populate('patient')
+                            .populate('order')
+                            .populate('test')
+                            .lean();
+                        const pdfResult = await pdfResultService.generateResultPDF({
+                            result: populatedResult,
+                            patient: populatedResult.patient,
+                            order: populatedResult.order,
+                            test: populatedResult.test
+                        }, { template: 'standard' });
+                        pdfBuffer = pdfResult.fileBuffer;
+                        filename = pdfResult.filename;
+                        console.log(`🔧 [RESULT PDF] PDF generated on-demand successfully`);
+                    }
+                }
+                else {
+                    console.log(`🔧 [RESULT PDF] No PDF exists, generating on-demand`);
+                    const populatedResult = await result_schema_1.Result.findById(resultId)
+                        .populate('patient')
+                        .populate('order')
+                        .populate('test')
+                        .lean();
+                    const pdfResult = await pdfResultService.generateResultPDF({
+                        result: populatedResult,
+                        patient: populatedResult.patient,
+                        order: populatedResult.order,
+                        test: populatedResult.test
+                    }, { template: 'standard' });
+                    pdfBuffer = pdfResult.fileBuffer;
+                    filename = pdfResult.filename;
+                    console.log(`🔧 [RESULT PDF] PDF generated on-demand successfully`);
+                }
+                res.setHeader('Content-Type', 'application/pdf');
+                res.setHeader('Content-Disposition', `inline; filename="${filename}"`);
+                res.setHeader('Content-Length', pdfBuffer.length);
+                res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+                res.setHeader('Pragma', 'no-cache');
+                res.setHeader('Expires', '0');
+                console.log(`🔧 [RESULT PDF] Sending PDF buffer for inline viewing (${pdfBuffer.length} bytes)`);
+                return res.send(pdfBuffer);
+            }
+            catch (error) {
+                console.error(`❌ [RESULT PDF] Failed to view PDF for result: ${resultId}`, error);
+                throw new ApiError_1.ApiError(500, 'Failed to view result PDF');
+            }
         });
     }
 }

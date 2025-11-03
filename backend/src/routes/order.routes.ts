@@ -41,4 +41,7 @@ router.patch('/bulk-status', authorize('admin', 'lab_technician'), validateReque
 router.get('/patient/:patientId', authorize('admin', 'doctor', 'lab_technician', 'nurse', 'receptionist'), orderController.getOrdersByPatient);
 router.get('/doctor/:doctorId', authorize('admin', 'doctor'), orderController.getOrdersByDoctor);
 
+// Pending tests for result entry
+router.get('/:orderId/pending-tests', authorize('admin', 'lab_technician'), orderController.getPendingTests);
+
 export default router;

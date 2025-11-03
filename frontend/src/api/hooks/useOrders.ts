@@ -11,6 +11,7 @@ export const orderKeys = {
   detail: (id: string) => [...orderKeys.details(), id] as const,
   statistics: () => [...orderKeys.all, 'statistics'] as const,
   recent: () => [...orderKeys.all, 'recent'] as const,
+  pendingTests: (id: string) => [...orderKeys.all, 'pendingTests', id] as const,
 };
 
 // Get orders list
@@ -240,5 +241,16 @@ export const useUpdatePaymentStatus = () => {
     onError: (error) => {
       console.error('Failed to update payment status:', error);
     },
+  });
+};
+
+// Get pending tests for result entry
+export const usePendingTests = (orderId: string, enabled = true) => {
+  return useQuery({
+    queryKey: orderKeys.pendingTests(orderId),
+    queryFn: () => orderService.getPendingTests(orderId),
+    enabled: enabled && !!orderId,
+    staleTime: 30 * 1000, // 30 seconds
+    retry: 2,
   });
 };

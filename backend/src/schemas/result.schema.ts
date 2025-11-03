@@ -55,6 +55,13 @@ export interface IResult extends Document {
     accepted?: boolean;
   };
   isActive: boolean;
+  pdfFileId?: Types.ObjectId;
+  pdfGeneration?: {
+    generatedAt?: Date;
+    pdfVersion?: string;
+    generationTime?: number;
+    templateUsed?: string;
+  };
   createdAt: Date;
   updatedAt: Date;
 }
@@ -93,7 +100,7 @@ const ResultSchema: Schema = new Schema({
   order: {
     type: Schema.Types.ObjectId,
     ref: 'Order',
-    required: true,
+    required: false,
     index: true
   },
   orderNumber: {
@@ -103,7 +110,7 @@ const ResultSchema: Schema = new Schema({
   test: {
     type: Schema.Types.ObjectId,
     ref: 'Test',
-    required: true,
+    required: false,
     index: true
   },
   testCode: {
@@ -118,7 +125,7 @@ const ResultSchema: Schema = new Schema({
   patient: {
     type: Schema.Types.ObjectId,
     ref: 'Patient',
-    required: true,
+    required: false,
     index: true
   },
   patientName: {
@@ -195,7 +202,7 @@ const ResultSchema: Schema = new Schema({
   enteredBy: {
     type: Schema.Types.ObjectId,
     ref: 'User',
-    required: true,
+    required: false,
     index: true
   },
   enteredByUser: {
@@ -261,6 +268,16 @@ const ResultSchema: Schema = new Schema({
     type: Boolean,
     default: true,
     index: true
+  },
+  pdfFileId: {
+    type: Schema.Types.ObjectId,
+    ref: 'fs.files'
+  },
+  pdfGeneration: {
+    generatedAt: Date,
+    pdfVersion: { type: String, default: '1.0' },
+    generationTime: Number,
+    templateUsed: { type: String, default: 'standard' }
   }
 }, {
   timestamps: true,

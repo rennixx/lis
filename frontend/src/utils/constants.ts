@@ -256,6 +256,12 @@ export const NAVIGATION_ITEMS = [
     roles: ['admin', 'doctor', 'lab_technician', 'nurse'],
   },
   {
+    title: 'Verify Results',
+    href: '/results/verify',
+    icon: 'check-circle',
+    roles: ['admin', 'lab_technician'],
+  },
+  {
     title: 'Reports',
     href: '/reports',
     icon: 'file-text',

@@ -168,6 +168,15 @@ class OrderService {
     }
     throw new Error(response.message || 'Failed to update payment status');
   }
+
+  // Get pending tests for result entry
+  async getPendingTests(orderId: string): Promise<any> {
+    const response = await apiGet<ApiResponse<any>>(this.baseUrl.PENDING_TESTS(orderId));
+    if (response.success && response.data?.data) {
+      return response.data.data;
+    }
+    throw new Error(response.message || 'Failed to get pending tests');
+  }
 }
 
 export const orderService = new OrderService();

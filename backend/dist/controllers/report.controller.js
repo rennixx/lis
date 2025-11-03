@@ -1,7 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ReportController = void 0;
-const report_validator_1 = require("../validators/report.validator");
 const report_service_1 = require("../services/report.service");
 const asyncHandler_1 = require("../utils/asyncHandler");
 const ApiResponse_1 = require("../utils/ApiResponse");
@@ -9,31 +8,86 @@ const ApiError_1 = require("../utils/ApiError");
 const reportService = new report_service_1.ReportService();
 class ReportController {
     constructor() {
-        this.createReport = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
-            const validatedData = report_validator_1.ReportZodSchema.create.parse(req.body);
-            validatedData.generatedBy = req.user.id;
-            const report = await reportService.createReport(validatedData);
-            return res.status(201).json(new ApiResponse_1.ApiResponse(201, 'Report created successfully', {
+        this.generateReportFromOrder = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
+            const { orderId } = req.params;
+            const { template, includeBarcode, includeQR } = req.body;
+            const userId = req.user.id;
+            const userName = `${req.user.firstName} ${req.user.lastName}`;
+            const options = {
+                template: template || 'standard',
+                includeBarcode: includeBarcode || false,
+                includeQR: includeQR || false,
+                autoGeneratePDF: true
+            };
+            const report = await reportService.generateReportFromOrder(orderId, userId, userName, options);
+            return res.status(201).json(new ApiResponse_1.ApiResponse(201, 'Report generated successfully', {
                 data: report
             }));
         });
+        this.generatePDFForReport = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
+            const { reportId } = req.params;
+            const { template, includeBarcode, includeQR } = req.body;
+            const options = {
+                template: template || 'standard',
+                includeBarcode: includeBarcode || false,
+                includeQR: includeQR || false
+            };
+            const result = await reportService.generatePDFForReport(reportId, options);
+            return res.status(200).json(new ApiResponse_1.ApiResponse(200, 'PDF generated successfully', {
+                data: result
+            }));
+        });
+        this.downloadReportPDF = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
+            const { reportId } = req.params;
+            const { pdfBuffer, filename } = await reportService.downloadReportPDF(reportId);
+            res.setHeader('Content-Type', 'application/pdf');
+            res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+            res.setHeader('Content-Length', pdfBuffer.length);
+            res.send(pdfBuffer);
+        });
+        this.viewReportPDF = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
+            const { reportId } = req.params;
+            const { pdfBuffer, filename } = await reportService.downloadReportPDF(reportId);
+            res.setHeader('Content-Type', 'application/pdf');
+            res.setHeader('Content-Disposition', `inline; filename="${filename}"`);
+            res.setHeader('Content-Length', pdfBuffer.length);
+            res.send(pdfBuffer);
+        });
+        this.generateBulkReports = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
+            const { orderIds, template, includeBarcode, includeQR } = req.body;
+            const userId = req.user.id;
+            const userName = `${req.user.firstName} ${req.user.lastName}`;
+            if (!orderIds || !Array.isArray(orderIds) || orderIds.length === 0) {
+                throw new ApiError_1.ApiError(400, 'Order IDs array is required');
+            }
+            const options = {
+                template: template || 'standard',
+                includeBarcode: includeBarcode || false,
+                includeQR: includeQR || false
+            };
+            const results = await reportService.generateBulkReports(orderIds, userId, userName, options);
+            return res.status(200).json(new ApiResponse_1.ApiResponse(200, 'Bulk reports generation completed', {
+                data: results
+            }));
+        });
         this.getAllReports = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
-            const { page = 1, limit = 10, search, status, type, patientId, doctorId, confidentialityLevel, startDate, endDate, sortBy = 'createdAt', sortOrder = 'desc' } = req.query;
+            const { page = 1, limit = 20, patientId, doctorId, status, type, dateFrom, dateTo, sortBy = 'createdAt', sortOrder = 'desc' } = req.query;
             const filters = {
                 page: parseInt(page),
                 limit: parseInt(limit),
-                search: search,
-                status: status,
-                type: type,
                 patientId: patientId,
                 doctorId: doctorId,
-                confidentialityLevel: confidentialityLevel,
-                startDate: startDate,
-                endDate: endDate,
+                status: status,
+                type: type,
+                dateFrom: dateFrom ? new Date(dateFrom) : undefined,
+                dateTo: dateTo ? new Date(dateTo) : undefined,
                 sortBy: sortBy,
                 sortOrder: sortOrder
             };
-            const result = await reportService.getAllReports(filters);
+            const result = await reportService.getReports(filters);
+            res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+            res.setHeader('Pragma', 'no-cache');
+            res.setHeader('Expires', '0');
             return res.status(200).json(new ApiResponse_1.ApiResponse(200, 'Reports retrieved successfully', {
                 data: {
                     reports: result.reports,
@@ -41,7 +95,7 @@ class ReportController {
                         page: filters.page,
                         limit: filters.limit,
                         total: result.total,
-                        pages: Math.ceil(result.total / filters.limit)
+                        pages: result.pages
                     }
                 }
             }));
@@ -53,121 +107,63 @@ class ReportController {
                 data: report
             }));
         });
-        this.getReportByNumber = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
-            const { reportNumber } = req.params;
-            const report = await reportService.getReportByNumber(reportNumber);
-            return res.status(200).json(new ApiResponse_1.ApiResponse(200, 'Report retrieved successfully', {
-                data: report
-            }));
-        });
-        this.updateReport = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
+        this.updateReportStatus = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
             const { reportId } = req.params;
-            const validatedData = report_validator_1.ReportZodSchema.update.parse(req.body);
-            const updatedReport = await reportService.updateReport(reportId, validatedData);
-            return res.status(200).json(new ApiResponse_1.ApiResponse(200, 'Report updated successfully', {
-                data: updatedReport
-            }));
-        });
-        this.updateReportSections = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
-            const { reportId } = req.params;
-            const { sections } = report_validator_1.ReportZodSchema.updateSections.parse(req.body);
-            const report = await reportService.updateReportSections(reportId, sections);
-            return res.status(200).json(new ApiResponse_1.ApiResponse(200, 'Report sections updated successfully', {
-                data: report
-            }));
-        });
-        this.updateReportContent = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
-            const { reportId } = req.params;
-            const validatedData = report_validator_1.ReportZodSchema.updateContent.parse(req.body);
-            const report = await reportService.updateReportContent(reportId, validatedData);
-            return res.status(200).json(new ApiResponse_1.ApiResponse(200, 'Report content updated successfully', {
-                data: report
-            }));
-        });
-        this.approveReport = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
-            const { reportId } = req.params;
+            const { status, notes } = req.body;
             const userId = req.user.id;
             const userName = `${req.user.firstName} ${req.user.lastName}`;
-            const report = await reportService.approveReport(reportId, userId, userName);
-            return res.status(200).json(new ApiResponse_1.ApiResponse(200, 'Report approved successfully', {
+            if (!status) {
+                throw new ApiError_1.ApiError(400, 'Status is required');
+            }
+            const report = await reportService.updateReportStatus(reportId, status, userId, userName, notes);
+            return res.status(200).json(new ApiResponse_1.ApiResponse(200, 'Report status updated successfully', {
                 data: report
             }));
         });
-        this.deliverReport = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
+        this.deleteReport = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
             const { reportId } = req.params;
-            const { method } = report_validator_1.ReportZodSchema.deliver.parse(req.body);
-            const userId = req.user.id;
-            const report = await reportService.deliverReport(reportId, userId, method);
-            return res.status(200).json(new ApiResponse_1.ApiResponse(200, 'Report delivered successfully', {
-                data: report
-            }));
-        });
-        this.rejectReport = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
-            const { reportId } = req.params;
-            const { reason } = report_validator_1.ReportZodSchema.reject.parse(req.body);
-            const userId = req.user.id;
-            const report = await reportService.rejectReport(reportId, userId, reason);
-            return res.status(200).json(new ApiResponse_1.ApiResponse(200, 'Report rejected successfully', {
-                data: report
-            }));
-        });
-        this.archiveReport = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
-            const { reportId } = req.params;
-            const report = await reportService.archiveReport(reportId);
-            return res.status(200).json(new ApiResponse_1.ApiResponse(200, 'Report archived successfully', {
-                data: report
-            }));
-        });
-        this.amendReport = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
-            const { reportId } = req.params;
-            const { reason, changes } = report_validator_1.ReportZodSchema.amend.parse(req.body);
-            const userId = req.user.id;
-            const report = await reportService.amendReport(reportId, userId, reason, changes);
-            return res.status(201).json(new ApiResponse_1.ApiResponse(201, 'Report amended successfully', {
-                data: report
-            }));
-        });
-        this.getReportsByPatient = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
-            const { patientId } = req.params;
-            const { limit = 50 } = req.query;
-            const reports = await reportService.getReportsByPatient(patientId, parseInt(limit));
-            return res.status(200).json(new ApiResponse_1.ApiResponse(200, 'Reports by patient retrieved', {
-                data: reports
-            }));
-        });
-        this.getReportsByDoctor = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
-            const { doctorId } = req.params;
-            const { limit = 50 } = req.query;
-            const reports = await reportService.getReportsByDoctor(doctorId, parseInt(limit));
-            return res.status(200).json(new ApiResponse_1.ApiResponse(200, 'Reports by doctor retrieved', {
-                data: reports
-            }));
-        });
-        this.getPendingApprovalReports = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
-            const { limit = 20 } = req.query;
-            const reports = await reportService.getPendingApprovalReports(parseInt(limit));
-            return res.status(200).json(new ApiResponse_1.ApiResponse(200, 'Pending approval reports retrieved', {
-                data: reports
-            }));
-        });
-        this.getDeliveredReports = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
-            const { days = 30, limit = 50 } = req.query;
-            const reports = await reportService.getDeliveredReports(parseInt(days), parseInt(limit));
-            return res.status(200).json(new ApiResponse_1.ApiResponse(200, 'Delivered reports retrieved', {
-                data: reports
+            const result = await reportService.deleteReport(reportId);
+            return res.status(200).json(new ApiResponse_1.ApiResponse(200, 'Report deleted successfully', {
+                data: { deleted: result }
             }));
         });
         this.getReportStatistics = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
             const { startDate, endDate } = req.query;
-            let dateRange;
+            let dateFilter = { isActive: true };
             if (startDate && endDate) {
-                dateRange = {
-                    start: new Date(startDate),
-                    end: new Date(endDate)
+                dateFilter.createdAt = {
+                    $gte: new Date(startDate),
+                    $lte: new Date(endDate)
                 };
             }
-            const statistics = await reportService.getReportStatistics(dateRange);
-            return res.status(200).json(new ApiResponse_1.ApiResponse(200, 'Report statistics retrieved', {
+            const Report = require('../schemas/report.schema').Report;
+            const reports = await Report.find(dateFilter).lean();
+            const statistics = {
+                total: reports.length,
+                draft: reports.filter(r => r.status === 'draft').length,
+                pendingReview: reports.filter(r => r.status === 'pending_review').length,
+                approved: reports.filter(r => r.status === 'approved').length,
+                delivered: reports.filter(r => r.status === 'delivered').length,
+                rejected: reports.filter(r => r.status === 'rejected').length,
+                archived: reports.filter(r => r.status === 'archived').length,
+                byType: {
+                    preliminary: reports.filter(r => r.type === 'preliminary').length,
+                    final: reports.filter(r => r.type === 'final').length,
+                    amended: reports.filter(r => r.type === 'amended').length,
+                    corrected: reports.filter(r => r.type === 'corrected').length
+                },
+                generatedToday: reports.filter(r => {
+                    const today = new Date();
+                    const reportDate = new Date(r.createdAt);
+                    return reportDate.toDateString() === today.toDateString();
+                }).length,
+                pdfGenerated: reports.filter((r) => r.pdfFileId).length
+            };
+            console.log('Statistics calculated:', statistics);
+            res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+            res.setHeader('Pragma', 'no-cache');
+            res.setHeader('Expires', '0');
+            return res.status(200).json(new ApiResponse_1.ApiResponse(200, 'Report statistics retrieved successfully', {
                 data: statistics
             }));
         });
@@ -176,45 +172,21 @@ class ReportController {
             if (!q) {
                 throw new ApiError_1.ApiError(400, 'Search query is required');
             }
-            const reports = await reportService.searchReports(q, parseInt(limit));
+            const { reports } = await reportService.getReports({
+                limit: parseInt(limit),
+                sortBy: 'createdAt',
+                sortOrder: 'desc'
+            });
+            const searchResults = reports.filter((report) => {
+                const query = q.toLowerCase();
+                return (report.reportNumber?.toLowerCase().includes(query) ||
+                    report.patientName?.toLowerCase().includes(query) ||
+                    report.patientMRN?.toLowerCase().includes(query) ||
+                    report.doctorName?.toLowerCase().includes(query) ||
+                    report.orderNumber?.toLowerCase().includes(query));
+            });
             return res.status(200).json(new ApiResponse_1.ApiResponse(200, 'Reports search completed', {
-                data: reports
-            }));
-        });
-        this.getReportVersions = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
-            const { reportId } = req.params;
-            const reports = await reportService.getReportVersions(reportId);
-            return res.status(200).json(new ApiResponse_1.ApiResponse(200, 'Report versions retrieved', {
-                data: reports
-            }));
-        });
-        this.addTag = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
-            const { reportId } = req.params;
-            const { tag } = report_validator_1.ReportZodSchema.addTag.parse(req.body);
-            const report = await reportService.addTagToReport(reportId, tag);
-            return res.status(200).json(new ApiResponse_1.ApiResponse(200, 'Tag added successfully', {
-                data: {
-                    id: report.id,
-                    tags: report.tags
-                }
-            }));
-        });
-        this.removeTag = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
-            const { reportId } = req.params;
-            const { tag } = report_validator_1.ReportZodSchema.removeTag.parse(req.body);
-            const report = await reportService.removeTagFromReport(reportId, tag);
-            return res.status(200).json(new ApiResponse_1.ApiResponse(200, 'Tag removed successfully', {
-                data: {
-                    id: report.id,
-                    tags: report.tags
-                }
-            }));
-        });
-        this.generatePDF = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
-            const { reportId } = req.params;
-            const pdfData = await reportService.generateReportPDF(reportId);
-            return res.status(200).json(new ApiResponse_1.ApiResponse(200, 'Report PDF generated successfully', {
-                data: pdfData
+                data: searchResults
             }));
         });
     }

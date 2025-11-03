@@ -1,11 +1,13 @@
 import { Request, Response } from 'express';
 import { OrderZodSchema } from '../validators/order.validator';
 import { OrderService } from '../services/order.service';
+import { ResultService } from '../services/result.service';
 import { asyncHandler } from '../utils/asyncHandler';
 import { ApiResponse } from '../utils/ApiResponse';
 import { ApiError } from '../utils/ApiError';
 
 const orderService = new OrderService();
+const resultService = new ResultService();
 
 export class OrderController {
   // Create Order
@@ -349,6 +351,20 @@ export class OrderController {
       // @ts-ignore
       new ApiResponse(200 as any, 'Bulk status update completed', {
         data: updatedOrders
+      })
+    );
+  });
+
+  // Get Pending Tests for Order
+  getPendingTests = asyncHandler(async (req: Request, res: Response) => {
+    const { orderId } = req.params;
+
+    const pendingTestsData = await resultService.getPendingTestsForOrder(orderId);
+
+    return res.status(200).json(
+      // @ts-ignore
+      new ApiResponse(200 as any, 'Pending tests retrieved successfully', {
+        data: pendingTestsData
       })
     );
   });

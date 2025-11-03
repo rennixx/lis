@@ -8,8 +8,8 @@ const mongoose_1 = __importDefault(require("mongoose"));
 const logger_1 = require("../utils/logger");
 const connectDatabase = async () => {
     try {
-        let mongoUri = process.env.MONGODB_URI || 'mongodb://localhost:27017/lis_db';
-        const dbName = process.env.MONGODB_DB_NAME || 'lis_db';
+        let mongoUri = process.env.MONGODB_URI || 'mongodb://localhost:27017/';
+        const dbName = process.env.MONGODB_DB_NAME || '';
         const maxPoolSize = parseInt(process.env.MONGODB_MAX_POOL_SIZE || '10');
         if (process.env.NODE_ENV !== 'production') {
             const url = new URL(mongoUri);
@@ -30,6 +30,15 @@ const connectDatabase = async () => {
                 uri: mongoUri.replace(/\/\/([^:]+):([^@]+)@/, '//$1:***@'),
                 database: dbName,
                 maxPoolSize,
+            });
+            console.log('🔗 Connected to MongoDB database:', mongoose_1.default.connection.name || 'default database');
+            const db = mongoose_1.default.connection.db;
+            db.listCollections().toArray().then(collections => {
+                console.log('📁 Available collections:', collections.map(c => c.name));
+                const hasReports = collections.some(c => c.name === 'reports');
+                console.log('📊 Reports collection exists:', hasReports);
+            }).catch(err => {
+                console.error('Error listing collections:', err);
             });
         });
         mongoose_1.default.connection.on('error', (error) => {

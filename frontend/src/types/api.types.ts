@@ -268,52 +268,136 @@ export interface Result {
 }
 
 export interface CreateResultRequest {
-  order: string;
-  test: string;
-  patient: string;
+  orderId: string;
+  testId: string;
   value: any;
-  normalRange?: {
-    min?: number;
-    max?: number;
-    unit?: string;
-    text?: string;
-  };
-  interpretation?: 'normal' | 'low' | 'high' | 'critical' | 'borderline';
+  valueType?: 'number' | 'text' | 'boolean' | 'array' | 'object';
+  status?: 'pending' | 'in_progress' | 'completed' | 'verified' | 'rejected' | 'requires_review';
   notes?: string;
+  equipment?: string;
+  method?: string;
+  specimen?: string;
+  specimenType?: string;
+}
+
+export interface UpdateResultRequest {
+  value?: any;
+  valueType?: 'number' | 'text' | 'boolean' | 'array' | 'object';
+  status?: 'pending' | 'in_progress' | 'completed' | 'verified' | 'rejected' | 'requires_review';
+  notes?: string;
+  equipment?: string;
+  method?: string;
+  specimen?: string;
+  specimenType?: string;
+  comments?: string;
 }
 
 // Report types
 export interface Report {
   _id: string;
   reportNumber: string;
+  order: string;
+  orderNumber?: string;
   patient: string;
   patientName?: string;
-  orders: string[];
+  patientMRN?: string;
+  patientInfo?: {
+    name: string;
+    age: number;
+    gender: string;
+    contact: string;
+  };
+  doctor: string;
+  doctorName?: string;
+  tests: string[];
   results: string[];
-  type: 'preliminary' | 'final' | 'amended';
+  type: 'preliminary' | 'final' | 'amended' | 'corrected';
+  status: 'draft' | 'pending_review' | 'approved' | 'rejected' | 'delivered' | 'archived';
+  sections: ReportSection[];
   summary?: string;
   conclusion?: string;
-  recommendations: string[];
+  recommendations?: string;
+  clinicalNotes?: string;
   generatedBy: string;
-  status: 'draft' | 'generated' | 'sent' | 'delivered';
-  deliveryMethod?: 'email' | 'patient_portal' | 'print' | 'phone';
-  sentAt?: string;
+  generatedByUser?: string;
+  approvedBy?: string;
+  approvedByUser?: string;
+  approvedAt?: string;
+  deliveredBy?: string;
   deliveredAt?: string;
-  filePath?: string;
-  isAbnormal: boolean;
-  requiresFollowUp: boolean;
+  deliveryMethod?: 'email' | 'print' | 'portal' | 'fax';
+  emailSentTo?: string;
+  printedCopies?: number;
+  // GridFS storage for PDF
+  pdfFileId?: string;
+  pdfFileName?: string;
+  pdfFileSize?: number;
+  // Report generation metadata
+  reportGeneration?: {
+    generatedAt?: string;
+    pdfVersion?: string;
+    generationTime?: number;
+    templateUsed?: string;
+  };
+  template?: string;
+  version: number;
+  tags?: string[];
+  priority: 'routine' | 'urgent' | 'stat';
+  confidentialityLevel: 'standard' | 'confidential' | 'restricted';
+  retentionPeriod?: number;
+  archivedAt?: string;
+  isActive: boolean;
   createdAt: string;
   updatedAt: string;
 }
 
+export interface ReportSection {
+  title: string;
+  content: string;
+  order: number;
+  type: 'text' | 'table' | 'chart' | 'image';
+  data?: any;
+}
+
 export interface CreateReportRequest {
-  patient: string;
-  orders: string[];
-  results: string[];
-  type?: 'preliminary' | 'final' | 'amended';
-  summary?: string;
-  conclusion?: string;
-  recommendations?: string[];
+  order: string;
+  template?: 'standard' | 'detailed' | 'compact';
+  includeBarcode?: boolean;
+  includeQR?: boolean;
+  includeNormalRanges?: boolean;
+  includeDoctorNotes?: boolean;
+  autoGeneratePDF?: boolean;
+}
+
+export interface GeneratePDFRequest {
+  template?: 'standard' | 'detailed' | 'compact';
+  includeBarcode?: boolean;
+  includeQR?: boolean;
+}
+
+export interface BulkGenerateRequest {
+  orderIds: string[];
+  template?: 'standard' | 'detailed' | 'compact';
+  includeBarcode?: boolean;
+  includeQR?: boolean;
+}
+
+export interface ReportStatistics {
+  total: number;
+  draft: number;
+  pendingReview: number;
+  approved: number;
+  delivered: number;
+  rejected: number;
+  archived: number;
+  byType: {
+    preliminary: number;
+    final: number;
+    amended: number;
+    corrected: number;
+  };
+  generatedToday: number;
+  pdfGenerated: number;
 }
 
 // Query params
@@ -345,12 +429,24 @@ export interface ResultQueryParams extends PaginationParams {
   status?: string;
   interpretation?: string;
   abnormal?: boolean;
+  patientId?: string;
+  testId?: string;
+  orderId?: string;
+  criticalValue?: boolean;
+  isAbnormal?: boolean;
+  startDate?: string;
+  endDate?: string;
 }
 
 export interface ReportQueryParams extends PaginationParams {
+  patientId?: string;
+  doctorId?: string;
   status?: string;
   type?: string;
-  deliveryMethod?: string;
+  dateFrom?: string;
+  dateTo?: string;
+  sortBy?: string;
+  sortOrder?: 'asc' | 'desc';
 }
 
 // Sample types

@@ -58,6 +58,7 @@ export const ENDPOINTS = {
     COMPLETE: (id: string) => `/orders/${id}/complete`,
     UPDATE_PAYMENT: (id: string) => `/orders/${id}/payment`,
     SEARCH: '/orders/search',
+    PENDING_TESTS: (id: string) => `/orders/${id}/pending-tests`,
   },
 
   // Sample endpoints
@@ -85,27 +86,41 @@ export const ENDPOINTS = {
   RESULTS: {
     LIST: '/results',
     CREATE: '/results',
+    BULK: '/results/bulk',
     GET: (id: string) => `/results/${id}`,
     UPDATE: (id: string) => `/results/${id}`,
+    UPDATE_VALUE: (id: string) => `/results/${id}/value`,
     DELETE: (id: string) => `/results/${id}`,
     VERIFY: (id: string) => `/results/${id}/verify`,
+    BULK_VERIFY: '/results/bulk-verify',
+    REJECT: (id: string) => `/results/${id}/reject`,
+    BULK_REJECT: '/results/bulk-reject',
+    MARK_CRITICAL: (id: string) => `/results/${id}/mark-critical`,
+    COMMENT: (id: string) => `/results/${id}/comment`,
     APPROVE: (id: string) => `/results/${id}/approve`,
     SEARCH: '/results/search',
+    STATISTICS: '/results/statistics',
+    CRITICAL: '/results/critical',
     ABNORMAL: '/results/abnormal',
+    REVIEW: '/results/review',
+    BY_ORDER: (orderId: string) => `/results/order/${orderId}`,
+    BY_PATIENT: (patientId: string) => `/results/patient/${patientId}`,
   },
 
   // Report endpoints
   REPORTS: {
     LIST: '/reports',
-    CREATE: '/reports',
+    SEARCH: '/reports/search',
+    STATISTICS: '/reports/statistics',
     GET: (id: string) => `/reports/${id}`,
-    UPDATE: (id: string) => `/reports/${id}`,
+    UPDATE_STATUS: (id: string) => `/reports/${id}/status`,
     DELETE: (id: string) => `/reports/${id}`,
-    GENERATE: (id: string) => `/reports/${id}/generate`,
-    PREVIEW: (id: string) => `/reports/${id}/preview`,
-    PRINT: (id: string) => `/reports/${id}/print`,
-    BULK_PRINT: '/reports/bulk-print',
-    QUEUE: '/reports/queue',
+    // PDF Generation and Download
+    GENERATE_FROM_ORDER: (orderId: string) => `/reports/generate/${orderId}`,
+    GENERATE_PDF: (id: string) => `/reports/${id}/pdf`,
+    DOWNLOAD_PDF: (id: string) => `/reports/${id}/pdf/download`,
+    VIEW_PDF: (id: string) => `/reports/${id}/pdf/view`,
+    BULK_GENERATE: '/reports/bulk-generate',
   },
 
   // Dashboard endpoints

@@ -3,9 +3,11 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.OrderController = void 0;
 const order_validator_1 = require("../validators/order.validator");
 const order_service_1 = require("../services/order.service");
+const result_service_1 = require("../services/result.service");
 const asyncHandler_1 = require("../utils/asyncHandler");
 const ApiResponse_1 = require("../utils/ApiResponse");
 const orderService = new order_service_1.OrderService();
+const resultService = new result_service_1.ResultService();
 class OrderController {
     constructor() {
         this.createOrder = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
@@ -184,6 +186,13 @@ class OrderController {
             const updatedOrders = await orderService.bulkUpdateStatus(updates);
             return res.status(200).json(new ApiResponse_1.ApiResponse(200, 'Bulk status update completed', {
                 data: updatedOrders
+            }));
+        });
+        this.getPendingTests = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
+            const { orderId } = req.params;
+            const pendingTestsData = await resultService.getPendingTestsForOrder(orderId);
+            return res.status(200).json(new ApiResponse_1.ApiResponse(200, 'Pending tests retrieved successfully', {
+                data: pendingTestsData
             }));
         });
     }

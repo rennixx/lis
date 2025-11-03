@@ -244,6 +244,29 @@ const ReportSchema = new mongoose_1.Schema({
         type: String,
         trim: true
     },
+    pdfFileId: {
+        type: mongoose_1.Schema.Types.ObjectId,
+        ref: 'fs.files'
+    },
+    pdfFileName: {
+        type: String,
+        trim: true
+    },
+    pdfFileSize: {
+        type: Number
+    },
+    reportGeneration: {
+        generatedAt: Date,
+        pdfVersion: {
+            type: String,
+            default: '1.0'
+        },
+        generationTime: Number,
+        templateUsed: {
+            type: String,
+            default: 'standard'
+        }
+    },
     template: {
         type: String,
         trim: true,

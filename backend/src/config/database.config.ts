@@ -4,8 +4,8 @@ import { logger } from '../utils/logger';
 export const connectDatabase = async (): Promise<void> => {
   try {
     // Use simple MongoDB connection for development
-    let mongoUri = process.env.MONGODB_URI || 'mongodb://localhost:27017/lis_db';
-    const dbName = process.env.MONGODB_DB_NAME || 'lis_db';
+    let mongoUri = process.env.MONGODB_URI || 'mongodb://localhost:27017/';
+    const dbName = process.env.MONGODB_DB_NAME || '';
     const maxPoolSize = parseInt(process.env.MONGODB_MAX_POOL_SIZE || '10');
 
     // For development, ensure no replica set configuration
@@ -37,6 +37,21 @@ export const connectDatabase = async (): Promise<void> => {
         uri: mongoUri.replace(/\/\/([^:]+):([^@]+)@/, '//$1:***@'),
         database: dbName,
         maxPoolSize,
+      });
+
+      // Log actual database name for debugging
+      console.log('🔗 Connected to MongoDB database:', mongoose.connection.name || 'default database');
+
+      // Log collections for debugging
+      const db = mongoose.connection.db;
+      db.listCollections().toArray().then(collections => {
+        console.log('📁 Available collections:', collections.map(c => c.name));
+
+        // Check if reports collection exists
+        const hasReports = collections.some(c => c.name === 'reports');
+        console.log('📊 Reports collection exists:', hasReports);
+      }).catch(err => {
+        console.error('Error listing collections:', err);
       });
     });
 

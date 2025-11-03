@@ -86,8 +86,14 @@ export const AppRoutes: React.FC = () => {
           }
         />
 
-        {/* Reports routes */}
-        <Route path="reports" element={<ReportsPage />} />
+        <Route
+          path="reports"
+          element={
+            <ProtectedRoute roles={['admin', 'lab_technician', 'doctor']}>
+              <ReportsPage />
+            </ProtectedRoute>
+          }
+        />
 
         {/* Settings routes */}
         <Route

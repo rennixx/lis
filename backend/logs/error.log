@@ -81497,3 +81497,1071 @@
   service: 'lis-backend',
   timestamp: '2025-11-01 18:59:47'
 }
+{
+  service: 'lis-backend',
+  error: '401',
+  stack: 'Error: 401\n' +
+    '    at authenticate (D:\\projects\\LIS\\backend\\src\\middlewares\\auth.middleware.ts:59:12)\n' +
+    '    at newFn (D:\\projects\\LIS\\backend\\node_modules\\express-async-errors\\index.js:16:20)\n' +
+    '    at Layer.handle [as handle_request] (D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\layer.js:95:5)\n' +
+    '    at trim_prefix (D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\index.js:328:13)\n' +
+    '    at D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\index.js:286:9\n' +
+    '    at Function.process_params (D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\index.js:346:12)\n' +
+    '    at next (D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\index.js:280:10)\n' +
+    '    at Function.handle (D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\index.js:175:3)\n' +
+    '    at router (D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\index.js:47:12)\n' +
+    '    at newFn (D:\\projects\\LIS\\backend\\node_modules\\express-async-errors\\index.js:16:20)',
+  url: '/api/v1/auth/profile',
+  method: 'GET',
+  ip: '::ffff:127.0.0.1',
+  userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:144.0) Gecko/20100101 Firefox/144.0',
+  level: 'error',
+  message: 'Unhandled error:',
+  timestamp: '2025-11-01 19:55:47'
+}
+{
+  service: 'lis-backend',
+  error: '401',
+  stack: 'Error: 401\n' +
+    '    at authenticate (D:\\projects\\LIS\\backend\\src\\middlewares\\auth.middleware.ts:59:12)\n' +
+    '    at newFn (D:\\projects\\LIS\\backend\\node_modules\\express-async-errors\\index.js:16:20)\n' +
+    '    at Layer.handle [as handle_request] (D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\layer.js:95:5)\n' +
+    '    at trim_prefix (D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\index.js:328:13)\n' +
+    '    at D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\index.js:286:9\n' +
+    '    at Function.process_params (D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\index.js:346:12)\n' +
+    '    at next (D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\index.js:280:10)\n' +
+    '    at Function.handle (D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\index.js:175:3)\n' +
+    '    at router (D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\index.js:47:12)\n' +
+    '    at newFn (D:\\projects\\LIS\\backend\\node_modules\\express-async-errors\\index.js:16:20)',
+  url: '/api/v1/auth/profile',
+  method: 'GET',
+  ip: '::ffff:127.0.0.1',
+  userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:144.0) Gecko/20100101 Firefox/144.0',
+  level: 'error',
+  message: 'Unhandled error:',
+  timestamp: '2025-11-01 19:55:47'
+}
+{
+  service: 'lis-backend',
+  error: '401',
+  stack: 'Error: 401\n' +
+    '    at authenticate (D:\\projects\\LIS\\backend\\src\\middlewares\\auth.middleware.ts:59:12)\n' +
+    '    at newFn (D:\\projects\\LIS\\backend\\node_modules\\express-async-errors\\index.js:16:20)\n' +
+    '    at Layer.handle [as handle_request] (D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\layer.js:95:5)\n' +
+    '    at trim_prefix (D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\index.js:328:13)\n' +
+    '    at D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\index.js:286:9\n' +
+    '    at Function.process_params (D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\index.js:346:12)\n' +
+    '    at next (D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\index.js:280:10)\n' +
+    '    at Function.handle (D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\index.js:175:3)\n' +
+    '    at router (D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\index.js:47:12)\n' +
+    '    at newFn (D:\\projects\\LIS\\backend\\node_modules\\express-async-errors\\index.js:16:20)',
+  url: '/api/v1/samples?limit=100',
+  method: 'GET',
+  ip: '::ffff:127.0.0.1',
+  userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:144.0) Gecko/20100101 Firefox/144.0',
+  level: 'error',
+  message: 'Unhandled error:',
+  timestamp: '2025-11-01 19:55:50'
+}
+{
+  service: 'lis-backend',
+  error: '401',
+  stack: 'Error: 401\n' +
+    '    at authenticate (D:\\projects\\LIS\\backend\\src\\middlewares\\auth.middleware.ts:59:12)\n' +
+    '    at newFn (D:\\projects\\LIS\\backend\\node_modules\\express-async-errors\\index.js:16:20)\n' +
+    '    at Layer.handle [as handle_request] (D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\layer.js:95:5)\n' +
+    '    at trim_prefix (D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\index.js:328:13)\n' +
+    '    at D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\index.js:286:9\n' +
+    '    at Function.process_params (D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\index.js:346:12)\n' +
+    '    at next (D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\index.js:280:10)\n' +
+    '    at Function.handle (D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\index.js:175:3)\n' +
+    '    at router (D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\index.js:47:12)\n' +
+    '    at newFn (D:\\projects\\LIS\\backend\\node_modules\\express-async-errors\\index.js:16:20)',
+  url: '/api/v1/samples/status-counts',
+  method: 'GET',
+  ip: '::ffff:127.0.0.1',
+  userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:144.0) Gecko/20100101 Firefox/144.0',
+  level: 'error',
+  message: 'Unhandled error:',
+  timestamp: '2025-11-01 19:55:50'
+}
+{
+  service: 'lis-backend',
+  error: '401',
+  stack: 'Error: 401\n' +
+    '    at authenticate (D:\\projects\\LIS\\backend\\src\\middlewares\\auth.middleware.ts:59:12)\n' +
+    '    at newFn (D:\\projects\\LIS\\backend\\node_modules\\express-async-errors\\index.js:16:20)\n' +
+    '    at Layer.handle [as handle_request] (D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\layer.js:95:5)\n' +
+    '    at trim_prefix (D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\index.js:328:13)\n' +
+    '    at D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\index.js:286:9\n' +
+    '    at Function.process_params (D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\index.js:346:12)\n' +
+    '    at next (D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\index.js:280:10)\n' +
+    '    at Function.handle (D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\index.js:175:3)\n' +
+    '    at router (D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\index.js:47:12)\n' +
+    '    at newFn (D:\\projects\\LIS\\backend\\node_modules\\express-async-errors\\index.js:16:20)',
+  url: '/api/v1/samples?limit=100',
+  method: 'GET',
+  ip: '::ffff:127.0.0.1',
+  userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:144.0) Gecko/20100101 Firefox/144.0',
+  level: 'error',
+  message: 'Unhandled error:',
+  timestamp: '2025-11-01 19:55:53'
+}
+{
+  service: 'lis-backend',
+  error: '401',
+  stack: 'Error: 401\n' +
+    '    at authenticate (D:\\projects\\LIS\\backend\\src\\middlewares\\auth.middleware.ts:59:12)\n' +
+    '    at newFn (D:\\projects\\LIS\\backend\\node_modules\\express-async-errors\\index.js:16:20)\n' +
+    '    at Layer.handle [as handle_request] (D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\layer.js:95:5)\n' +
+    '    at trim_prefix (D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\index.js:328:13)\n' +
+    '    at D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\index.js:286:9\n' +
+    '    at Function.process_params (D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\index.js:346:12)\n' +
+    '    at next (D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\index.js:280:10)\n' +
+    '    at Function.handle (D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\index.js:175:3)\n' +
+    '    at router (D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\index.js:47:12)\n' +
+    '    at newFn (D:\\projects\\LIS\\backend\\node_modules\\express-async-errors\\index.js:16:20)',
+  url: '/api/v1/samples/status-counts',
+  method: 'GET',
+  ip: '::ffff:127.0.0.1',
+  userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:144.0) Gecko/20100101 Firefox/144.0',
+  level: 'error',
+  message: 'Unhandled error:',
+  timestamp: '2025-11-01 19:55:53'
+}
+{
+  service: 'lis-backend',
+  error: '401',
+  stack: 'Error: 401\n' +
+    '    at authenticate (D:\\projects\\LIS\\backend\\src\\middlewares\\auth.middleware.ts:59:12)\n' +
+    '    at newFn (D:\\projects\\LIS\\backend\\node_modules\\express-async-errors\\index.js:16:20)\n' +
+    '    at Layer.handle [as handle_request] (D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\layer.js:95:5)\n' +
+    '    at trim_prefix (D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\index.js:328:13)\n' +
+    '    at D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\index.js:286:9\n' +
+    '    at Function.process_params (D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\index.js:346:12)\n' +
+    '    at next (D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\index.js:280:10)\n' +
+    '    at Function.handle (D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\index.js:175:3)\n' +
+    '    at router (D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\index.js:47:12)\n' +
+    '    at newFn (D:\\projects\\LIS\\backend\\node_modules\\express-async-errors\\index.js:16:20)',
+  url: '/api/v1/samples?limit=100',
+  method: 'GET',
+  ip: '::ffff:127.0.0.1',
+  userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:144.0) Gecko/20100101 Firefox/144.0',
+  level: 'error',
+  message: 'Unhandled error:',
+  timestamp: '2025-11-01 19:55:54'
+}
+{
+  service: 'lis-backend',
+  error: '401',
+  stack: 'Error: 401\n' +
+    '    at authenticate (D:\\projects\\LIS\\backend\\src\\middlewares\\auth.middleware.ts:59:12)\n' +
+    '    at newFn (D:\\projects\\LIS\\backend\\node_modules\\express-async-errors\\index.js:16:20)\n' +
+    '    at Layer.handle [as handle_request] (D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\layer.js:95:5)\n' +
+    '    at trim_prefix (D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\index.js:328:13)\n' +
+    '    at D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\index.js:286:9\n' +
+    '    at Function.process_params (D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\index.js:346:12)\n' +
+    '    at next (D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\index.js:280:10)\n' +
+    '    at Function.handle (D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\index.js:175:3)\n' +
+    '    at router (D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\index.js:47:12)\n' +
+    '    at newFn (D:\\projects\\LIS\\backend\\node_modules\\express-async-errors\\index.js:16:20)',
+  url: '/api/v1/samples/status-counts',
+  method: 'GET',
+  ip: '::ffff:127.0.0.1',
+  userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:144.0) Gecko/20100101 Firefox/144.0',
+  level: 'error',
+  message: 'Unhandled error:',
+  timestamp: '2025-11-01 19:55:54'
+}
+{
+  service: 'lis-backend',
+  error: '401',
+  stack: 'Error: 401\n' +
+    '    at authenticate (D:\\projects\\LIS\\backend\\src\\middlewares\\auth.middleware.ts:59:12)\n' +
+    '    at newFn (D:\\projects\\LIS\\backend\\node_modules\\express-async-errors\\index.js:16:20)\n' +
+    '    at Layer.handle [as handle_request] (D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\layer.js:95:5)\n' +
+    '    at trim_prefix (D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\index.js:328:13)\n' +
+    '    at D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\index.js:286:9\n' +
+    '    at Function.process_params (D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\index.js:346:12)\n' +
+    '    at next (D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\index.js:280:10)\n' +
+    '    at Function.handle (D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\index.js:175:3)\n' +
+    '    at router (D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\index.js:47:12)\n' +
+    '    at newFn (D:\\projects\\LIS\\backend\\node_modules\\express-async-errors\\index.js:16:20)',
+  url: '/api/v1/samples?limit=100',
+  method: 'GET',
+  ip: '::ffff:127.0.0.1',
+  userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:144.0) Gecko/20100101 Firefox/144.0',
+  level: 'error',
+  message: 'Unhandled error:',
+  timestamp: '2025-11-01 19:55:56'
+}
+{
+  service: 'lis-backend',
+  error: '401',
+  stack: 'Error: 401\n' +
+    '    at authenticate (D:\\projects\\LIS\\backend\\src\\middlewares\\auth.middleware.ts:59:12)\n' +
+    '    at newFn (D:\\projects\\LIS\\backend\\node_modules\\express-async-errors\\index.js:16:20)\n' +
+    '    at Layer.handle [as handle_request] (D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\layer.js:95:5)\n' +
+    '    at trim_prefix (D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\index.js:328:13)\n' +
+    '    at D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\index.js:286:9\n' +
+    '    at Function.process_params (D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\index.js:346:12)\n' +
+    '    at next (D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\index.js:280:10)\n' +
+    '    at Function.handle (D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\index.js:175:3)\n' +
+    '    at router (D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\index.js:47:12)\n' +
+    '    at newFn (D:\\projects\\LIS\\backend\\node_modules\\express-async-errors\\index.js:16:20)',
+  url: '/api/v1/samples/status-counts',
+  method: 'GET',
+  ip: '::ffff:127.0.0.1',
+  userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:144.0) Gecko/20100101 Firefox/144.0',
+  level: 'error',
+  message: 'Unhandled error:',
+  timestamp: '2025-11-01 19:55:56'
+}
+{
+  service: 'lis-backend',
+  error: '401',
+  stack: 'Error: 401\n' +
+    '    at authenticate (D:\\projects\\LIS\\backend\\src\\middlewares\\auth.middleware.ts:59:12)\n' +
+    '    at newFn (D:\\projects\\LIS\\backend\\node_modules\\express-async-errors\\index.js:16:20)\n' +
+    '    at Layer.handle [as handle_request] (D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\layer.js:95:5)\n' +
+    '    at trim_prefix (D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\index.js:328:13)\n' +
+    '    at D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\index.js:286:9\n' +
+    '    at Function.process_params (D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\index.js:346:12)\n' +
+    '    at next (D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\index.js:280:10)\n' +
+    '    at Function.handle (D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\index.js:175:3)\n' +
+    '    at router (D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\index.js:47:12)\n' +
+    '    at newFn (D:\\projects\\LIS\\backend\\node_modules\\express-async-errors\\index.js:16:20)',
+  url: '/api/v1/auth/profile',
+  method: 'GET',
+  ip: '::ffff:127.0.0.1',
+  userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:144.0) Gecko/20100101 Firefox/144.0',
+  level: 'error',
+  message: 'Unhandled error:',
+  timestamp: '2025-11-01 20:03:12'
+}
+{
+  service: 'lis-backend',
+  error: '401',
+  stack: 'Error: 401\n' +
+    '    at authenticate (D:\\projects\\LIS\\backend\\src\\middlewares\\auth.middleware.ts:59:12)\n' +
+    '    at newFn (D:\\projects\\LIS\\backend\\node_modules\\express-async-errors\\index.js:16:20)\n' +
+    '    at Layer.handle [as handle_request] (D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\layer.js:95:5)\n' +
+    '    at trim_prefix (D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\index.js:328:13)\n' +
+    '    at D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\index.js:286:9\n' +
+    '    at Function.process_params (D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\index.js:346:12)\n' +
+    '    at next (D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\index.js:280:10)\n' +
+    '    at Function.handle (D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\index.js:175:3)\n' +
+    '    at router (D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\index.js:47:12)\n' +
+    '    at newFn (D:\\projects\\LIS\\backend\\node_modules\\express-async-errors\\index.js:16:20)',
+  url: '/api/v1/auth/profile',
+  method: 'GET',
+  ip: '::ffff:127.0.0.1',
+  userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:144.0) Gecko/20100101 Firefox/144.0',
+  level: 'error',
+  message: 'Unhandled error:',
+  timestamp: '2025-11-01 20:03:12'
+}
+{
+  service: 'lis-backend',
+  error: '401',
+  stack: 'Error: 401\n' +
+    '    at authenticate (D:\\projects\\LIS\\backend\\src\\middlewares\\auth.middleware.ts:59:12)\n' +
+    '    at newFn (D:\\projects\\LIS\\backend\\node_modules\\express-async-errors\\index.js:16:20)\n' +
+    '    at Layer.handle [as handle_request] (D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\layer.js:95:5)\n' +
+    '    at trim_prefix (D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\index.js:328:13)\n' +
+    '    at D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\index.js:286:9\n' +
+    '    at Function.process_params (D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\index.js:346:12)\n' +
+    '    at next (D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\index.js:280:10)\n' +
+    '    at Function.handle (D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\index.js:175:3)\n' +
+    '    at router (D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\index.js:47:12)\n' +
+    '    at newFn (D:\\projects\\LIS\\backend\\node_modules\\express-async-errors\\index.js:16:20)',
+  url: '/api/v1/samples?limit=100',
+  method: 'GET',
+  ip: '::ffff:127.0.0.1',
+  userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:144.0) Gecko/20100101 Firefox/144.0',
+  level: 'error',
+  message: 'Unhandled error:',
+  timestamp: '2025-11-01 20:03:19'
+}
+{
+  service: 'lis-backend',
+  error: '401',
+  stack: 'Error: 401\n' +
+    '    at authenticate (D:\\projects\\LIS\\backend\\src\\middlewares\\auth.middleware.ts:59:12)\n' +
+    '    at newFn (D:\\projects\\LIS\\backend\\node_modules\\express-async-errors\\index.js:16:20)\n' +
+    '    at Layer.handle [as handle_request] (D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\layer.js:95:5)\n' +
+    '    at trim_prefix (D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\index.js:328:13)\n' +
+    '    at D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\index.js:286:9\n' +
+    '    at Function.process_params (D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\index.js:346:12)\n' +
+    '    at next (D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\index.js:280:10)\n' +
+    '    at Function.handle (D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\index.js:175:3)\n' +
+    '    at router (D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\index.js:47:12)\n' +
+    '    at newFn (D:\\projects\\LIS\\backend\\node_modules\\express-async-errors\\index.js:16:20)',
+  url: '/api/v1/samples/status-counts',
+  method: 'GET',
+  ip: '::ffff:127.0.0.1',
+  userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:144.0) Gecko/20100101 Firefox/144.0',
+  level: 'error',
+  message: 'Unhandled error:',
+  timestamp: '2025-11-01 20:03:19'
+}
+{
+  service: 'lis-backend',
+  error: '401',
+  stack: 'Error: 401\n' +
+    '    at authenticate (D:\\projects\\LIS\\backend\\src\\middlewares\\auth.middleware.ts:59:12)\n' +
+    '    at newFn (D:\\projects\\LIS\\backend\\node_modules\\express-async-errors\\index.js:16:20)\n' +
+    '    at Layer.handle [as handle_request] (D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\layer.js:95:5)\n' +
+    '    at trim_prefix (D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\index.js:328:13)\n' +
+    '    at D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\index.js:286:9\n' +
+    '    at Function.process_params (D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\index.js:346:12)\n' +
+    '    at next (D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\index.js:280:10)\n' +
+    '    at Function.handle (D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\index.js:175:3)\n' +
+    '    at router (D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\index.js:47:12)\n' +
+    '    at newFn (D:\\projects\\LIS\\backend\\node_modules\\express-async-errors\\index.js:16:20)',
+  url: '/api/v1/samples?limit=100',
+  method: 'GET',
+  ip: '::ffff:127.0.0.1',
+  userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:144.0) Gecko/20100101 Firefox/144.0',
+  level: 'error',
+  message: 'Unhandled error:',
+  timestamp: '2025-11-01 20:03:20'
+}
+{
+  service: 'lis-backend',
+  error: '401',
+  stack: 'Error: 401\n' +
+    '    at authenticate (D:\\projects\\LIS\\backend\\src\\middlewares\\auth.middleware.ts:59:12)\n' +
+    '    at newFn (D:\\projects\\LIS\\backend\\node_modules\\express-async-errors\\index.js:16:20)\n' +
+    '    at Layer.handle [as handle_request] (D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\layer.js:95:5)\n' +
+    '    at trim_prefix (D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\index.js:328:13)\n' +
+    '    at D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\index.js:286:9\n' +
+    '    at Function.process_params (D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\index.js:346:12)\n' +
+    '    at next (D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\index.js:280:10)\n' +
+    '    at Function.handle (D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\index.js:175:3)\n' +
+    '    at router (D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\index.js:47:12)\n' +
+    '    at newFn (D:\\projects\\LIS\\backend\\node_modules\\express-async-errors\\index.js:16:20)',
+  url: '/api/v1/samples/status-counts',
+  method: 'GET',
+  ip: '::ffff:127.0.0.1',
+  userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:144.0) Gecko/20100101 Firefox/144.0',
+  level: 'error',
+  message: 'Unhandled error:',
+  timestamp: '2025-11-01 20:03:20'
+}
+{
+  service: 'lis-backend',
+  error: '401',
+  stack: 'Error: 401\n' +
+    '    at authenticate (D:\\projects\\LIS\\backend\\src\\middlewares\\auth.middleware.ts:59:12)\n' +
+    '    at newFn (D:\\projects\\LIS\\backend\\node_modules\\express-async-errors\\index.js:16:20)\n' +
+    '    at Layer.handle [as handle_request] (D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\layer.js:95:5)\n' +
+    '    at trim_prefix (D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\index.js:328:13)\n' +
+    '    at D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\index.js:286:9\n' +
+    '    at Function.process_params (D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\index.js:346:12)\n' +
+    '    at next (D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\index.js:280:10)\n' +
+    '    at Function.handle (D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\index.js:175:3)\n' +
+    '    at router (D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\index.js:47:12)\n' +
+    '    at newFn (D:\\projects\\LIS\\backend\\node_modules\\express-async-errors\\index.js:16:20)',
+  url: '/api/v1/samples?limit=100',
+  method: 'GET',
+  ip: '::ffff:127.0.0.1',
+  userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:144.0) Gecko/20100101 Firefox/144.0',
+  level: 'error',
+  message: 'Unhandled error:',
+  timestamp: '2025-11-01 20:03:22'
+}
+{
+  service: 'lis-backend',
+  error: '401',
+  stack: 'Error: 401\n' +
+    '    at authenticate (D:\\projects\\LIS\\backend\\src\\middlewares\\auth.middleware.ts:59:12)\n' +
+    '    at newFn (D:\\projects\\LIS\\backend\\node_modules\\express-async-errors\\index.js:16:20)\n' +
+    '    at Layer.handle [as handle_request] (D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\layer.js:95:5)\n' +
+    '    at trim_prefix (D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\index.js:328:13)\n' +
+    '    at D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\index.js:286:9\n' +
+    '    at Function.process_params (D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\index.js:346:12)\n' +
+    '    at next (D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\index.js:280:10)\n' +
+    '    at Function.handle (D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\index.js:175:3)\n' +
+    '    at router (D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\index.js:47:12)\n' +
+    '    at newFn (D:\\projects\\LIS\\backend\\node_modules\\express-async-errors\\index.js:16:20)',
+  url: '/api/v1/samples/status-counts',
+  method: 'GET',
+  ip: '::ffff:127.0.0.1',
+  userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:144.0) Gecko/20100101 Firefox/144.0',
+  level: 'error',
+  message: 'Unhandled error:',
+  timestamp: '2025-11-01 20:03:22'
+}
+{
+  service: 'lis-backend',
+  error: '500',
+  stack: 'Error: 500\n' +
+    '    at OrderService.getAllOrders (D:\\projects\\LIS\\backend\\src\\services\\order.service.ts:121:13)\n' +
+    '    at D:\\projects\\LIS\\backend\\src\\controllers\\order.controller.ts:60:39\n' +
+    '    at D:\\projects\\LIS\\backend\\src\\utils\\asyncHandler.ts:5:21\n' +
+    '    at newFn (D:\\projects\\LIS\\backend\\node_modules\\express-async-errors\\index.js:16:20)\n' +
+    '    at Layer.handle [as handle_request] (D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\layer.js:95:5)\n' +
+    '    at next (D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\route.js:149:13)\n' +
+    '    at D:\\projects\\LIS\\backend\\src\\middlewares\\auth.middleware.ts:80:5\n' +
+    '    at newFn (D:\\projects\\LIS\\backend\\node_modules\\express-async-errors\\index.js:16:20)\n' +
+    '    at Layer.handle [as handle_request] (D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\layer.js:95:5)\n' +
+    '    at next (D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\route.js:149:13)',
+  url: '/api/v1/orders?status=sample_collected&limit=50',
+  method: 'GET',
+  ip: '::ffff:127.0.0.1',
+  userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:144.0) Gecko/20100101 Firefox/144.0',
+  level: 'error',
+  message: 'Unhandled error:',
+  timestamp: '2025-11-02 19:03:38'
+}
+{
+  service: 'lis-backend',
+  error: '500',
+  stack: 'Error: 500\n' +
+    '    at OrderService.getAllOrders (D:\\projects\\LIS\\backend\\src\\services\\order.service.ts:121:13)\n' +
+    '    at D:\\projects\\LIS\\backend\\src\\controllers\\order.controller.ts:60:39\n' +
+    '    at D:\\projects\\LIS\\backend\\src\\utils\\asyncHandler.ts:5:21\n' +
+    '    at newFn (D:\\projects\\LIS\\backend\\node_modules\\express-async-errors\\index.js:16:20)\n' +
+    '    at Layer.handle [as handle_request] (D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\layer.js:95:5)\n' +
+    '    at next (D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\route.js:149:13)\n' +
+    '    at D:\\projects\\LIS\\backend\\src\\middlewares\\auth.middleware.ts:80:5\n' +
+    '    at newFn (D:\\projects\\LIS\\backend\\node_modules\\express-async-errors\\index.js:16:20)\n' +
+    '    at Layer.handle [as handle_request] (D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\layer.js:95:5)\n' +
+    '    at next (D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\route.js:149:13)',
+  url: '/api/v1/orders?status=sample_collected&limit=50',
+  method: 'GET',
+  ip: '::ffff:127.0.0.1',
+  userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:144.0) Gecko/20100101 Firefox/144.0',
+  level: 'error',
+  message: 'Unhandled error:',
+  timestamp: '2025-11-02 19:03:40'
+}
+{
+  service: 'lis-backend',
+  error: '500',
+  stack: 'Error: 500\n' +
+    '    at OrderService.getAllOrders (D:\\projects\\LIS\\backend\\src\\services\\order.service.ts:121:13)\n' +
+    '    at D:\\projects\\LIS\\backend\\src\\controllers\\order.controller.ts:60:39\n' +
+    '    at D:\\projects\\LIS\\backend\\src\\utils\\asyncHandler.ts:5:21\n' +
+    '    at newFn (D:\\projects\\LIS\\backend\\node_modules\\express-async-errors\\index.js:16:20)\n' +
+    '    at Layer.handle [as handle_request] (D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\layer.js:95:5)\n' +
+    '    at next (D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\route.js:149:13)\n' +
+    '    at D:\\projects\\LIS\\backend\\src\\middlewares\\auth.middleware.ts:80:5\n' +
+    '    at newFn (D:\\projects\\LIS\\backend\\node_modules\\express-async-errors\\index.js:16:20)\n' +
+    '    at Layer.handle [as handle_request] (D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\layer.js:95:5)\n' +
+    '    at next (D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\route.js:149:13)',
+  url: '/api/v1/orders?status=sample_collected&limit=50',
+  method: 'GET',
+  ip: '::ffff:127.0.0.1',
+  userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:144.0) Gecko/20100101 Firefox/144.0',
+  level: 'error',
+  message: 'Unhandled error:',
+  timestamp: '2025-11-02 19:03:42'
+}
+{
+  service: 'lis-backend',
+  error: '401',
+  stack: 'Error: 401\n' +
+    '    at authenticate (D:\\projects\\LIS\\backend\\src\\middlewares\\auth.middleware.ts:59:12)\n' +
+    '    at newFn (D:\\projects\\LIS\\backend\\node_modules\\express-async-errors\\index.js:16:20)\n' +
+    '    at Layer.handle [as handle_request] (D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\layer.js:95:5)\n' +
+    '    at trim_prefix (D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\index.js:328:13)\n' +
+    '    at D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\index.js:286:9\n' +
+    '    at Function.process_params (D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\index.js:346:12)\n' +
+    '    at next (D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\index.js:280:10)\n' +
+    '    at Function.handle (D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\index.js:175:3)\n' +
+    '    at router (D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\index.js:47:12)\n' +
+    '    at newFn (D:\\projects\\LIS\\backend\\node_modules\\express-async-errors\\index.js:16:20)',
+  url: '/api/v1/auth/profile',
+  method: 'GET',
+  ip: '::ffff:127.0.0.1',
+  userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:144.0) Gecko/20100101 Firefox/144.0',
+  level: 'error',
+  message: 'Unhandled error:',
+  timestamp: '2025-11-03 20:00:21'
+}
+{
+  service: 'lis-backend',
+  error: '401',
+  stack: 'Error: 401\n' +
+    '    at authenticate (D:\\projects\\LIS\\backend\\src\\middlewares\\auth.middleware.ts:59:12)\n' +
+    '    at newFn (D:\\projects\\LIS\\backend\\node_modules\\express-async-errors\\index.js:16:20)\n' +
+    '    at Layer.handle [as handle_request] (D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\layer.js:95:5)\n' +
+    '    at trim_prefix (D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\index.js:328:13)\n' +
+    '    at D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\index.js:286:9\n' +
+    '    at Function.process_params (D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\index.js:346:12)\n' +
+    '    at next (D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\index.js:280:10)\n' +
+    '    at Function.handle (D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\index.js:175:3)\n' +
+    '    at router (D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\index.js:47:12)\n' +
+    '    at newFn (D:\\projects\\LIS\\backend\\node_modules\\express-async-errors\\index.js:16:20)',
+  url: '/api/v1/auth/profile',
+  method: 'GET',
+  ip: '::ffff:127.0.0.1',
+  userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:144.0) Gecko/20100101 Firefox/144.0',
+  level: 'error',
+  message: 'Unhandled error:',
+  timestamp: '2025-11-03 20:00:21'
+}
+{
+  service: 'lis-backend',
+  error: '401',
+  stack: 'Error: 401\n' +
+    '    at authenticate (D:\\projects\\LIS\\backend\\src\\middlewares\\auth.middleware.ts:59:12)\n' +
+    '    at newFn (D:\\projects\\LIS\\backend\\node_modules\\express-async-errors\\index.js:16:20)\n' +
+    '    at Layer.handle [as handle_request] (D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\layer.js:95:5)\n' +
+    '    at trim_prefix (D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\index.js:328:13)\n' +
+    '    at D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\index.js:286:9\n' +
+    '    at Function.process_params (D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\index.js:346:12)\n' +
+    '    at next (D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\index.js:280:10)\n' +
+    '    at Function.handle (D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\index.js:175:3)\n' +
+    '    at router (D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\index.js:47:12)\n' +
+    '    at newFn (D:\\projects\\LIS\\backend\\node_modules\\express-async-errors\\index.js:16:20)',
+  url: '/api/v1/reports?page=1&limit=20&sortBy=createdAt&sortOrder=desc',
+  method: 'GET',
+  ip: '::ffff:127.0.0.1',
+  userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:144.0) Gecko/20100101 Firefox/144.0',
+  level: 'error',
+  message: 'Unhandled error:',
+  timestamp: '2025-11-03 20:00:21'
+}
+{
+  service: 'lis-backend',
+  error: '401',
+  stack: 'Error: 401\n' +
+    '    at authenticate (D:\\projects\\LIS\\backend\\src\\middlewares\\auth.middleware.ts:59:12)\n' +
+    '    at newFn (D:\\projects\\LIS\\backend\\node_modules\\express-async-errors\\index.js:16:20)\n' +
+    '    at Layer.handle [as handle_request] (D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\layer.js:95:5)\n' +
+    '    at trim_prefix (D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\index.js:328:13)\n' +
+    '    at D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\index.js:286:9\n' +
+    '    at Function.process_params (D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\index.js:346:12)\n' +
+    '    at next (D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\index.js:280:10)\n' +
+    '    at Function.handle (D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\index.js:175:3)\n' +
+    '    at router (D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\index.js:47:12)\n' +
+    '    at newFn (D:\\projects\\LIS\\backend\\node_modules\\express-async-errors\\index.js:16:20)',
+  url: '/api/v1/reports/statistics',
+  method: 'GET',
+  ip: '::ffff:127.0.0.1',
+  userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:144.0) Gecko/20100101 Firefox/144.0',
+  level: 'error',
+  message: 'Unhandled error:',
+  timestamp: '2025-11-03 20:00:21'
+}
+{
+  service: 'lis-backend',
+  error: '401',
+  stack: 'Error: 401\n' +
+    '    at authenticate (D:\\projects\\LIS\\backend\\src\\middlewares\\auth.middleware.ts:59:12)\n' +
+    '    at newFn (D:\\projects\\LIS\\backend\\node_modules\\express-async-errors\\index.js:16:20)\n' +
+    '    at Layer.handle [as handle_request] (D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\layer.js:95:5)\n' +
+    '    at trim_prefix (D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\index.js:328:13)\n' +
+    '    at D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\index.js:286:9\n' +
+    '    at Function.process_params (D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\index.js:346:12)\n' +
+    '    at next (D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\index.js:280:10)\n' +
+    '    at Function.handle (D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\index.js:175:3)\n' +
+    '    at router (D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\index.js:47:12)\n' +
+    '    at newFn (D:\\projects\\LIS\\backend\\node_modules\\express-async-errors\\index.js:16:20)',
+  url: '/api/v1/reports?page=1&limit=20&sortBy=createdAt&sortOrder=desc',
+  method: 'GET',
+  ip: '::ffff:127.0.0.1',
+  userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:144.0) Gecko/20100101 Firefox/144.0',
+  level: 'error',
+  message: 'Unhandled error:',
+  timestamp: '2025-11-03 20:00:22'
+}
+{
+  service: 'lis-backend',
+  error: '401',
+  stack: 'Error: 401\n' +
+    '    at authenticate (D:\\projects\\LIS\\backend\\src\\middlewares\\auth.middleware.ts:59:12)\n' +
+    '    at newFn (D:\\projects\\LIS\\backend\\node_modules\\express-async-errors\\index.js:16:20)\n' +
+    '    at Layer.handle [as handle_request] (D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\layer.js:95:5)\n' +
+    '    at trim_prefix (D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\index.js:328:13)\n' +
+    '    at D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\index.js:286:9\n' +
+    '    at Function.process_params (D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\index.js:346:12)\n' +
+    '    at next (D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\index.js:280:10)\n' +
+    '    at Function.handle (D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\index.js:175:3)\n' +
+    '    at router (D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\index.js:47:12)\n' +
+    '    at newFn (D:\\projects\\LIS\\backend\\node_modules\\express-async-errors\\index.js:16:20)',
+  url: '/api/v1/reports/statistics',
+  method: 'GET',
+  ip: '::ffff:127.0.0.1',
+  userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:144.0) Gecko/20100101 Firefox/144.0',
+  level: 'error',
+  message: 'Unhandled error:',
+  timestamp: '2025-11-03 20:00:22'
+}
+{
+  message: 'Port 3000 is already in use',
+  level: 'error',
+  service: 'lis-backend',
+  timestamp: '2025-11-03 20:03:54'
+}
+{
+  service: 'lis-backend',
+  error: 'Failed to get reports',
+  stack: 'Error: Failed to get reports\n' +
+    '    at ReportService.getReports (D:\\projects\\LIS\\backend\\src\\services\\report.service.ts:340:13)\n' +
+    '    at processTicksAndRejections (node:internal/process/task_queues:95:5)\n' +
+    '    at async D:\\projects\\LIS\\backend\\src\\controllers\\report.controller.ts:141:20',
+  url: '/api/v1/reports?page=1&limit=20&sortBy=createdAt&sortOrder=desc',
+  method: 'GET',
+  ip: '::ffff:127.0.0.1',
+  userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:144.0) Gecko/20100101 Firefox/144.0',
+  level: 'error',
+  message: 'Unhandled error:',
+  timestamp: '2025-11-03 20:45:07'
+}
+{
+  service: 'lis-backend',
+  error: 'Failed to get reports',
+  stack: 'Error: Failed to get reports\n' +
+    '    at ReportService.getReports (D:\\projects\\LIS\\backend\\src\\services\\report.service.ts:340:13)\n' +
+    '    at processTicksAndRejections (node:internal/process/task_queues:95:5)\n' +
+    '    at async D:\\projects\\LIS\\backend\\src\\controllers\\report.controller.ts:224:25',
+  url: '/api/v1/reports/statistics',
+  method: 'GET',
+  ip: '::ffff:127.0.0.1',
+  userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:144.0) Gecko/20100101 Firefox/144.0',
+  level: 'error',
+  message: 'Unhandled error:',
+  timestamp: '2025-11-03 20:45:07'
+}
+{
+  service: 'lis-backend',
+  error: 'Failed to get reports',
+  stack: 'Error: Failed to get reports\n' +
+    '    at ReportService.getReports (D:\\projects\\LIS\\backend\\src\\services\\report.service.ts:340:13)\n' +
+    '    at processTicksAndRejections (node:internal/process/task_queues:95:5)\n' +
+    '    at async D:\\projects\\LIS\\backend\\src\\controllers\\report.controller.ts:141:20',
+  url: '/api/v1/reports?page=1&limit=20&sortBy=createdAt&sortOrder=desc',
+  method: 'GET',
+  ip: '::ffff:127.0.0.1',
+  userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:144.0) Gecko/20100101 Firefox/144.0',
+  level: 'error',
+  message: 'Unhandled error:',
+  timestamp: '2025-11-03 20:45:08'
+}
+{
+  service: 'lis-backend',
+  error: 'Failed to get reports',
+  stack: 'Error: Failed to get reports\n' +
+    '    at ReportService.getReports (D:\\projects\\LIS\\backend\\src\\services\\report.service.ts:340:13)\n' +
+    '    at processTicksAndRejections (node:internal/process/task_queues:95:5)\n' +
+    '    at async D:\\projects\\LIS\\backend\\src\\controllers\\report.controller.ts:224:25',
+  url: '/api/v1/reports/statistics',
+  method: 'GET',
+  ip: '::ffff:127.0.0.1',
+  userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:144.0) Gecko/20100101 Firefox/144.0',
+  level: 'error',
+  message: 'Unhandled error:',
+  timestamp: '2025-11-03 20:45:08'
+}
+{
+  service: 'lis-backend',
+  error: 'Failed to get reports',
+  stack: 'Error: Failed to get reports\n' +
+    '    at ReportService.getReports (D:\\projects\\LIS\\backend\\src\\services\\report.service.ts:340:13)\n' +
+    '    at processTicksAndRejections (node:internal/process/task_queues:95:5)\n' +
+    '    at async D:\\projects\\LIS\\backend\\src\\controllers\\report.controller.ts:141:20',
+  url: '/api/v1/reports?page=1&limit=20&sortBy=createdAt&sortOrder=desc',
+  method: 'GET',
+  ip: '::ffff:127.0.0.1',
+  userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:144.0) Gecko/20100101 Firefox/144.0',
+  level: 'error',
+  message: 'Unhandled error:',
+  timestamp: '2025-11-03 20:45:18'
+}
+{
+  service: 'lis-backend',
+  error: 'Failed to get reports',
+  stack: 'Error: Failed to get reports\n' +
+    '    at ReportService.getReports (D:\\projects\\LIS\\backend\\src\\services\\report.service.ts:340:13)\n' +
+    '    at processTicksAndRejections (node:internal/process/task_queues:95:5)\n' +
+    '    at async D:\\projects\\LIS\\backend\\src\\controllers\\report.controller.ts:224:25',
+  url: '/api/v1/reports/statistics',
+  method: 'GET',
+  ip: '::ffff:127.0.0.1',
+  userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:144.0) Gecko/20100101 Firefox/144.0',
+  level: 'error',
+  message: 'Unhandled error:',
+  timestamp: '2025-11-03 20:45:18'
+}
+{
+  service: 'lis-backend',
+  error: 'Failed to get reports',
+  stack: 'Error: Failed to get reports\n' +
+    '    at ReportService.getReports (D:\\projects\\LIS\\backend\\src\\services\\report.service.ts:340:13)\n' +
+    '    at processTicksAndRejections (node:internal/process/task_queues:95:5)\n' +
+    '    at async D:\\projects\\LIS\\backend\\src\\controllers\\report.controller.ts:141:20',
+  url: '/api/v1/reports?page=1&limit=20&sortBy=createdAt&sortOrder=desc',
+  method: 'GET',
+  ip: '::ffff:127.0.0.1',
+  userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:144.0) Gecko/20100101 Firefox/144.0',
+  level: 'error',
+  message: 'Unhandled error:',
+  timestamp: '2025-11-03 20:45:19'
+}
+{
+  service: 'lis-backend',
+  error: 'Failed to get reports',
+  stack: 'Error: Failed to get reports\n' +
+    '    at ReportService.getReports (D:\\projects\\LIS\\backend\\src\\services\\report.service.ts:340:13)\n' +
+    '    at processTicksAndRejections (node:internal/process/task_queues:95:5)\n' +
+    '    at async D:\\projects\\LIS\\backend\\src\\controllers\\report.controller.ts:224:25',
+  url: '/api/v1/reports/statistics',
+  method: 'GET',
+  ip: '::ffff:127.0.0.1',
+  userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:144.0) Gecko/20100101 Firefox/144.0',
+  level: 'error',
+  message: 'Unhandled error:',
+  timestamp: '2025-11-03 20:45:19'
+}
+{
+  service: 'lis-backend',
+  error: 'Failed to get reports',
+  stack: 'Error: Failed to get reports\n' +
+    '    at ReportService.getReports (D:\\projects\\LIS\\backend\\src\\services\\report.service.ts:340:13)\n' +
+    '    at processTicksAndRejections (node:internal/process/task_queues:95:5)\n' +
+    '    at async D:\\projects\\LIS\\backend\\src\\controllers\\report.controller.ts:141:20',
+  url: '/api/v1/reports?page=1&limit=20&sortBy=createdAt&sortOrder=desc',
+  method: 'GET',
+  ip: '::ffff:127.0.0.1',
+  userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:144.0) Gecko/20100101 Firefox/144.0',
+  level: 'error',
+  message: 'Unhandled error:',
+  timestamp: '2025-11-03 20:45:28'
+}
+{
+  service: 'lis-backend',
+  error: 'Failed to get reports',
+  stack: 'Error: Failed to get reports\n' +
+    '    at ReportService.getReports (D:\\projects\\LIS\\backend\\src\\services\\report.service.ts:340:13)\n' +
+    '    at processTicksAndRejections (node:internal/process/task_queues:95:5)\n' +
+    '    at async D:\\projects\\LIS\\backend\\src\\controllers\\report.controller.ts:224:25',
+  url: '/api/v1/reports/statistics',
+  method: 'GET',
+  ip: '::ffff:127.0.0.1',
+  userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:144.0) Gecko/20100101 Firefox/144.0',
+  level: 'error',
+  message: 'Unhandled error:',
+  timestamp: '2025-11-03 20:45:28'
+}
+{
+  service: 'lis-backend',
+  error: 'Failed to get reports',
+  stack: 'Error: Failed to get reports\n' +
+    '    at ReportService.getReports (D:\\projects\\LIS\\backend\\src\\services\\report.service.ts:340:13)\n' +
+    '    at processTicksAndRejections (node:internal/process/task_queues:95:5)\n' +
+    '    at async D:\\projects\\LIS\\backend\\src\\controllers\\report.controller.ts:141:20',
+  url: '/api/v1/reports?page=1&limit=20&sortBy=createdAt&sortOrder=desc',
+  method: 'GET',
+  ip: '::ffff:127.0.0.1',
+  userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:144.0) Gecko/20100101 Firefox/144.0',
+  level: 'error',
+  message: 'Unhandled error:',
+  timestamp: '2025-11-03 20:45:29'
+}
+{
+  service: 'lis-backend',
+  error: 'Failed to get reports',
+  stack: 'Error: Failed to get reports\n' +
+    '    at ReportService.getReports (D:\\projects\\LIS\\backend\\src\\services\\report.service.ts:340:13)\n' +
+    '    at processTicksAndRejections (node:internal/process/task_queues:95:5)\n' +
+    '    at async D:\\projects\\LIS\\backend\\src\\controllers\\report.controller.ts:224:25',
+  url: '/api/v1/reports/statistics',
+  method: 'GET',
+  ip: '::ffff:127.0.0.1',
+  userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:144.0) Gecko/20100101 Firefox/144.0',
+  level: 'error',
+  message: 'Unhandled error:',
+  timestamp: '2025-11-03 20:45:29'
+}
+{
+  service: 'lis-backend',
+  error: 'Failed to get reports',
+  stack: 'Error: Failed to get reports\n' +
+    '    at ReportService.getReports (D:\\projects\\LIS\\backend\\src\\services\\report.service.ts:340:13)\n' +
+    '    at processTicksAndRejections (node:internal/process/task_queues:95:5)\n' +
+    '    at async D:\\projects\\LIS\\backend\\src\\controllers\\report.controller.ts:141:20',
+  url: '/api/v1/reports?page=1&limit=20&sortBy=createdAt&sortOrder=desc',
+  method: 'GET',
+  ip: '::ffff:127.0.0.1',
+  userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:144.0) Gecko/20100101 Firefox/144.0',
+  level: 'error',
+  message: 'Unhandled error:',
+  timestamp: '2025-11-03 20:45:54'
+}
+{
+  service: 'lis-backend',
+  error: 'Failed to get reports',
+  stack: 'Error: Failed to get reports\n' +
+    '    at ReportService.getReports (D:\\projects\\LIS\\backend\\src\\services\\report.service.ts:340:13)\n' +
+    '    at processTicksAndRejections (node:internal/process/task_queues:95:5)\n' +
+    '    at async D:\\projects\\LIS\\backend\\src\\controllers\\report.controller.ts:224:25',
+  url: '/api/v1/reports/statistics',
+  method: 'GET',
+  ip: '::ffff:127.0.0.1',
+  userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:144.0) Gecko/20100101 Firefox/144.0',
+  level: 'error',
+  message: 'Unhandled error:',
+  timestamp: '2025-11-03 20:45:54'
+}
+{
+  service: 'lis-backend',
+  error: 'Failed to get reports',
+  stack: 'Error: Failed to get reports\n' +
+    '    at ReportService.getReports (D:\\projects\\LIS\\backend\\src\\services\\report.service.ts:340:13)\n' +
+    '    at processTicksAndRejections (node:internal/process/task_queues:95:5)\n' +
+    '    at async D:\\projects\\LIS\\backend\\src\\controllers\\report.controller.ts:141:20',
+  url: '/api/v1/reports?page=1&limit=20&sortBy=createdAt&sortOrder=desc',
+  method: 'GET',
+  ip: '::ffff:127.0.0.1',
+  userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:144.0) Gecko/20100101 Firefox/144.0',
+  level: 'error',
+  message: 'Unhandled error:',
+  timestamp: '2025-11-03 20:45:55'
+}
+{
+  service: 'lis-backend',
+  error: 'Failed to get reports',
+  stack: 'Error: Failed to get reports\n' +
+    '    at ReportService.getReports (D:\\projects\\LIS\\backend\\src\\services\\report.service.ts:340:13)\n' +
+    '    at processTicksAndRejections (node:internal/process/task_queues:95:5)\n' +
+    '    at async D:\\projects\\LIS\\backend\\src\\controllers\\report.controller.ts:224:25',
+  url: '/api/v1/reports/statistics',
+  method: 'GET',
+  ip: '::ffff:127.0.0.1',
+  userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:144.0) Gecko/20100101 Firefox/144.0',
+  level: 'error',
+  message: 'Unhandled error:',
+  timestamp: '2025-11-03 20:45:55'
+}
+{
+  message: 'Port 3000 is already in use',
+  level: 'error',
+  service: 'lis-backend',
+  timestamp: '2025-11-03 20:49:40'
+}
+{
+  message: 'Port 3000 is already in use',
+  level: 'error',
+  service: 'lis-backend',
+  timestamp: '2025-11-03 21:44:44'
+}
+{
+  service: 'lis-backend',
+  error: 'Failed to generate PDF',
+  stack: 'Error: Failed to generate PDF\n' +
+    '    at ReportService.generatePDFForReport (D:\\projects\\LIS\\backend\\src\\services\\report.service.ts:195:13)\n' +
+    '    at processTicksAndRejections (node:internal/process/task_queues:95:5)\n' +
+    '    at async D:\\projects\\LIS\\backend\\src\\controllers\\report.controller.ts:47:20',
+  url: '/api/v1/reports/6907932d93155c614c2461e1/pdf',
+  method: 'POST',
+  ip: '::1',
+  userAgent: 'node-fetch/1.0 (+https://github.com/bitinn/node-fetch)',
+  level: 'error',
+  message: 'Unhandled error:',
+  timestamp: '2025-11-03 22:00:15'
+}
+{
+  service: 'lis-backend',
+  error: 'Failed to generate PDF',
+  stack: 'Error: Failed to generate PDF\n' +
+    '    at ReportService.generatePDFForReport (D:\\projects\\LIS\\backend\\src\\services\\report.service.ts:209:13)\n' +
+    '    at processTicksAndRejections (node:internal/process/task_queues:95:5)\n' +
+    '    at async D:\\projects\\LIS\\backend\\src\\controllers\\report.controller.ts:47:20',
+  url: '/api/v1/reports/6907932d93155c614c2461e1/pdf',
+  method: 'POST',
+  ip: '::ffff:127.0.0.1',
+  userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:144.0) Gecko/20100101 Firefox/144.0',
+  level: 'error',
+  message: 'Unhandled error:',
+  timestamp: '2025-11-03 22:08:43'
+}
+{
+  service: 'lis-backend',
+  error: 'Failed to generate PDF',
+  stack: 'Error: Failed to generate PDF\n' +
+    '    at ReportService.generatePDFForReport (D:\\projects\\LIS\\backend\\src\\services\\report.service.ts:209:13)\n' +
+    '    at processTicksAndRejections (node:internal/process/task_queues:95:5)\n' +
+    '    at async D:\\projects\\LIS\\backend\\src\\controllers\\report.controller.ts:47:20',
+  url: '/api/v1/reports/6907932d93155c614c2461e1/pdf',
+  method: 'POST',
+  ip: '::ffff:127.0.0.1',
+  userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:144.0) Gecko/20100101 Firefox/144.0',
+  level: 'error',
+  message: 'Unhandled error:',
+  timestamp: '2025-11-03 22:09:02'
+}
+{
+  service: 'lis-backend',
+  error: 'Failed to save PDF report',
+  stack: 'Error: Failed to save PDF report\n' +
+    '    at PDFReportService.savePDFToGridFS (D:\\projects\\LIS\\backend\\src\\services\\pdfReport.service.ts:484:13)\n' +
+    '    at processTicksAndRejections (node:internal/process/task_queues:95:5)\n' +
+    '    at async ReportService.generatePDFForReport (D:\\projects\\LIS\\backend\\src\\services\\report.service.ts:229:46)\n' +
+    '    at async D:\\projects\\LIS\\backend\\src\\controllers\\report.controller.ts:47:20',
+  url: '/api/v1/reports/6907932d93155c614c2461e1/pdf',
+  method: 'POST',
+  ip: '::ffff:127.0.0.1',
+  userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:144.0) Gecko/20100101 Firefox/144.0',
+  level: 'error',
+  message: 'Unhandled error:',
+  timestamp: '2025-11-03 22:10:41'
+}
+{
+  service: 'lis-backend',
+  error: '401',
+  stack: 'Error: 401\n' +
+    '    at authenticate (D:\\projects\\LIS\\backend\\src\\middlewares\\auth.middleware.ts:59:12)\n' +
+    '    at newFn (D:\\projects\\LIS\\backend\\node_modules\\express-async-errors\\index.js:16:20)\n' +
+    '    at Layer.handle [as handle_request] (D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\layer.js:95:5)\n' +
+    '    at trim_prefix (D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\index.js:328:13)\n' +
+    '    at D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\index.js:286:9\n' +
+    '    at Function.process_params (D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\index.js:346:12)\n' +
+    '    at next (D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\index.js:280:10)\n' +
+    '    at Function.handle (D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\index.js:175:3)\n' +
+    '    at router (D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\index.js:47:12)\n' +
+    '    at newFn (D:\\projects\\LIS\\backend\\node_modules\\express-async-errors\\index.js:16:20)',
+  url: '/api/v1/reports/6907932d93155c614c2461e1/pdf/download',
+  method: 'GET',
+  ip: '::ffff:127.0.0.1',
+  userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:144.0) Gecko/20100101 Firefox/144.0',
+  level: 'error',
+  message: 'Unhandled error:',
+  timestamp: '2025-11-03 22:21:27'
+}
+{
+  service: 'lis-backend',
+  error: '401',
+  stack: 'Error: 401\n' +
+    '    at authenticate (D:\\projects\\LIS\\backend\\src\\middlewares\\auth.middleware.ts:59:12)\n' +
+    '    at newFn (D:\\projects\\LIS\\backend\\node_modules\\express-async-errors\\index.js:16:20)\n' +
+    '    at Layer.handle [as handle_request] (D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\layer.js:95:5)\n' +
+    '    at trim_prefix (D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\index.js:328:13)\n' +
+    '    at D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\index.js:286:9\n' +
+    '    at Function.process_params (D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\index.js:346:12)\n' +
+    '    at next (D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\index.js:280:10)\n' +
+    '    at Function.handle (D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\index.js:175:3)\n' +
+    '    at router (D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\index.js:47:12)\n' +
+    '    at newFn (D:\\projects\\LIS\\backend\\node_modules\\express-async-errors\\index.js:16:20)',
+  url: '/api/v1/reports/6907932d93155c614c2461e1/pdf/download',
+  method: 'GET',
+  ip: '::ffff:127.0.0.1',
+  userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:144.0) Gecko/20100101 Firefox/144.0',
+  level: 'error',
+  message: 'Unhandled error:',
+  timestamp: '2025-11-03 22:21:28'
+}
+{
+  service: 'lis-backend',
+  error: '401',
+  stack: 'Error: 401\n' +
+    '    at authenticate (D:\\projects\\LIS\\backend\\src\\middlewares\\auth.middleware.ts:59:12)\n' +
+    '    at newFn (D:\\projects\\LIS\\backend\\node_modules\\express-async-errors\\index.js:16:20)\n' +
+    '    at Layer.handle [as handle_request] (D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\layer.js:95:5)\n' +
+    '    at trim_prefix (D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\index.js:328:13)\n' +
+    '    at D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\index.js:286:9\n' +
+    '    at Function.process_params (D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\index.js:346:12)\n' +
+    '    at next (D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\index.js:280:10)\n' +
+    '    at Function.handle (D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\index.js:175:3)\n' +
+    '    at router (D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\index.js:47:12)\n' +
+    '    at newFn (D:\\projects\\LIS\\backend\\node_modules\\express-async-errors\\index.js:16:20)',
+  url: '/api/v1/reports/6907932d93155c614c2461e1/pdf/download',
+  method: 'GET',
+  ip: '::ffff:127.0.0.1',
+  userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:144.0) Gecko/20100101 Firefox/144.0',
+  level: 'error',
+  message: 'Unhandled error:',
+  timestamp: '2025-11-03 22:22:13'
+}
+{
+  service: 'lis-backend',
+  error: '401',
+  stack: 'Error: 401\n' +
+    '    at authenticate (D:\\projects\\LIS\\backend\\src\\middlewares\\auth.middleware.ts:59:12)\n' +
+    '    at newFn (D:\\projects\\LIS\\backend\\node_modules\\express-async-errors\\index.js:16:20)\n' +
+    '    at Layer.handle [as handle_request] (D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\layer.js:95:5)\n' +
+    '    at trim_prefix (D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\index.js:328:13)\n' +
+    '    at D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\index.js:286:9\n' +
+    '    at Function.process_params (D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\index.js:346:12)\n' +
+    '    at next (D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\index.js:280:10)\n' +
+    '    at Function.handle (D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\index.js:175:3)\n' +
+    '    at router (D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\index.js:47:12)\n' +
+    '    at newFn (D:\\projects\\LIS\\backend\\node_modules\\express-async-errors\\index.js:16:20)',
+  url: '/api/v1/reports/6907932d93155c614c2461e1/pdf/download',
+  method: 'GET',
+  ip: '::ffff:127.0.0.1',
+  userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:144.0) Gecko/20100101 Firefox/144.0',
+  level: 'error',
+  message: 'Unhandled error:',
+  timestamp: '2025-11-03 22:22:14'
+}
+{
+  service: 'lis-backend',
+  error: '401',
+  stack: 'Error: 401\n' +
+    '    at authenticate (D:\\projects\\LIS\\backend\\src\\middlewares\\auth.middleware.ts:59:12)\n' +
+    '    at newFn (D:\\projects\\LIS\\backend\\node_modules\\express-async-errors\\index.js:16:20)\n' +
+    '    at Layer.handle [as handle_request] (D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\layer.js:95:5)\n' +
+    '    at trim_prefix (D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\index.js:328:13)\n' +
+    '    at D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\index.js:286:9\n' +
+    '    at Function.process_params (D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\index.js:346:12)\n' +
+    '    at next (D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\index.js:280:10)\n' +
+    '    at Function.handle (D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\index.js:175:3)\n' +
+    '    at router (D:\\projects\\LIS\\backend\\node_modules\\express\\lib\\router\\index.js:47:12)\n' +
+    '    at newFn (D:\\projects\\LIS\\backend\\node_modules\\express-async-errors\\index.js:16:20)',
+  url: '/api/v1/reports/6907932d93155c614c2461e1/pdf/view',
+  method: 'GET',
+  ip: '::ffff:127.0.0.1',
+  userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:144.0) Gecko/20100101 Firefox/144.0',
+  level: 'error',
+  message: 'Unhandled error:',
+  timestamp: '2025-11-03 22:22:56'
+}
+{
+  service: 'lis-backend',
+  error: 'Failed to download PDF',
+  stack: 'Error: Failed to download PDF\n' +
+    '    at ReportService.downloadReportPDF (D:\\projects\\LIS\\backend\\src\\services\\report.service.ts:302:13)\n' +
+    '    at processTicksAndRejections (node:internal/process/task_queues:95:5)\n' +
+    '    at async D:\\projects\\LIS\\backend\\src\\controllers\\report.controller.ts:61:37',
+  url: '/api/v1/reports/6907932d93155c614c2461e1/pdf/download',
+  method: 'GET',
+  ip: '::ffff:127.0.0.1',
+  userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:144.0) Gecko/20100101 Firefox/144.0',
+  level: 'error',
+  message: 'Unhandled error:',
+  timestamp: '2025-11-03 22:25:23'
+}
+{
+  service: 'lis-backend',
+  error: 'Failed to download PDF',
+  stack: 'Error: Failed to download PDF\n' +
+    '    at ReportService.downloadReportPDF (D:\\projects\\LIS\\backend\\src\\services\\report.service.ts:302:13)\n' +
+    '    at processTicksAndRejections (node:internal/process/task_queues:95:5)\n' +
+    '    at async D:\\projects\\LIS\\backend\\src\\controllers\\report.controller.ts:61:37',
+  url: '/api/v1/reports/6907932d93155c614c2461e1/pdf/download',
+  method: 'GET',
+  ip: '::ffff:127.0.0.1',
+  userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:144.0) Gecko/20100101 Firefox/144.0',
+  level: 'error',
+  message: 'Unhandled error:',
+  timestamp: '2025-11-03 22:25:24'
+}
+{
+  service: 'lis-backend',
+  error: 'Failed to download PDF',
+  stack: 'Error: Failed to download PDF\n' +
+    '    at ReportService.downloadReportPDF (D:\\projects\\LIS\\backend\\src\\services\\report.service.ts:302:13)\n' +
+    '    at processTicksAndRejections (node:internal/process/task_queues:95:5)\n' +
+    '    at async D:\\projects\\LIS\\backend\\src\\controllers\\report.controller.ts:74:37',
+  url: '/api/v1/reports/6907932d93155c614c2461e1/pdf/view',
+  method: 'GET',
+  ip: '::ffff:127.0.0.1',
+  userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:144.0) Gecko/20100101 Firefox/144.0',
+  level: 'error',
+  message: 'Unhandled error:',
+  timestamp: '2025-11-03 22:25:41'
+}

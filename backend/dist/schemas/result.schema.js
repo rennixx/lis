@@ -68,7 +68,7 @@ const ResultSchema = new mongoose_1.Schema({
     order: {
         type: mongoose_1.Schema.Types.ObjectId,
         ref: 'Order',
-        required: true,
+        required: false,
         index: true
     },
     orderNumber: {
@@ -78,7 +78,7 @@ const ResultSchema = new mongoose_1.Schema({
     test: {
         type: mongoose_1.Schema.Types.ObjectId,
         ref: 'Test',
-        required: true,
+        required: false,
         index: true
     },
     testCode: {
@@ -93,7 +93,7 @@ const ResultSchema = new mongoose_1.Schema({
     patient: {
         type: mongoose_1.Schema.Types.ObjectId,
         ref: 'Patient',
-        required: true,
+        required: false,
         index: true
     },
     patientName: {
@@ -170,7 +170,7 @@ const ResultSchema = new mongoose_1.Schema({
     enteredBy: {
         type: mongoose_1.Schema.Types.ObjectId,
         ref: 'User',
-        required: true,
+        required: false,
         index: true
     },
     enteredByUser: {
@@ -236,6 +236,16 @@ const ResultSchema = new mongoose_1.Schema({
         type: Boolean,
         default: true,
         index: true
+    },
+    pdfFileId: {
+        type: mongoose_1.Schema.Types.ObjectId,
+        ref: 'fs.files'
+    },
+    pdfGeneration: {
+        generatedAt: Date,
+        pdfVersion: { type: String, default: '1.0' },
+        generationTime: Number,
+        templateUsed: { type: String, default: 'standard' }
     }
 }, {
     timestamps: true,

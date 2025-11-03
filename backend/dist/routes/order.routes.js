@@ -27,4 +27,5 @@ router.post('/bulk-create', (0, auth_middleware_1.authorize)('admin', 'nurse', '
 router.patch('/bulk-status', (0, auth_middleware_1.authorize)('admin', 'lab_technician'), validation_middleware_1.validateRequest, orderController.bulkUpdateStatus);
 router.get('/patient/:patientId', (0, auth_middleware_1.authorize)('admin', 'doctor', 'lab_technician', 'nurse', 'receptionist'), orderController.getOrdersByPatient);
 router.get('/doctor/:doctorId', (0, auth_middleware_1.authorize)('admin', 'doctor'), orderController.getOrdersByDoctor);
+router.get('/:orderId/pending-tests', (0, auth_middleware_1.authorize)('admin', 'lab_technician'), orderController.getPendingTests);
 exports.default = router;

@@ -43,6 +43,17 @@ export interface IReport extends Document {
   emailSentTo?: string;
   printedCopies?: number;
   pdfPath?: string;
+  // GridFS storage for PDF
+  pdfFileId?: Types.ObjectId;
+  pdfFileName?: string;
+  pdfFileSize?: number;
+  // Report generation metadata
+  reportGeneration?: {
+    generatedAt?: Date;
+    pdfVersion?: string;
+    generationTime?: number;
+    templateUsed?: string;
+  };
   template?: string;
   version: number;
   previousVersion?: Types.ObjectId;
@@ -280,6 +291,31 @@ const ReportSchema: Schema = new Schema({
   pdfPath: {
     type: String,
     trim: true
+  },
+  // GridFS storage for PDF
+  pdfFileId: {
+    type: Schema.Types.ObjectId,
+    ref: 'fs.files'
+  },
+  pdfFileName: {
+    type: String,
+    trim: true
+  },
+  pdfFileSize: {
+    type: Number
+  },
+  // Report generation metadata
+  reportGeneration: {
+    generatedAt: Date,
+    pdfVersion: {
+      type: String,
+      default: '1.0'
+    },
+    generationTime: Number, // in milliseconds
+    templateUsed: {
+      type: String,
+      default: 'standard'
+    }
   },
   template: {
     type: String,

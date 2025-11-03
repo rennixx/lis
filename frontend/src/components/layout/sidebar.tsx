@@ -11,6 +11,7 @@ import {
   TestTube,
   Calendar,
   UserCog,
+  CheckCircle,
   Menu,
   ClipboardList,
   Package,
@@ -31,6 +32,7 @@ const iconMap = {
   'user-cog': UserCog,
   'clipboard-list': ClipboardList,
   'package': Package,
+  'check-circle': CheckCircle,
 }
 
 export function Sidebar() {
