@@ -8,8 +8,11 @@ import testRoutes from './test.routes';
 import sampleRoutes from './sample.routes';
 import resultRoutes from './result.routes';
 import reportRoutes from './report.routes';
+import analyticsRoutes from './analytics.routes';
+import sampleDataRoutes from './sampleData.routes';
 
 const router = Router();
+
 
 // Health check
 router.get('/health', (req, res) => {
@@ -49,5 +52,7 @@ router.use('/tests', testRoutes);
 router.use('/samples', sampleRoutes);
 router.use('/results', resultRoutes);
 router.use('/reports', reportRoutes);
+router.use('/analytics', analyticsRoutes);
+router.use('/sample-data', sampleDataRoutes);
 
 export default router;

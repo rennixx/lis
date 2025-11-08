@@ -1,5 +1,5 @@
 import { apiGet, apiPost, apiPut, apiDelete, apiPatch } from '../client';
-import { ENDPOINTS, buildQueryParams, getPaginationParams } from '../endpoints';
+import { ENDPOINTS, buildQueryParams, getPaginationParams, API_BASE_URL } from '../endpoints';
 import {
   Result,
   CreateResultRequest,
@@ -229,7 +229,7 @@ class ResultService {
 
   // Generate PDF for a result
   async generateResultPDF(resultId: string, options: { template?: string; includePatientInfo?: boolean; includeLabInfo?: boolean } = {}): Promise<any> {
-    const response = await apiPost<ApiResponse<any>>(`${this.baseUrl.GET(resultId)}/pdf`, options);
+    const response = await apiPost<ApiResponse<any>>(this.baseUrl.GENERATE_PDF(resultId), options);
     if (response.success && response.data?.data) {
       return response.data.data;
     }
@@ -239,7 +239,7 @@ class ResultService {
   // Download PDF for a result
   async downloadResultPDF(resultId: string): Promise<Blob> {
     const token = localStorage.getItem('lis_auth_token');
-    const response = await fetch(`${this.baseUrl.GET(resultId)}/pdf/download`, {
+    const response = await fetch(`${API_BASE_URL}${this.baseUrl.DOWNLOAD_PDF(resultId)}`, {
       method: 'GET',
       headers: {
         'Authorization': `Bearer ${token}`,
@@ -257,7 +257,7 @@ class ResultService {
   // View PDF for a result (inline)
   async viewResultPDF(resultId: string): Promise<string> {
     const token = localStorage.getItem('lis_auth_token');
-    const response = await fetch(`${this.baseUrl.GET(resultId)}/pdf/view`, {
+    const response = await fetch(`${API_BASE_URL}${this.baseUrl.VIEW_PDF(resultId)}`, {
       method: 'GET',
       headers: {
         'Authorization': `Bearer ${token}`,

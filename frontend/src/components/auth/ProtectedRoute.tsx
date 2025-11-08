@@ -17,6 +17,18 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   const location = useLocation();
   const { isAuthenticated, user, hasPermission } = useAuthStore();
 
+  // Debug: Log ProtectedRoute state
+  React.useEffect(() => {
+    console.log('🔍 [ProtectedRoute] ProtectedRoute rendered');
+    console.log('🔍 [ProtectedRoute] Current path:', location.pathname);
+    console.log('🔍 [ProtectedRoute] Is authenticated:', isAuthenticated);
+    console.log('🔍 [ProtectedRoute] User:', user);
+    console.log('🔍 [ProtectedRoute] Required roles:', roles);
+    if (roles && user) {
+      console.log('🔍 [ProtectedRoute] Has permission:', roles.some(role => hasPermission(role)));
+    }
+  }, [location, isAuthenticated, user, roles, hasPermission]);
+
   // Show loading spinner while checking authentication
   if (isAuthenticated === null) {
     return (

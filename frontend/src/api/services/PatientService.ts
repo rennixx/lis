@@ -80,9 +80,9 @@ class PatientService {
 
   // Create new patient
   async createPatient(patientData: CreatePatientRequest): Promise<Patient> {
-    const response = await apiPost<Patient>(this.baseUrl.CREATE, patientData);
-    if (response.success && response.data) {
-      return response.data;
+    const response = await apiPost<ApiResponse<Patient>>(this.baseUrl.CREATE, patientData);
+    if (response.success && response.data?.data) {
+      return response.data.data;
     }
     throw new Error(response.message || 'Failed to create patient');
   }

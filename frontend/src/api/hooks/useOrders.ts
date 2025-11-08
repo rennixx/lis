@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { orderService } from '../services/OrderService';
-import { CreateOrderRequest, UpdateOrderRequest, OrderQueryParams } from '@/types/api.types';
+import { CreateOrderRequest, UpdateOrderRequest, OrderQueryParams, OrdersResponse } from '@/types/api.types';
 
 // Query keys
 export const orderKeys = {
@@ -16,7 +16,7 @@ export const orderKeys = {
 
 // Get orders list
 export const useOrders = (params: OrderQueryParams = {}) => {
-  return useQuery({
+  return useQuery<OrdersResponse>({
     queryKey: orderKeys.list(params),
     queryFn: () => orderService.getOrders(params),
     staleTime: 30 * 1000, // 30 seconds
@@ -67,7 +67,7 @@ export const useCreateOrder = () => {
       queryClient.invalidateQueries({ queryKey: orderKeys.recent() });
 
       // Optionally pre-populate the new order in cache
-      queryClient.setQueryData(orderKeys.detail(newOrder.id), newOrder);
+      queryClient.setQueryData(orderKeys.detail(newOrder._id), newOrder);
     },
     onError: (error) => {
       console.error('Failed to create order:', error);

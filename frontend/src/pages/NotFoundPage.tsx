@@ -1,8 +1,16 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { Home, ArrowLeft, Search } from 'lucide-react';
 
 export const NotFoundPage: React.FC = () => {
+  const location = useLocation();
+
+  // Debug: Log when NotFoundPage is rendered
+  React.useEffect(() => {
+    console.log('🔍 [NotFoundPage] 404 page rendered');
+    console.log('🔍 [NotFoundPage] Current path:', location.pathname);
+    console.log('🔍 [NotFoundPage] Current URL:', window.location.href);
+  }, [location]);
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full text-center">

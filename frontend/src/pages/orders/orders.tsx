@@ -1,194 +1,95 @@
-import React, { useState } from 'react';
-import { Plus, Search, Filter, Download, Eye, Edit, Trash2 } from 'lucide-react';
+import React from 'react';
+import { useNavigate } from 'react-router-dom';
+import { ClipboardList, Plus, Search, Filter, Clock, User, AlertCircle } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { useNavigate } from 'react-router-dom';
-import { useToast } from '@/hooks/use-toast';
+import { useOrders } from '@/api/hooks/useOrders';
+import { Order, OrdersResponse } from '@/types/api.types';
 
-// Mock data for demonstration
-const mockOrders = [
-  {
-    id: 'ORD-2024-001',
-    patientName: 'John Doe',
-    patientId: 'P-001',
-    tests: ['CBC', 'Blood Glucose'],
-    status: 'pending',
-    priority: 'routine',
-    createdAt: '2024-01-15T10:30:00Z',
-    doctor: 'Dr. Smith',
-    department: 'Laboratory',
-  },
-  {
-    id: 'ORD-2024-002',
-    patientName: 'Jane Smith',
-    patientId: 'P-002',
-    tests: ['Lipid Panel', 'HbA1c'],
-    status: 'in-progress',
-    priority: 'urgent',
-    createdAt: '2024-01-15T09:15:00Z',
-    doctor: 'Dr. Johnson',
-    department: 'Laboratory',
-  },
-  {
-    id: 'ORD-2024-003',
-    patientName: 'Robert Johnson',
-    patientId: 'P-003',
-    tests: ['Complete Metabolic Panel'],
-    status: 'completed',
-    priority: 'stat',
-    createdAt: '2024-01-14T16:45:00Z',
-    doctor: 'Dr. Williams',
-    department: 'Laboratory',
-  },
-];
-
-const OrdersPage: React.FC = () => {
+export const OrdersPage: React.FC = () => {
   const navigate = useNavigate();
-  const { toast } = useToast();
-  const [searchTerm, setSearchTerm] = useState('');
-  const [filterStatus, setFilterStatus] = useState('all');
+  const { data: ordersData, isLoading, error } = useOrders({ limit: 50 });
+  const [searchTerm, setSearchTerm] = React.useState('');
+
+  // Debug: Log the orders data
+  React.useEffect(() => {
+    console.log('📊 [ORDERS PAGE] ordersData:', ordersData);
+    console.log('📊 [ORDERS PAGE] isLoading:', isLoading);
+    console.log('📊 [ORDERS PAGE] error:', error);
+  }, [ordersData, isLoading, error]);
+
+  // Filter orders based on search term
+  const filteredOrders = ordersData?.orders?.filter(order =>
+    order.patient?.firstName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    order.patient?.lastName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    order.orderNumber?.toLowerCase().includes(searchTerm.toLowerCase())
+  ) || [];
+
+  // Debug: Log filtered orders
+  React.useEffect(() => {
+    console.log('📊 [ORDERS PAGE] filteredOrders length:', filteredOrders.length);
+    console.log('📊 [ORDERS PAGE] filteredOrders:', filteredOrders);
+  }, [filteredOrders]);
 
   const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'pending':
-        return 'bg-yellow-100 text-yellow-800';
-      case 'in-progress':
-        return 'bg-blue-100 text-blue-800';
-      case 'completed':
-        return 'bg-green-100 text-green-800';
-      case 'cancelled':
-        return 'bg-red-100 text-red-800';
-      default:
-        return 'bg-gray-100 text-gray-800';
+    switch (status.toLowerCase()) {
+      case 'pending': return 'bg-yellow-100 text-yellow-800 border-yellow-300';
+      case 'sample_collected': return 'bg-blue-100 text-blue-800 border-blue-300';
+      case 'in_progress': return 'bg-purple-100 text-purple-800 border-purple-300';
+      case 'completed': return 'bg-green-100 text-green-800 border-green-300';
+      case 'cancelled': return 'bg-red-100 text-red-800 border-red-300';
+      default: return 'bg-gray-100 text-gray-800 border-gray-300';
     }
   };
 
   const getPriorityColor = (priority: string) => {
-    switch (priority) {
-      case 'routine':
-        return 'bg-gray-100 text-gray-800';
-      case 'urgent':
-        return 'bg-orange-100 text-orange-800';
-      case 'stat':
-        return 'bg-red-100 text-red-800';
-      case 'critical':
-        return 'bg-red-200 text-red-900';
-      default:
-        return 'bg-gray-100 text-gray-800';
+    switch (priority.toLowerCase()) {
+      case 'stat': return 'bg-red-100 text-red-800 border-red-300';
+      case 'urgent': return 'bg-orange-100 text-orange-800 border-orange-300';
+      case 'routine': return 'bg-gray-100 text-gray-800 border-gray-300';
+      default: return 'bg-gray-100 text-gray-800 border-gray-300';
     }
   };
-
-  const filteredOrders = mockOrders.filter(order => {
-    const matchesSearch = order.patientName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         order.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         order.doctor.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesFilter = filterStatus === 'all' || order.status === filterStatus;
-    return matchesSearch && matchesFilter;
-  });
-
-  // Handler functions for table actions
-  const handleViewOrder = (orderId: string) => {
-    toast({
-      title: "View Order",
-      description: `Viewing details for order ${orderId}`,
-    });
-    // Navigate to order details page (when implemented)
-    // navigate(`/orders/${orderId}`);
-  };
-
-  const handleEditOrder = (orderId: string) => {
-    toast({
-      title: "Edit Order",
-      description: `Editing order ${orderId}`,
-    });
-    // Navigate to edit order page (when implemented)
-    // navigate(`/orders/${orderId}/edit`);
-  };
-
-  const handleDeleteOrder = (orderId: string) => {
-    if (confirm(`Are you sure you want to delete order ${orderId}?`)) {
-      toast({
-        title: "Order Deleted",
-        description: `Order ${orderId} has been deleted.`,
-        variant: "destructive",
-      });
-      // Remove from mock data (in real app, this would call API)
-      console.log(`Delete order: ${orderId}`);
-    }
-  };
-
-  const handleExportOrders = () => {
-    toast({
-      title: "Export Orders",
-      description: `Exporting ${filteredOrders.length} orders to CSV`,
-    });
-    // Implement actual export functionality
-    console.log('Exporting orders:', filteredOrders);
-  };
-
   return (
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Orders</h1>
-          <p className="text-muted-foreground">
-            Manage test orders and track their progress
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+            Test Orders
+          </h1>
+          <p className="text-gray-600 dark:text-gray-400 mt-2">
+            Manage patient test orders and track progress
           </p>
         </div>
-        <div className="flex gap-2">
-          <Button
-            variant="outline"
-            onClick={handleExportOrders}
-          >
-            <Download className="mr-2 h-4 w-4" />
-            Export
-          </Button>
-          <Button
-            onClick={() => navigate('/orders/create')}
-            className="bg-teal-600 hover:bg-teal-700"
-          >
-            <Plus className="mr-2 h-4 w-4" />
-            New Order
-          </Button>
-        </div>
+      <Button onClick={() => navigate('/orders/create')}>
+          <Plus className="h-4 w-4 mr-2" />
+          New Order
+        </Button>
       </div>
 
-      {/* Filters and Search */}
+      {/* Search and Filters */}
       <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Filter className="h-5 w-5" />
-            Filters
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="flex flex-col sm:flex-row gap-4">
+        <CardContent className="p-6">
+          <div className="flex flex-col md:flex-row gap-4">
             <div className="flex-1">
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                 <Input
-                  placeholder="Search by patient, order ID, or doctor..."
+                  type="text"
+                  placeholder="Search orders by patient name or order ID..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="pl-10"
                 />
               </div>
             </div>
-            <select
-              value={filterStatus}
-              onChange={(e) => setFilterStatus(e.target.value)}
-              className="px-3 py-2 border border-input bg-background rounded-md text-sm"
-            >
-              <option value="all">All Status</option>
-              <option value="pending">Pending</option>
-              <option value="in-progress">In Progress</option>
-              <option value="completed">Completed</option>
-              <option value="cancelled">Cancelled</option>
-            </select>
+            <button className="btn btn-outline">
+              <Filter className="h-4 w-4 mr-2" />
+              Filters
+            </button>
           </div>
         </CardContent>
       </Card>
@@ -196,93 +97,126 @@ const OrdersPage: React.FC = () => {
       {/* Orders Table */}
       <Card>
         <CardHeader>
-          <CardTitle>Orders ({filteredOrders.length})</CardTitle>
-          <CardDescription>
-            A list of all test orders in the system
-          </CardDescription>
+          <CardTitle className="flex items-center">
+            <ClipboardList className="h-5 w-5 mr-2" />
+            All Orders
+          </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="rounded-md border">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Order ID</TableHead>
-                  <TableHead>Patient</TableHead>
-                  <TableHead>Tests</TableHead>
-                  <TableHead>Doctor</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Priority</TableHead>
-                  <TableHead>Date</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filteredOrders.map((order) => (
-                  <TableRow key={order.id}>
-                    <TableCell className="font-medium">{order.id}</TableCell>
-                    <TableCell>
-                      <div>
-                        <div className="font-medium">{order.patientName}</div>
-                        <div className="text-sm text-muted-foreground">{order.patientId}</div>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex flex-wrap gap-1">
-                        {order.tests.map((test, index) => (
-                          <Badge key={index} variant="secondary" className="text-xs">
-                            {test}
-                          </Badge>
-                        ))}
-                      </div>
-                    </TableCell>
-                    <TableCell>{order.doctor}</TableCell>
-                    <TableCell>
-                      <Badge className={getStatusColor(order.status)}>
-                        {order.status}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      <Badge className={getPriorityColor(order.priority)}>
-                        {order.priority}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      {new Date(order.createdAt).toLocaleDateString()}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex items-center justify-end gap-2">
+          {isLoading ? (
+            <div className="text-center py-12">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-600 mx-auto mb-4"></div>
+              <p className="text-gray-600">Loading orders...</p>
+            </div>
+          ) : error ? (
+            <div className="text-center py-12">
+              <AlertCircle className="h-12 w-12 text-red-500 mx-auto mb-4" />
+              <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
+                Error loading orders
+              </h3>
+              <p className="text-gray-600 dark:text-gray-400 mb-4">
+                There was an error loading the orders. Please try again.
+              </p>
+              <Button onClick={() => window.location.reload()}>
+                Retry
+              </Button>
+            </div>
+          ) : filteredOrders.length === 0 ? (
+            <div className="text-center py-12">
+              <ClipboardList className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+              <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
+                {searchTerm ? 'No orders found matching your search' : 'No orders found'}
+              </h3>
+              <p className="text-gray-600 dark:text-gray-400 mb-4">
+                {searchTerm ? 'Try adjusting your search terms' : 'Create your first test order to get started.'}
+              </p>
+              {!searchTerm && (
+                <Button onClick={() => navigate('/orders/create')}>
+                  <Plus className="h-4 w-4 mr-2" />
+                  New Order
+                </Button>
+              )}
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b">
+                    <th className="text-left py-3 px-4 font-medium text-gray-900">Order ID</th>
+                    <th className="text-left py-3 px-4 font-medium text-gray-900">Patient</th>
+                    <th className="text-left py-3 px-4 font-medium text-gray-900">Tests</th>
+                    <th className="text-left py-3 px-4 font-medium text-gray-900">Status</th>
+                    <th className="text-left py-3 px-4 font-medium text-gray-900">Priority</th>
+                    <th className="text-left py-3 px-4 font-medium text-gray-900">Created</th>
+                    <th className="text-left py-3 px-4 font-medium text-gray-900">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredOrders.map((order: Order) => (
+                    <tr key={order._id} className="border-b hover:bg-gray-50">
+                      <td className="py-3 px-4">
+                        <span className="font-mono text-sm">{order.orderNumber}</span>
+                      </td>
+                      <td className="py-3 px-4">
+                        <div className="flex items-center">
+                          <User className="h-4 w-4 text-gray-400 mr-2" />
+                          <div>
+                            <div className="font-medium">
+                              {order.patient?.firstName} {order.patient?.lastName}
+                            </div>
+                            <div className="text-sm text-gray-500">{order.patient?.phone}</div>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="py-3 px-4">
+                        <div className="space-y-1">
+                          {order.tests?.slice(0, 2).map((test: any, index: number) => (
+                            <div key={index} className="text-sm">
+                              {test.testName || test.name}
+                            </div>
+                          ))}
+                          {order.tests?.length > 2 && (
+                            <div className="text-sm text-gray-500">
+                              +{order.tests.length - 2} more
+                            </div>
+                          )}
+                        </div>
+                      </td>
+                      <td className="py-3 px-4">
+                        <Badge className={getStatusColor(order.status)}>
+                          {order.status?.replace('_', ' ')}
+                        </Badge>
+                      </td>
+                      <td className="py-3 px-4">
+                        <Badge className={getPriorityColor(order.priority)}>
+                          {order.priority}
+                        </Badge>
+                      </td>
+                      <td className="py-3 px-4">
+                        <div className="text-sm">
+                          {new Date(order.createdAt).toLocaleDateString()}
+                        </div>
+                        <div className="text-xs text-gray-500">
+                          {new Date(order.createdAt).toLocaleTimeString()}
+                        </div>
+                      </td>
+                      <td className="py-3 px-4">
                         <Button
-                          variant="ghost"
+                          variant="outline"
                           size="sm"
-                          onClick={() => handleViewOrder(order.id)}
+                          onClick={() => navigate(`/orders/${order._id}`)}
                         >
-                          <Eye className="h-4 w-4" />
+                          View
                         </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleEditOrder(order.id)}
-                        >
-                          <Edit className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleDeleteOrder(order.id)}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>
   );
 };
-
-export { OrdersPage };

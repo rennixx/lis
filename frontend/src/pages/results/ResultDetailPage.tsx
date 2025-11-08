@@ -25,13 +25,41 @@ export const ResultDetailPage: React.FC = () => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [isDownloadingPDF, setIsDownloadingPDF] = React.useState(false);
+  const [pdfTemplate, setPdfTemplate] = React.useState<'standard' | 'compact' | 'detailed' | 'cbc-style'>('cbc-style');
+
+  // Debug: Log the route parameter
+  React.useEffect(() => {
+    console.log('🔍 [ResultDetailPage] Route ID parameter:', id);
+    console.log('🔍 [ResultDetailPage] Current URL:', window.location.href);
+  }, [id]);
 
   // Fetch result data
   const { data: result, isLoading, error } = useQuery({
     queryKey: ['result', id],
-    queryFn: () => id ? resultService.getResult(id) : Promise.reject('No ID provided'),
+    queryFn: () => {
+      console.log('🔍 [ResultDetailPage] Fetching result for ID:', id);
+      if (!id) {
+        console.log('❌ [ResultDetailPage] No ID provided');
+        return Promise.reject('No ID provided');
+      }
+      console.log('🔍 [ResultDetailPage] Calling resultService.getResult...');
+      return resultService.getResult(id);
+    },
     enabled: !!id,
+    retry: false,
+    staleTime: 0,
   });
+
+  // Debug: Log query state changes
+  React.useEffect(() => {
+    console.log('🔍 [ResultDetailPage] Query state changed:', {
+      isLoading,
+      hasError: !!error,
+      hasData: !!result,
+      error: error?.message,
+      resultKeys: result ? Object.keys(result) : null
+    });
+  }, [isLoading, error, result]);
 
   const handleBack = () => {
     navigate('/results');
@@ -42,8 +70,33 @@ export const ResultDetailPage: React.FC = () => {
 
     setIsDownloadingPDF(true);
     try {
-      // Try to download PDF
-      const blob = await resultService.downloadResultPDF(result._id);
+      console.log('🔧 [FRONTEND] Starting PDF download for result:', result._id);
+      console.log('🔧 [FRONTEND] Using template:', pdfTemplate);
+
+      // Direct download using the download endpoint which generates PDF on-demand
+      const token = localStorage.getItem('lis_auth_token');
+
+      // Direct download with template parameter
+      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3000/api/v1'}/results/${result._id}/pdf/download?template=${pdfTemplate}`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      console.log('🔧 [FRONTEND] Response status:', response.status);
+      console.log('🔧 [FRONTEND] Response headers:', Object.fromEntries(response.headers.entries()));
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('❌ [FRONTEND] Download failed:', response.status, errorText);
+        throw new Error(`Failed to download PDF: ${response.statusText}`);
+      }
+
+      const blob = await response.blob();
+      console.log('🔧 [FRONTEND] Blob size:', blob.size, 'bytes');
+      console.log('🔧 [FRONTEND] Blob type:', blob.type);
 
       // Create download link
       const url = window.URL.createObjectURL(blob);
@@ -58,7 +111,7 @@ export const ResultDetailPage: React.FC = () => {
       console.log('✅ PDF downloaded successfully');
     } catch (error) {
       console.error('❌ Error downloading PDF:', error);
-      alert('Failed to download PDF. Please try again.');
+      alert(`Failed to download PDF: ${error instanceof Error ? error.message : 'Unknown error'}`);
     } finally {
       setIsDownloadingPDF(false);
     }
@@ -68,21 +121,50 @@ export const ResultDetailPage: React.FC = () => {
     if (!result) return;
 
     try {
-      // Get PDF URL for viewing
-      const pdfUrl = await resultService.viewResultPDF(result._id);
+      console.log('🔧 [FRONTEND] Starting PDF print for result:', result._id);
 
-      // Open PDF in new window for printing
+      // Direct fetch for inline viewing with template parameter
+      const token = localStorage.getItem('lis_auth_token');
+      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3000/api/v1'}/results/${result._id}/pdf/view?template=${pdfTemplate}`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      console.log('🔧 [FRONTEND] Print response status:', response.status);
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('❌ [FRONTEND] Print failed:', response.status, errorText);
+        throw new Error(`Failed to prepare PDF for printing: ${response.statusText}`);
+      }
+
+      const blob = await response.blob();
+      console.log('🔧 [FRONTEND] Print blob size:', blob.size, 'bytes');
+
+      // Create object URL and open in new window
+      const pdfUrl = URL.createObjectURL(blob);
       const printWindow = window.open(pdfUrl, '_blank');
+
       if (printWindow) {
+        console.log('🔧 [FRONTEND] Print window opened successfully');
         printWindow.onload = () => {
+          console.log('🔧 [FRONTEND] Print window loaded, triggering print');
           printWindow.print();
         };
+        // Clean up the object URL when the window is closed
+        printWindow.onbeforeunload = () => {
+          URL.revokeObjectURL(pdfUrl);
+        };
       } else {
+        console.error('❌ [FRONTEND] Failed to open print window');
         alert('Failed to open print window. Please check your popup settings.');
       }
     } catch (error) {
       console.error('❌ Error printing PDF:', error);
-      alert('Failed to prepare PDF for printing. Please try again.');
+      alert(`Failed to prepare PDF for printing: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   };
 
@@ -160,6 +242,20 @@ export const ResultDetailPage: React.FC = () => {
           </div>
         </div>
 
+        {/* Debug information */}
+        <Card className="bg-yellow-50 border-yellow-200">
+          <CardContent className="p-4">
+            <h3 className="font-medium text-yellow-800 mb-2">Debug Information:</h3>
+            <div className="text-sm text-yellow-700 space-y-1">
+              <p>Route ID: {id}</p>
+              <p>Is Loading: {isLoading ? 'Yes' : 'No'}</p>
+              <p>Has Error: {error ? 'Yes' : 'No'}</p>
+              <p>Has Result: {result ? 'Yes' : 'No'}</p>
+              {error && <p>Error Details: {error instanceof Error ? error.message : String(error)}</p>}
+            </div>
+          </CardContent>
+        </Card>
+
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <Card>
             <CardHeader>
@@ -224,32 +320,54 @@ export const ResultDetailPage: React.FC = () => {
           </div>
         </div>
         <div className="flex items-center space-x-3">
-          <Button
-            variant="outline"
-            onClick={handleDownloadPDF}
-            disabled={isDownloadingPDF}
-            className="text-teal-600 border-teal-300 hover:bg-teal-50"
-          >
-            {isDownloadingPDF ? (
-              <>
-                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-teal-600 mr-2"></div>
-                Generating...
-              </>
-            ) : (
-              <>
-                <Download className="h-4 w-4 mr-2" />
-                Download PDF
-              </>
-            )}
-          </Button>
-          <Button
-            variant="outline"
-            onClick={handlePrint}
-            className="text-teal-600 border-teal-300 hover:bg-teal-50"
-          >
-            <Printer className="h-4 w-4 mr-2" />
-            Print
-          </Button>
+          {/* Template Selector - Hidden since CBC-style is now default */}
+          {/*
+          <div className="flex flex-col space-y-1">
+            <label className="text-xs font-medium text-gray-600">PDF Template</label>
+            <select
+              value={pdfTemplate}
+              onChange={(e) => setPdfTemplate(e.target.value as any)}
+              className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 bg-white text-sm min-w-[120px]"
+            >
+              <option value="standard">Standard</option>
+              <option value="compact">Compact</option>
+              <option value="detailed">Detailed</option>
+              <option value="cbc-style">CBC Style</option>
+            </select>
+          </div>
+          */}
+
+          <div className="flex flex-col space-y-1">
+            <label className="text-xs font-medium text-gray-600 invisible">Actions</label>
+            <div className="flex items-center space-x-2">
+              <Button
+                variant="outline"
+                onClick={handleDownloadPDF}
+                disabled={isDownloadingPDF}
+                className="text-teal-600 border-teal-300 hover:bg-teal-50"
+              >
+                {isDownloadingPDF ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-teal-600 mr-2"></div>
+                    Generating...
+                  </>
+                ) : (
+                  <>
+                    <Download className="h-4 w-4 mr-2" />
+                    Download
+                  </>
+                )}
+              </Button>
+              <Button
+                variant="outline"
+                onClick={handlePrint}
+                className="text-teal-600 border-teal-300 hover:bg-teal-50"
+              >
+                <Printer className="h-4 w-4 mr-2" />
+                Print
+              </Button>
+            </div>
+          </div>
         </div>
       </div>
 

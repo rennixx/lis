@@ -9,16 +9,15 @@ const mongoose_1 = require("mongoose");
 const ApiError_1 = require("../utils/ApiError");
 class OrderService {
     async createOrder(data) {
-        const session = await (0, mongoose_1.startSession)();
-        session.startTransaction();
         try {
             const orderNumber = await generateID_1.IDGenerator.generateOrderNumber();
-            const patient = await Patient_model_1.Patient.findById(data.patient).session(session);
+            const patient = await Patient_model_1.Patient.findById(data.patientId);
             if (!patient) {
                 throw new Error('Patient not found');
             }
-            const tests = await Test_model_1.Test.find({ '_id': { $in: data.tests } }).session(session);
-            if (tests.length !== data.tests.length) {
+            const testIds = data.tests.map((test) => test.testId);
+            const tests = await Test_model_1.Test.find({ '_id': { $in: testIds } });
+            if (tests.length !== testIds.length) {
                 throw new Error('One or more tests not found');
             }
             const totalAmount = tests.reduce((sum, test) => sum + (test.price || 0), 0);
@@ -32,8 +31,10 @@ class OrderService {
             const orderData = {
                 ...data,
                 orderNumber,
+                patient: patient._id,
                 patientName: `${patient.firstName} ${patient.lastName}`,
                 patientMRN: patient.patientId,
+                tests: testIds,
                 orderItems,
                 totalAmount,
                 finalAmount: totalAmount - (data.discountAmount || 0),
@@ -41,16 +42,11 @@ class OrderService {
                 isActive: true,
                 createdAt: new Date()
             };
-            const order = await Order_model_1.Order.create([orderData], { session });
-            await session.commitTransaction();
-            return order[0];
+            const order = await Order_model_1.Order.create(orderData);
+            return order;
         }
         catch (error) {
-            await session.abortTransaction();
             throw new ApiError_1.ApiError('Failed to create order: ' + error.message, 500);
-        }
-        finally {
-            session.endSession();
         }
     }
     async getAllOrders(filters) {
@@ -81,10 +77,16 @@ class OrderService {
                 sortBy,
                 sortOrder
             };
-            const [orders, total] = await Promise.all([
-                OrderModel.findAll(paginationFilters),
-                OrderModel.countDocuments(queryFilters)
-            ]);
+            console.log('🔍 [ORDER SERVICE] Using direct Mongoose queries...');
+            const orders = await Order_model_1.Order.find(queryFilters)
+                .populate('patient', 'firstName lastName patientId phone')
+                .populate('tests', 'testName testCode category price')
+                .sort({ [sortBy]: sortOrder === 'desc' ? -1 : 1 })
+                .limit(parseInt(limit))
+                .skip((parseInt(page) - 1) * parseInt(limit));
+            console.log('🔍 [ORDER SERVICE] Orders found:', orders.length);
+            const total = await Order_model_1.Order.countDocuments(queryFilters);
+            console.log('🔍 [ORDER SERVICE] Total count:', total);
             return {
                 orders,
                 total,

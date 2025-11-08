@@ -24,6 +24,17 @@ export interface PaginatedResponse<T> {
   };
 }
 
+// Specific response type for orders that matches backend structure
+export interface OrdersResponse {
+  success: boolean;
+  message: string;
+  orders: Order[];
+  total: number;
+  page: number;
+  limit: number;
+  pages: number;
+}
+
 // Auth types
 export interface LoginRequest {
   email: string;
@@ -68,6 +79,7 @@ export interface User {
 // Patient types
 export interface Patient {
   _id: string;
+  id: string; // Backend returns 'id' field
   patientId: string;
   firstName: string;
   lastName: string;
@@ -189,12 +201,23 @@ export interface CreateTestRequest {
 // Order types
 export interface Order {
   _id: string;
-  id: string;
   orderNumber: string;
-  patient: string;
+  patient: {
+    _id: string;
+    firstName: string;
+    lastName: string;
+    phone?: string;
+    patientId?: string;
+  };
   patientName?: string;
   patientMRN?: string;
-  tests: string[];
+  tests: Array<{
+    _id: string;
+    testName: string;
+    testCode?: string;
+    category?: string;
+    price?: number;
+  }>;
   orderItems: Array<{
     testId: string;
     testName: string;
@@ -225,14 +248,22 @@ export interface Order {
 }
 
 export interface CreateOrderRequest {
-  patient: string;
-  tests: string[];
-  priority?: 'routine' | 'urgent' | 'stat' | 'critical';
-  clinicalInformation?: string;
-  doctorName?: string;
-  department?: string;
-  totalAmount?: number;
+  patientId: string;
+  tests: { testId: string; price?: number }[];
+  priority?: 'routine' | 'urgent' | 'stat';
+  clinicalNotes?: string;
   orderedBy: string;
+  specimen?: {
+    type: string;
+    collectionDate?: string;
+    collectedBy?: string;
+    notes?: string;
+  };
+  insuranceInfo?: {
+    provider?: string;
+    policyNumber?: string;
+    preAuthNumber?: string;
+  };
 }
 
 export interface UpdateOrderRequest {
@@ -250,19 +281,52 @@ export interface Result {
   test: string;
   patient: string;
   value: any;
+  unit?: string;
   normalRange?: {
     min?: number;
     max?: number;
     unit?: string;
     text?: string;
   };
+  referenceRange?: string;
   interpretation?: 'normal' | 'low' | 'high' | 'critical' | 'borderline';
   isAbnormal: boolean;
+  status: 'pending' | 'in_progress' | 'completed' | 'verified' | 'rejected' | 'requires_review';
   notes?: string;
+  comments?: string;
   enteredBy: string;
+  enteredByUser?: string;
   verifiedBy?: string;
+  verifiedByUser?: string;
   verifiedAt?: string;
-  testCompletedAt: string;
+  verificationDate?: string;
+  testCompletedAt?: string;
+  testName?: string;
+  testCode?: string;
+  patientName?: string;
+  patientMRN?: string;
+  orderNumber?: string;
+  specimenType?: string;
+  collectionDate?: string;
+  analysisDate?: string;
+  method?: string;
+  equipment?: string;
+  criticalValue?: boolean;
+  criticalValueNotifiedAt?: string;
+  turnaroundTime?: number;
+  qualityControl?: {
+    controlId?: string;
+    controlResult?: any;
+    accepted?: boolean;
+  };
+  flags?: string[];
+  pdfFileId?: string;
+  pdfGeneration?: {
+    generatedAt?: string;
+    pdfVersion?: string;
+    generationTime?: number;
+    templateUsed?: string;
+  };
   createdAt: string;
   updatedAt: string;
 }

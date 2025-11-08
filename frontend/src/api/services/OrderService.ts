@@ -6,6 +6,7 @@ import {
   UpdateOrderRequest,
   OrderQueryParams,
   PaginatedResponse,
+  OrdersResponse,
   ApiResponse
 } from '@/types/api.types';
 
@@ -23,14 +24,14 @@ class OrderService {
   }
 
   // Get all orders with pagination and filtering
-  async getOrders(params: OrderQueryParams = {}): Promise<PaginatedResponse<Order>> {
+  async getOrders(params: OrderQueryParams = {}): Promise<OrdersResponse> {
     const queryParams = buildQueryParams(params);
-    const response = await apiGet<ApiResponse<PaginatedResponse<Order>>>(
+    const response = await apiGet<OrdersResponse>(
       `${this.baseUrl.LIST}${queryParams}`
     );
 
-    if (response.success && response.data?.data) {
-      return response.data.data;
+    if (response.success && response.data) {
+      return response.data;
     }
     throw new Error(response.message || 'Failed to get orders');
   }

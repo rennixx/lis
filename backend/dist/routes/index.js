@@ -12,6 +12,8 @@ const test_routes_1 = __importDefault(require("./test.routes"));
 const sample_routes_1 = __importDefault(require("./sample.routes"));
 const result_routes_1 = __importDefault(require("./result.routes"));
 const report_routes_1 = __importDefault(require("./report.routes"));
+const analytics_routes_1 = __importDefault(require("./analytics.routes"));
+const sampleData_routes_1 = __importDefault(require("./sampleData.routes"));
 const router = (0, express_1.Router)();
 router.get('/health', (req, res) => {
     ApiResponse_1.ApiResponse.success(res, JSON.stringify({
@@ -46,4 +48,6 @@ router.use('/tests', test_routes_1.default);
 router.use('/samples', sample_routes_1.default);
 router.use('/results', result_routes_1.default);
 router.use('/reports', report_routes_1.default);
+router.use('/analytics', analytics_routes_1.default);
+router.use('/sample-data', sampleData_routes_1.default);
 exports.default = router;

@@ -37,10 +37,10 @@ class TestService {
     sortOrder?: string;
   } = {}): Promise<Test[]> {
     const queryParams = buildQueryParams(filters);
-    const response = await apiGet<ApiResponse<Test[]>>(`${this.baseUrl.AVAILABLE}${queryParams}`);
+    const response = await apiGet<Test[]>(`${this.baseUrl.AVAILABLE}${queryParams}`);
 
-    if (response.success && response.data?.data) {
-      return response.data.data;
+    if (response.success && response.data) {
+      return response.data;
     }
     throw new Error(response.message || 'Failed to get available tests');
   }

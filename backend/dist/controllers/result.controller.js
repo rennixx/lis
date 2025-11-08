@@ -10,7 +10,7 @@ const ApiResponse_1 = require("../utils/ApiResponse");
 const ApiError_1 = require("../utils/ApiError");
 const result_schema_1 = require("../schemas/result.schema");
 const resultService = new result_service_1.ResultService();
-const pdfResultService = new pdfResult_service_1.PDFResultService();
+const pdfResultService = new pdfResult_service_1.PdfResultService();
 class ResultController {
     constructor() {
         this.createResult = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
@@ -197,7 +197,7 @@ class ResultController {
         });
         this.generateResultPDF = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
             const { resultId } = req.params;
-            const { template = 'standard', includePatientInfo = true, includeLabInfo = true } = req.body;
+            const { template = 'cbc-style', includePatientInfo = true, includeLabInfo = true } = req.body;
             console.log(`🔧 [RESULT PDF] Generating PDF for result: ${resultId}`);
             const result = await result_schema_1.Result.findById(resultId)
                 .populate('patient')
@@ -280,7 +280,13 @@ class ResultController {
         });
         this.downloadResultPDF = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
             const { resultId } = req.params;
+            const { template = 'cbc-style' } = req.query;
+            const validTemplates = ['standard', 'compact', 'detailed', 'cbc-style'];
+            const selectedTemplate = validTemplates.includes(template)
+                ? template
+                : 'cbc-style';
             console.log(`🔧 [RESULT PDF] Downloading PDF for result: ${resultId}`);
+            console.log(`🔧 [RESULT PDF] Using template: ${selectedTemplate}`);
             const result = await result_schema_1.Result.findById(resultId);
             if (!result) {
                 console.log(`❌ [RESULT PDF] Result not found: ${resultId}`);
@@ -307,7 +313,7 @@ class ResultController {
                             patient: populatedResult.patient,
                             order: populatedResult.order,
                             test: populatedResult.test
-                        }, { template: 'standard' });
+                        }, { template: selectedTemplate });
                         pdfBuffer = pdfResult.fileBuffer;
                         filename = pdfResult.filename;
                         console.log(`🔧 [RESULT PDF] PDF generated on-demand successfully`);
@@ -325,7 +331,7 @@ class ResultController {
                         patient: populatedResult.patient,
                         order: populatedResult.order,
                         test: populatedResult.test
-                    }, { template: 'standard' });
+                    }, { template: selectedTemplate });
                     pdfBuffer = pdfResult.fileBuffer;
                     filename = pdfResult.filename;
                     console.log(`🔧 [RESULT PDF] PDF generated on-demand successfully`);
@@ -346,7 +352,13 @@ class ResultController {
         });
         this.viewResultPDF = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
             const { resultId } = req.params;
+            const { template = 'cbc-style' } = req.query;
+            const validTemplates = ['standard', 'compact', 'detailed', 'cbc-style'];
+            const selectedTemplate = validTemplates.includes(template)
+                ? template
+                : 'cbc-style';
             console.log(`🔧 [RESULT PDF] Viewing PDF for result: ${resultId}`);
+            console.log(`🔧 [RESULT PDF] Using template: ${selectedTemplate}`);
             const result = await result_schema_1.Result.findById(resultId);
             if (!result) {
                 console.log(`❌ [RESULT PDF] Result not found: ${resultId}`);
@@ -373,7 +385,7 @@ class ResultController {
                             patient: populatedResult.patient,
                             order: populatedResult.order,
                             test: populatedResult.test
-                        }, { template: 'standard' });
+                        }, { template: selectedTemplate });
                         pdfBuffer = pdfResult.fileBuffer;
                         filename = pdfResult.filename;
                         console.log(`🔧 [RESULT PDF] PDF generated on-demand successfully`);
@@ -391,7 +403,7 @@ class ResultController {
                         patient: populatedResult.patient,
                         order: populatedResult.order,
                         test: populatedResult.test
-                    }, { template: 'standard' });
+                    }, { template: selectedTemplate });
                     pdfBuffer = pdfResult.fileBuffer;
                     filename = pdfResult.filename;
                     console.log(`🔧 [RESULT PDF] PDF generated on-demand successfully`);

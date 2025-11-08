@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Search, User, Clock, AlertCircle, CheckCircle2, Package, Filter } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -6,9 +6,10 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Patient, Test } from '@/types/api.types';
-import { usePatients } from '@/api/hooks/usePatients';
+import { usePatients, useCreatePatient } from '@/api/hooks/usePatients';
 import { useCreateOrder } from '@/api/hooks/useOrders';
 import { useAvailableTests, usePopularPanels } from '@/api/hooks/useTests';
+import { patientService } from '@/api/services/PatientService';
 
 type OrderStep = 'patient' | 'tests' | 'details' | 'summary';
 
@@ -20,8 +21,19 @@ interface SelectedTest {
   category: string;
 }
 
+interface NewPatientData {
+  firstName: string;
+  lastName: string;
+  dateOfBirth: string;
+  gender: 'male' | 'female' | 'other';
+  email: string;
+  phone: string;
+}
+
 interface OrderData {
   patient: Patient | null;
+  isNewPatient: boolean;
+  newPatientData: NewPatientData;
   tests: SelectedTest[];
   priority: 'routine' | 'urgent' | 'stat' | 'critical';
   clinicalNotes: string;
@@ -29,11 +41,106 @@ interface OrderData {
   department?: string;
 }
 
+// Function to find existing patient by matching ONLY name (first + last)
+const findExistingPatient = async (
+  firstName: string,
+  lastName: string,
+  _phone: string, // Parameter kept for compatibility but not used
+  _dateOfBirth: string // Parameter kept for compatibility but not used
+): Promise<Patient | null> => {
+  console.log('🔍 [FIND PATIENT] Searching for patient:', `${firstName} ${lastName}`);
+  try {
+    // Strategy 1: Search by first name only (most likely to match)
+    const response1 = await patientService.getPatients({
+      search: firstName,
+      limit: 50
+    });
+    console.log('📊 [FIND PATIENT] Strategy 1 results:', response1.data?.length || 0, 'patients found');
+
+    if (response1.success && response1.data && response1.data.length > 0) {
+      // Find exact name match (first + last name)
+      const exactMatch = response1.data.find(patient => {
+        return (
+          patient.firstName.toLowerCase() === firstName.toLowerCase() &&
+          patient.lastName.toLowerCase() === lastName.toLowerCase()
+        );
+      });
+
+      if (exactMatch) {
+        console.log('✅ [FIND PATIENT] Found exact match in Strategy 1:', exactMatch.firstName, exactMatch.lastName);
+        return exactMatch;
+      }
+    }
+
+    // Strategy 2: Try by last name only
+    console.log('🔍 [FIND PATIENT] Trying Strategy 2: Search by last name');
+    const response2 = await patientService.getPatients({
+      search: lastName,
+      limit: 50
+    });
+    console.log('📊 [FIND PATIENT] Strategy 2 results:', response2.data?.length || 0, 'patients found');
+
+    if (response2.success && response2.data && response2.data.length > 0) {
+      // Find exact name match (first + last name)
+      const exactMatch = response2.data.find(patient => {
+        return (
+          patient.firstName.toLowerCase() === firstName.toLowerCase() &&
+          patient.lastName.toLowerCase() === lastName.toLowerCase()
+        );
+      });
+
+      if (exactMatch) {
+        console.log('✅ [FIND PATIENT] Found exact match in Strategy 2:', exactMatch.firstName, exactMatch.lastName);
+        return exactMatch;
+      }
+    }
+
+    // Strategy 3: Try full name search
+    const searchQuery = `${firstName} ${lastName}`;
+    console.log('🔍 [FIND PATIENT] Trying Strategy 3: Search by full name:', searchQuery);
+    const response3 = await patientService.getPatients({
+      search: searchQuery,
+      limit: 50
+    });
+    console.log('📊 [FIND PATIENT] Strategy 3 results:', response3.data?.length || 0, 'patients found');
+
+    if (response3.success && response3.data && response3.data.length > 0) {
+      // Find exact name match (first + last name)
+      const exactMatch = response3.data.find(patient => {
+        return (
+          patient.firstName.toLowerCase() === firstName.toLowerCase() &&
+          patient.lastName.toLowerCase() === lastName.toLowerCase()
+        );
+      });
+
+      if (exactMatch) {
+        console.log('✅ [FIND PATIENT] Found exact match in Strategy 3:', exactMatch.firstName, exactMatch.lastName);
+        return exactMatch;
+      }
+    }
+
+    console.log('❌ [FIND PATIENT] No match found for:', `${firstName} ${lastName}`);
+    return null;
+  } catch (error) {
+    console.error('Error checking for existing patient:', error);
+    return null;
+  }
+};
+
 export const OrderCreationPage: React.FC = () => {
   const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState<OrderStep>('patient');
   const [orderData, setOrderData] = useState<OrderData>({
     patient: null,
+    isNewPatient: false,
+    newPatientData: {
+      firstName: '',
+      lastName: '',
+      dateOfBirth: '',
+      gender: 'male',
+      email: '',
+      phone: ''
+    },
     tests: [],
     priority: 'routine',
     clinicalNotes: '',
@@ -41,35 +148,67 @@ export const OrderCreationPage: React.FC = () => {
     department: ''
   });
 
-  // Patient search
+  // Patient search with debounced live search
   const [patientSearch, setPatientSearch] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
+  const [showExistingPatientSearch, setShowExistingPatientSearch] = useState(false);
+  const [deduplicationNotification, setDeduplicationNotification] = useState<string | null>(null);
+
+  // Debounce search term to avoid excessive API calls
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(patientSearch);
+    }, 300); // 300ms delay
+
+    return () => clearTimeout(timer);
+  }, [patientSearch]);
+
+  // Handle search focus to show initial patients
+  const handleSearchFocus = useCallback(() => {
+    // Trigger empty search to get recent patients when user focuses on search
+    if (!patientSearch && !debouncedSearch) {
+      setDebouncedSearch('');
+    }
+  }, [patientSearch, debouncedSearch]);
+
   const { data: patientsData, isLoading: patientsLoading, error: patientsError, status: patientsStatus } = usePatients({
-    search: patientSearch,
-    limit: 10
+    search: debouncedSearch,
+    limit: 10,
   });
 
   
-  // Debug logging for patient search
+  // Debug logging for patient search (minimal)
   React.useEffect(() => {
-    console.log('🔍 [PATIENT SEARCH] Search term:', patientSearch);
-    console.log('🔍 [PATIENT SEARCH] Loading:', patientsLoading);
-    console.log('🔍 [PATIENT SEARCH] Status:', patientsStatus);
-    console.log('🔍 [PATIENT SEARCH] Error:', patientsError);
-    console.log('🔍 [PATIENT SEARCH] Data:', patientsData);
-  }, [patientSearch, patientsLoading, patientsStatus, patientsError, patientsData]);
+    if (patientsError) {
+      console.error('Patient search error:', patientsError);
+    }
+  }, [patientsError]);
 
   
   // Test selection
   const [testSearch, setTestSearch] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('');
-  const { data: availableTests } = useAvailableTests({
+  const { data: availableTests, isLoading: testsLoading, error: testsError } = useAvailableTests({
     search: testSearch,
     category: selectedCategory
   });
+
+  // Debug logging for test data
+  React.useEffect(() => {
+    console.log('🧪 [TESTS] Available tests:', availableTests);
+    console.log('🧪 [TESTS] Loading:', testsLoading);
+    console.log('🧪 [TESTS] Error:', testsError);
+    console.log('🧪 [TESTS] Search:', testSearch);
+    console.log('🧪 [TESTS] Category:', selectedCategory);
+  }, [availableTests, testsLoading, testsError, testSearch, selectedCategory]);
   const { data: popularPanels } = usePopularPanels(5);
 
   // Order creation mutation
   const createOrderMutation = useCreateOrder();
+
+  
+  // Patient creation mutation
+  const createPatientMutation = useCreatePatient();
 
   const categories = [
     'hematology', 'biochemistry', 'microbiology', 'immunology',
@@ -78,8 +217,78 @@ export const OrderCreationPage: React.FC = () => {
 
   const totalAmount = orderData.tests.reduce((sum, test) => sum + test.price, 0);
 
+  // Debug: Monitor orderData changes
+  React.useEffect(() => {
+    console.log('🔄 [STATE CHANGE] orderData updated:', {
+      isNewPatient: orderData.isNewPatient,
+      hasPatient: !!orderData.patient,
+      newPatientData: {
+        firstName: orderData.newPatientData.firstName,
+        lastName: orderData.newPatientData.lastName,
+        phone: orderData.newPatientData.phone
+      }
+    });
+  }, [orderData]);
+
   const handlePatientSelect = (patient: Patient) => {
-    setOrderData(prev => ({ ...prev, patient }));
+    setOrderData(prev => ({
+      ...prev,
+      patient,
+      isNewPatient: false,
+      newPatientData: {
+        firstName: '',
+        lastName: '',
+        dateOfBirth: '',
+        gender: 'male',
+        email: '',
+        phone: ''
+      }
+    }));
+  };
+
+  const handleNewPatientChange = (field: keyof NewPatientData, value: any) => {
+    console.log('📝 [FIELD CHANGE] handleNewPatientChange called:', field, '=', value);
+    setOrderData(prev => {
+      console.log('📝 [FIELD CHANGE] Before update - isNewPatient:', prev.isNewPatient);
+      const updated = {
+        ...prev,
+        isNewPatient: true, // Automatically switch to new patient mode when user starts typing
+        patient: null, // Clear any existing patient selection
+        newPatientData: {
+          ...prev.newPatientData,
+          [field]: value
+        }
+      };
+      console.log('📝 [FIELD CHANGE] After update - isNewPatient:', updated.isNewPatient);
+      return updated;
+    });
+  };
+
+  
+  const validateNewPatient = () => {
+    const { newPatientData } = orderData;
+    return newPatientData.firstName.trim() !== '' &&
+           newPatientData.lastName.trim() !== '' &&
+           newPatientData.dateOfBirth !== '' &&
+           newPatientData.phone.trim() !== '';
+  };
+
+  const handleSwitchToNewPatient = () => {
+    setShowExistingPatientSearch(false);
+    setOrderData(prev => ({
+      ...prev,
+      patient: null,
+      isNewPatient: true
+    }));
+  };
+
+  const handleSwitchToExistingPatient = () => {
+    setShowExistingPatientSearch(true);
+    setOrderData(prev => ({
+      ...prev,
+      patient: null,
+      isNewPatient: false
+    }));
   };
 
   
@@ -141,24 +350,108 @@ export const OrderCreationPage: React.FC = () => {
   };
 
   const handleSubmitOrder = async () => {
-    if (!orderData.patient || orderData.tests.length === 0) {
+    console.log('🚀 [ORDER SUBMIT] Create Order button clicked');
+
+    if (orderData.tests.length === 0) {
+      console.log('❌ No tests selected');
       return;
     }
 
+    // Check if we have a valid patient (existing or new)
+    if (!orderData.patient && !validateNewPatient()) {
+      console.log('❌ No valid patient data');
+      return;
+    }
+
+    console.log('✅ Validation passed, proceeding with order creation');
+    console.log('🔍 [DEBUG] orderData.isNewPatient:', orderData.isNewPatient);
+    console.log('🔍 [DEBUG] orderData.patient:', orderData.patient);
+    console.log('🔍 [DEBUG] orderData.newPatientData:', orderData.newPatientData);
+
     try {
+      let patientId: string;
+
+      // Determine if we should create a new patient
+      const shouldCreateNewPatient = orderData.isNewPatient || (!orderData.patient && validateNewPatient());
+      console.log('🤔 [DEBUG] shouldCreateNewPatient:', shouldCreateNewPatient);
+
+      // Create new patient if needed (with deduplication check)
+      if (shouldCreateNewPatient) {
+        console.log('🆕 [DEBUG] Taking NEW patient path');
+        // Format dateOfBirth to ISO datetime if it's not already
+        let formattedDateOfBirth = orderData.newPatientData.dateOfBirth;
+        if (formattedDateOfBirth && !formattedDateOfBirth.includes('T')) {
+          // Convert YYYY-MM-DD to YYYY-MM-DDT00:00:00.000Z
+          formattedDateOfBirth = new Date(formattedDateOfBirth).toISOString();
+        }
+
+        // Check for existing patient with same details to prevent duplicates
+        const existingPatient = await findExistingPatient(
+          orderData.newPatientData.firstName,
+          orderData.newPatientData.lastName,
+          orderData.newPatientData.phone,
+          formattedDateOfBirth
+        );
+
+        if (existingPatient) {
+          console.log('✅ [DEDUPLICATION] Found existing patient:', existingPatient);
+          console.log('📋 [DEDUPLICATION] Patient ID:', existingPatient._id);
+          console.log('📋 [DEDUPLICATION] Patient.id field:', existingPatient.id);
+          patientId = existingPatient._id; // Use _id instead of id
+
+          // Notify user about using existing patient
+          setDeduplicationNotification(`Found existing patient record for ${existingPatient.firstName} ${existingPatient.lastName}. Using existing record to avoid duplicates.`);
+
+          // Auto-hide notification after 5 seconds
+          setTimeout(() => {
+            setDeduplicationNotification(null);
+          }, 5000);
+        } else {
+          const newPatient = await createPatientMutation.mutateAsync({
+            firstName: orderData.newPatientData.firstName,
+            lastName: orderData.newPatientData.lastName,
+            dateOfBirth: formattedDateOfBirth,
+            gender: orderData.newPatientData.gender,
+            email: orderData.newPatientData.email || undefined, // Send undefined instead of empty string
+            phone: orderData.newPatientData.phone
+          });
+          console.log('🆕 [NEW PATIENT] Created patient:', newPatient);
+          console.log('📋 [NEW PATIENT] Patient _id:', newPatient._id);
+          console.log('📋 [NEW PATIENT] Patient.id field:', newPatient.id);
+          patientId = newPatient.id; // Use id field since that's what the API returns
+        }
+      } else {
+        console.log('👤 [DEBUG] Taking EXISTING patient path');
+        console.log('👤 [DEBUG] orderData.patient:', orderData.patient);
+        if (!orderData.patient) {
+          console.error('❌ [ERROR] orderData.patient is null but shouldCreateNewPatient is false!');
+          throw new Error('Patient data is missing but logic determined not to create new patient');
+        }
+        patientId = orderData.patient._id;
+      }
+
+      // Create the order
+      console.log('📋 [ORDER CREATE] Creating order with:', {
+        patientId: patientId,
+        orderedBy: patientId,
+        testCount: orderData.tests.length
+      });
       await createOrderMutation.mutateAsync({
-        patient: orderData.patient._id,
-        tests: orderData.tests.map(t => t.testId),
-        priority: orderData.priority,
-        clinicalInformation: orderData.clinicalNotes,
-        doctorName: orderData.doctorName,
-        department: orderData.department,
-        totalAmount,
-        orderedBy: 'current-user-id' // This should come from auth context
+        patientId: patientId,
+        tests: orderData.tests.map(t => ({ testId: t.testId, price: t.price })), // Send test objects with testId and price
+        priority: orderData.priority as 'routine' | 'urgent' | 'stat',
+        clinicalNotes: orderData.clinicalNotes,
+        orderedBy: patientId // Use patient ID temporarily until auth is implemented
       });
 
-      // Generate barcode and print functionality would go here
-      navigate('/orders');
+      console.log('✅ [ORDER SUCCESS] Order created successfully');
+      // Show success notification
+      setDeduplicationNotification('Order created successfully! Redirecting to orders list...');
+
+      // Navigate to orders page after a short delay to show the notification
+      setTimeout(() => {
+        navigate('/orders');
+      }, 1500);
     } catch (error) {
       console.error('Failed to create order:', error);
     }
@@ -203,6 +496,33 @@ export const OrderCreationPage: React.FC = () => {
         </div>
       </div>
 
+      {/* Deduplication Notification */}
+      {deduplicationNotification && (
+        <div className="bg-blue-50 border-b border-blue-200">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
+            <div className="flex items-center">
+              <div className="flex-shrink-0">
+                <User className="h-5 w-5 text-blue-600" />
+              </div>
+              <div className="ml-3">
+                <p className="text-sm text-blue-800">
+                  {deduplicationNotification}
+                </p>
+              </div>
+              <div className="ml-auto pl-3">
+                <button
+                  onClick={() => setDeduplicationNotification(null)}
+                  className="inline-flex text-blue-600 hover:text-blue-800 focus:outline-none"
+                >
+                  <span className="sr-only">Dismiss</span>
+                  ×
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Step Indicator */}
       <div className="bg-white border-b border-slate-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
@@ -225,7 +545,7 @@ export const OrderCreationPage: React.FC = () => {
                     mt-1 text-sm font-medium capitalize
                     ${currentStep === step ? 'text-gray-900' : 'text-gray-600'}
                   `}>
-                    {step}
+                    {step === 'patient' ? 'Patient Info' : step}
                   </span>
                 </div>
                 {index < 3 && (
@@ -247,128 +567,254 @@ export const OrderCreationPage: React.FC = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Main Content */}
           <div className="lg:col-span-2">
-            {/* Step 1: Patient Selection */}
+            {/* Step 1: Patient Registration */}
             {currentStep === 'patient' && (
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center">
                     <User className="h-5 w-5 mr-2" />
-                    Select Patient
+                    Patient Information
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-4">
-                    {/* Patient Search */}
-                    <div className="relative">
-                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-                      <Input
-                        type="text"
-                        placeholder="Search patients by name, MRN, or phone..."
-                        value={patientSearch}
-                        onChange={(e) => setPatientSearch(e.target.value)}
-                        className="pl-10"
-                      />
-                    </div>
-
-                    {/* Quick Registration Note */}
-                    <div className="text-center py-4 border border-gray-200 rounded-lg bg-gray-50">
-                      <p className="text-sm text-gray-600">
-                        Can't find the patient? Use the
-                        <span className="font-medium text-teal-600"> Quick Registration</span> button
-                        <br />in the bottom right corner to add a new patient
-                      </p>
-                    </div>
-
-                    {/* Patient Results */}
-                    {/* Loading State */}
-                    {patientsLoading && (
-                      <div className="space-y-2">
-                        <p className="text-sm text-gray-600">Searching patients...</p>
-                        <div className="animate-pulse space-y-2">
-                          {[1, 2, 3].map((i) => (
-                            <div key={i} className="p-4 border rounded-lg bg-gray-50">
-                              <div className="h-4 bg-gray-300 rounded w-3/4 mb-2"></div>
-                              <div className="h-3 bg-gray-200 rounded w-1/2 mb-1"></div>
-                              <div className="h-3 bg-gray-200 rounded w-2/3"></div>
-                            </div>
-                          ))}
-                        </div>
+                  <div className="space-y-6">
+                    {/* Patient Type Toggle */}
+                    <div className="flex justify-center">
+                      <div className="inline-flex rounded-lg border border-gray-200 p-1">
+                        <button
+                          onClick={handleSwitchToNewPatient}
+                          className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                            !showExistingPatientSearch
+                              ? 'bg-teal-600 text-white'
+                              : 'text-gray-600 hover:text-gray-900'
+                          }`}
+                        >
+                          New Patient
+                        </button>
+                        <button
+                          onClick={handleSwitchToExistingPatient}
+                          className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                            showExistingPatientSearch
+                              ? 'bg-teal-600 text-white'
+                              : 'text-gray-600 hover:text-gray-900'
+                          }`}
+                        >
+                          Existing Patient
+                        </button>
                       </div>
-                    )}
+                    </div>
 
-                    {/* Error State */}
-                    {patientsError && !patientsData && (
-                      <div className="p-4 border border-red-200 rounded-lg bg-red-50">
-                        <div className="flex items-center text-red-800">
-                          <AlertCircle className="h-5 w-5 mr-2" />
-                          <div>
-                            <p className="font-medium">Search failed</p>
-                            <p className="text-sm text-red-600">{patientsError.message || 'Failed to search patients'}</p>
+                    {/* New Patient Registration Form */}
+                    {!showExistingPatientSearch && (
+                      <div className="space-y-6">
+                        <div className="text-center text-sm text-gray-600">
+                          <p>Fill in the patient details below to register and create order</p>
+                        </div>
+
+                        {/* Basic Information */}
+                        <div className="space-y-4">
+                          <h3 className="text-lg font-medium text-gray-900 border-b pb-2">Basic Information</h3>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                              <label className="block text-sm font-medium text-gray-700 mb-1">
+                                First Name *
+                              </label>
+                              <Input
+                                value={orderData.newPatientData.firstName}
+                                onChange={(e) => handleNewPatientChange('firstName', e.target.value)}
+                                placeholder="John"
+                                required
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-sm font-medium text-gray-700 mb-1">
+                                Last Name *
+                              </label>
+                              <Input
+                                value={orderData.newPatientData.lastName}
+                                onChange={(e) => handleNewPatientChange('lastName', e.target.value)}
+                                placeholder="Doe"
+                                required
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-sm font-medium text-gray-700 mb-1">
+                                Date of Birth *
+                              </label>
+                              <Input
+                                type="date"
+                                value={orderData.newPatientData.dateOfBirth}
+                                onChange={(e) => handleNewPatientChange('dateOfBirth', e.target.value)}
+                                required
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-sm font-medium text-gray-700 mb-1">
+                                Gender *
+                              </label>
+                              <select
+                                value={orderData.newPatientData.gender}
+                                onChange={(e) => handleNewPatientChange('gender', e.target.value)}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                                required
+                              >
+                                <option value="male">Male</option>
+                                <option value="female">Female</option>
+                                <option value="other">Other</option>
+                              </select>
+                            </div>
+                            <div>
+                              <label className="block text-sm font-medium text-gray-700 mb-1">
+                                Email
+                              </label>
+                              <Input
+                                type="email"
+                                value={orderData.newPatientData.email}
+                                onChange={(e) => handleNewPatientChange('email', e.target.value)}
+                                placeholder="john.doe@example.com (optional)"
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-sm font-medium text-gray-700 mb-1">
+                                Phone *
+                              </label>
+                              <Input
+                                type="tel"
+                                value={orderData.newPatientData.phone}
+                                onChange={(e) => handleNewPatientChange('phone', e.target.value)}
+                                placeholder="+1234567890"
+                                required
+                              />
+                            </div>
                           </div>
                         </div>
                       </div>
                     )}
 
-                    {/* Success State - Patients Found */}
-                    {!patientsLoading && patientsData?.data && patientsData.data.length > 0 && (
-                      <div className="space-y-2">
-                        <div className="flex items-center justify-between">
-                          <p className="text-sm text-gray-600">
-                            {patientSearch ? `Found ${patientsData.data.length} patient(s)` : 'Select a patient:'}
-                          </p>
+                    {/* Existing Patient Search */}
+                    {showExistingPatientSearch && (
+                      <div className="space-y-4">
+                        <div className="text-center text-sm text-gray-600">
+                          <p>Search for an existing patient (optional - you can skip this)</p>
                         </div>
-                        {patientsData.data.map((patient: Patient) => (
-                          <div
-                            key={patient._id}
-                            onClick={() => handlePatientSelect(patient)}
-                            className={`
-                              p-4 border rounded-lg cursor-pointer transition-colors
-                              ${orderData.patient?._id === patient._id
-                                ? 'border-teal-500 bg-teal-50'
-                                : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
-                              }
-                            `}
-                          >
-                            <div className="flex items-center justify-between">
-                              <div>
-                                <p className="font-medium text-gray-900">
-                                  {patient.firstName} {patient.lastName}
-                                </p>
-                                <p className="text-sm text-gray-600">
-                                  MRN: {patient.patientId}
-                                </p>
-                                <p className="text-sm text-gray-600">
-                                  {patient.email}
-                                </p>
+
+                        {/* Patient Search */}
+                        <div className="relative">
+                          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                          <Input
+                            type="text"
+                            placeholder="Search patients by name, MRN, or phone... (Live search - type any letter)"
+                            value={patientSearch}
+                            onChange={(e) => setPatientSearch(e.target.value)}
+                            onFocus={handleSearchFocus}
+                            className="pl-10"
+                          />
+                          {patientSearch && (
+                            <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                              <div className="flex items-center space-x-2">
+                                {patientsLoading && (
+                                  <div className="animate-spin h-4 w-4 border-2 border-teal-600 border-t-transparent rounded-full"></div>
+                                )}
+                                <span className="text-xs text-gray-500">
+                                  {debouncedSearch.length > 0 ? `Searching: "${debouncedSearch}"` : 'Type to search'}
+                                </span>
                               </div>
-                              {orderData.patient?._id === patient._id && (
-                                <CheckCircle2 className="h-5 w-5 text-teal-600" />
-                              )}
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Patient Results */}
+                        {patientsLoading && (
+                          <div className="space-y-2">
+                            <p className="text-sm text-gray-600">Searching patients...</p>
+                            <div className="animate-pulse space-y-2">
+                              {[1, 2, 3].map((i) => (
+                                <div key={i} className="p-4 border rounded-lg bg-gray-50">
+                                  <div className="h-4 bg-gray-300 rounded w-3/4 mb-2"></div>
+                                  <div className="h-3 bg-gray-200 rounded w-1/2 mb-1"></div>
+                                  <div className="h-3 bg-gray-200 rounded w-2/3"></div>
+                                </div>
+                              ))}
                             </div>
                           </div>
-                        ))}
-                      </div>
-                    )}
+                        )}
 
-                    {/* No Results State */}
-                    {!patientsLoading && patientSearch && patientsData?.data?.length === 0 && (
-                      <div className="p-4 border border-gray-200 rounded-lg bg-gray-50 text-center">
-                        <User className="h-8 w-8 text-gray-400 mx-auto mb-2" />
-                        <p className="text-gray-600">No patients found for "{patientSearch}"</p>
-                        <p className="text-sm text-gray-500 mt-1">Try different search terms or register a new patient</p>
-                      </div>
-                    )}
+                        {patientsError && (
+                          <div className="p-4 border border-red-200 rounded-lg bg-red-50">
+                            <div className="flex items-center text-red-800">
+                              <AlertCircle className="h-5 w-5 mr-2" />
+                              <div>
+                                <p className="font-medium">Search failed</p>
+                                <p className="text-sm text-red-600">{patientsError.message || 'Failed to search patients'}</p>
+                              </div>
+                            </div>
+                          </div>
+                        )}
 
-                    {/* Debug Info (only in development) */}
-                    {import.meta.env.DEV && (
-                      <div className="mt-4 p-2 bg-gray-100 rounded text-xs font-mono">
-                        <p>🔍 Debug Info:</p>
-                        <p>Search: "{patientSearch}"</p>
-                        <p>Loading: {patientsLoading ? 'Yes' : 'No'}</p>
-                        <p>Status: {patientsStatus}</p>
-                        <p>Results: {patientsData?.data?.length || 0}</p>
-                        <p>Error: {patientsError ? 'Yes' : 'No'}</p>
-                        {patientsError && <p className="text-red-600">Error: {patientsError.message}</p>}
+                        {!patientsLoading && patientsData?.data && patientsData.data.length > 0 && (
+                          <div className="space-y-2">
+                            <p className="text-sm text-gray-600">
+                              {debouncedSearch
+                                ? `Found ${patientsData.data.length} patient(s) for "${debouncedSearch}":`
+                                : `Recent patients (${patientsData.data.length}):`
+                              }
+                            </p>
+                            {patientsData.data.map((patient: Patient) => (
+                              <div
+                                key={patient._id}
+                                onClick={() => handlePatientSelect(patient)}
+                                className={`
+                                  p-4 border rounded-lg cursor-pointer transition-colors
+                                  ${orderData.patient?._id === patient._id
+                                    ? 'border-teal-500 bg-teal-50'
+                                    : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+                                  }
+                                `}
+                              >
+                                <div className="flex items-center justify-between">
+                                  <div>
+                                    <p className="font-medium text-gray-900">
+                                      {patient.firstName} {patient.lastName}
+                                    </p>
+                                    <p className="text-sm text-gray-600">
+                                      MRN: {patient.patientId}
+                                    </p>
+                                    <p className="text-sm text-gray-600">
+                                      {patient.email}
+                                    </p>
+                                  </div>
+                                  {orderData.patient?._id === patient._id && (
+                                    <CheckCircle2 className="h-5 w-5 text-teal-600" />
+                                  )}
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+
+                        {!patientsLoading && !debouncedSearch && !patientsData?.data?.length && (
+                          <div className="p-4 border border-gray-200 rounded-lg bg-gray-50 text-center">
+                            <Search className="h-8 w-8 text-gray-400 mx-auto mb-2" />
+                            <p className="text-gray-600">Start typing to search patients</p>
+                            <p className="text-sm text-gray-500 mt-1">
+                              Type any letter (like "r") to find patients containing that letter in their name, MRN, phone, or email
+                            </p>
+                            <p className="text-xs text-gray-400 mt-2">
+                              Live search is enabled - results will appear as you type
+                            </p>
+                          </div>
+                        )}
+
+                        {!patientsLoading && debouncedSearch && patientsData?.data?.length === 0 && (
+                          <div className="p-4 border border-gray-200 rounded-lg bg-gray-50 text-center">
+                            <User className="h-8 w-8 text-gray-400 mx-auto mb-2" />
+                            <p className="text-gray-600">No patients found for "{debouncedSearch}"</p>
+                            <p className="text-sm text-gray-500 mt-1">Try different search terms or register as a new patient</p>
+                            <p className="text-xs text-gray-400 mt-2">
+                              Search looks for partial matches in first name, last name, MRN, phone, and email
+                            </p>
+                          </div>
+                        )}
                       </div>
                     )}
                   </div>
@@ -376,7 +822,7 @@ export const OrderCreationPage: React.FC = () => {
                   <div className="flex justify-end mt-6">
                     <Button
                       onClick={handleNextStep}
-                      disabled={!orderData.patient}
+                      disabled={!orderData.patient && !validateNewPatient()}
                       className="bg-teal-600 hover:bg-teal-700"
                     >
                       Next: Select Tests
@@ -465,11 +911,37 @@ export const OrderCreationPage: React.FC = () => {
                     <div>
                       <h3 className="text-lg font-medium text-gray-900 mb-3">Available Tests</h3>
                       <div className="space-y-2 max-h-64 overflow-y-auto">
-                        {availableTests?.map((test: any) => {
-                          const isSelected = orderData.tests.some(t => t.testId === test.id);
+                        {testsLoading && (
+                          <div className="space-y-2">
+                            <p className="text-sm text-gray-600">Loading tests...</p>
+                            <div className="animate-pulse space-y-2">
+                              {[1, 2, 3, 4, 5].map((i) => (
+                                <div key={i} className="p-3 border rounded-lg bg-gray-50">
+                                  <div className="h-4 bg-gray-300 rounded w-3/4 mb-2"></div>
+                                  <div className="h-3 bg-gray-200 rounded w-1/2 mb-1"></div>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
+                        {testsError && (
+                          <div className="p-4 border border-red-200 rounded-lg bg-red-50">
+                            <div className="flex items-center text-red-800">
+                              <AlertCircle className="h-5 w-5 mr-2" />
+                              <div>
+                                <p className="font-medium">Failed to load tests</p>
+                                <p className="text-sm text-red-600">{testsError.message || 'Please try again'}</p>
+                              </div>
+                            </div>
+                          </div>
+                        )}
+
+                        {!testsLoading && !testsError && availableTests?.map((test: any) => {
+                          const isSelected = orderData.tests.some(t => t.testId === test._id);
                           return (
                             <div
-                              key={test.id}
+                              key={test._id}
                               onClick={() => handleTestSelect(test)}
                               className={`
                                 p-3 border rounded-lg cursor-pointer transition-colors
@@ -500,6 +972,14 @@ export const OrderCreationPage: React.FC = () => {
                             </div>
                           );
                         })}
+
+                        {!testsLoading && !testsError && (!availableTests || availableTests.length === 0) && (
+                          <div className="p-4 border border-gray-200 rounded-lg bg-gray-50 text-center">
+                            <Package className="h-8 w-8 text-gray-400 mx-auto mb-2" />
+                            <p className="text-gray-600">No tests found for the selected category</p>
+                            <p className="text-sm text-gray-500 mt-1">Try selecting a different category or search for specific tests</p>
+                          </div>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -628,40 +1108,92 @@ export const OrderCreationPage: React.FC = () => {
                     {/* Patient Summary */}
                     <div className="bg-gray-50 p-4 rounded-lg">
                       <h3 className="font-medium text-gray-900 mb-2">Patient Information</h3>
-                      <div className="grid grid-cols-2 gap-4 text-sm">
-                        <div>
-                          <span className="text-gray-600">Name:</span>
-                          <p className="font-medium">{orderData.patient?.firstName} {orderData.patient?.lastName}</p>
+
+                      {orderData.patient ? (
+                        <div className="grid grid-cols-2 gap-4 text-sm">
+                          <div>
+                            <span className="text-gray-600">Name:</span>
+                            <p className="font-medium">{orderData.patient.firstName} {orderData.patient.lastName}</p>
+                          </div>
+                          <div>
+                            <span className="text-gray-600">MRN:</span>
+                            <p className="font-medium">{orderData.patient.patientId}</p>
+                          </div>
+                          <div>
+                            <span className="text-gray-600">Email:</span>
+                            <p className="font-medium">{orderData.patient.email || 'Not provided'}</p>
+                          </div>
+                          <div>
+                            <span className="text-gray-600">Phone:</span>
+                            <p className="font-medium">{orderData.patient.phone}</p>
+                          </div>
+                          <div>
+                            <span className="text-gray-600">Status:</span>
+                            <p className="font-medium text-green-600">Existing Patient</p>
+                          </div>
                         </div>
-                        <div>
-                          <span className="text-gray-600">MRN:</span>
-                          <p className="font-medium">{orderData.patient?.patientId}</p>
+                      ) : (
+                        // Always show new patient information (no error state)
+                        <div className="grid grid-cols-2 gap-4 text-sm">
+                          <div>
+                            <span className="text-gray-600">Name:</span>
+                            <p className="font-medium">{orderData.newPatientData.firstName} {orderData.newPatientData.lastName}</p>
+                          </div>
+                          <div>
+                            <span className="text-gray-600">Status:</span>
+                            <p className="font-medium text-blue-600">New Registration</p>
+                          </div>
+                          <div>
+                            <span className="text-gray-600">Email:</span>
+                            <p className="font-medium">{orderData.newPatientData.email || 'Not provided'}</p>
+                          </div>
+                          <div>
+                            <span className="text-gray-600">Phone:</span>
+                            <p className="font-medium">{orderData.newPatientData.phone}</p>
+                          </div>
+                          <div>
+                            <span className="text-gray-600">Date of Birth:</span>
+                            <p className="font-medium">{orderData.newPatientData.dateOfBirth}</p>
+                          </div>
+                          <div>
+                            <span className="text-gray-600">Gender:</span>
+                            <p className="font-medium capitalize">{orderData.newPatientData.gender}</p>
+                          </div>
                         </div>
-                        <div>
-                          <span className="text-gray-600">Email:</span>
-                          <p className="font-medium">{orderData.patient?.email}</p>
-                        </div>
-                        <div>
-                          <span className="text-gray-600">Phone:</span>
-                          <p className="font-medium">{orderData.patient?.phone}</p>
-                        </div>
-                      </div>
+                      )}
                     </div>
 
                     {/* Tests Summary */}
                     <div>
                       <h3 className="font-medium text-gray-900 mb-2">Selected Tests ({orderData.tests.length})</h3>
-                      <div className="space-y-2">
-                        {orderData.tests.map((test) => (
-                          <div key={test.testId} className="flex items-center justify-between p-2 bg-gray-50 rounded">
-                            <div>
-                              <p className="font-medium text-sm">{test.testName}</p>
-                              <p className="text-xs text-gray-600">{test.testCode} • {test.category}</p>
+                      {orderData.tests.length > 0 ? (
+                        <div className="space-y-2">
+                          {orderData.tests.map((test) => (
+                            <div key={test.testId} className="flex items-center justify-between p-2 bg-gray-50 rounded">
+                              <div>
+                                <p className="font-medium text-sm">{test.testName}</p>
+                                <p className="text-xs text-gray-600">{test.testCode} • {test.category}</p>
+                              </div>
+                              <p className="font-medium text-teal-600">${test.price}</p>
                             </div>
-                            <p className="font-medium text-teal-600">${test.price}</p>
-                          </div>
-                        ))}
-                      </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="p-4 border border-red-200 rounded-lg bg-red-50 text-center">
+                          <Package className="h-8 w-8 text-red-400 mx-auto mb-2" />
+                          <p className="text-red-800 font-medium">No tests selected</p>
+                          <p className="text-sm text-red-600 mt-1">
+                            Please go back and select at least one test to continue
+                          </p>
+                          <Button
+                            onClick={() => setCurrentStep('tests')}
+                            className="mt-3 bg-red-600 hover:bg-red-700"
+                            size="sm"
+                          >
+                            Go Back to Select Tests
+                          </Button>
+                        </div>
+                      )}
                     </div>
 
                     {/* Order Details Summary */}
@@ -712,8 +1244,8 @@ export const OrderCreationPage: React.FC = () => {
                     </Button>
                     <Button
                       onClick={handleSubmitOrder}
-                      disabled={createOrderMutation.isPending}
-                      className="bg-teal-600 hover:bg-teal-700"
+                      disabled={createOrderMutation.isPending || (!orderData.patient && !validateNewPatient()) || orderData.tests.length === 0}
+                      className="bg-teal-600 hover:bg-teal-700 disabled:bg-gray-400"
                     >
                       {createOrderMutation.isPending ? (
                         <>
@@ -727,6 +1259,14 @@ export const OrderCreationPage: React.FC = () => {
                         </>
                       )}
                     </Button>
+
+                    {/* Show button disabled reason */}
+                    {(!orderData.patient && !validateNewPatient()) || orderData.tests.length === 0 ? (
+                      <div className="mt-2 text-sm text-red-600">
+                        {orderData.tests.length === 0 && '• Please select at least one test\n'}
+                        {!orderData.patient && !validateNewPatient() && '• Please complete patient information\n'}
+                      </div>
+                    ) : null}
                   </div>
                 </CardContent>
               </Card>
@@ -742,12 +1282,24 @@ export const OrderCreationPage: React.FC = () => {
               <CardContent>
                 <div className="space-y-4">
                   {/* Patient Info */}
-                  {orderData.patient && (
+                  {(orderData.patient || orderData.isNewPatient) && (
                     <div>
                       <h4 className="font-medium text-gray-900 mb-2">Patient</h4>
                       <div className="bg-gray-50 p-3 rounded text-sm">
-                        <p className="font-medium">{orderData.patient.firstName} {orderData.patient.lastName}</p>
-                        <p className="text-gray-600">MRN: {orderData.patient.patientId}</p>
+                        {orderData.isNewPatient ? (
+                          <>
+                            <p className="font-medium">
+                              {orderData.newPatientData.firstName} {orderData.newPatientData.lastName}
+                            </p>
+                            <p className="text-gray-600">New Patient Registration</p>
+                            <p className="text-gray-600">{orderData.newPatientData.email}</p>
+                          </>
+                        ) : (
+                          <>
+                            <p className="font-medium">{orderData.patient?.firstName} {orderData.patient?.lastName}</p>
+                            <p className="text-gray-600">MRN: {orderData.patient?.patientId}</p>
+                          </>
+                        )}
                       </div>
                     </div>
                   )}
@@ -794,7 +1346,7 @@ export const OrderCreationPage: React.FC = () => {
                         <div
                           className="bg-teal-600 h-2 rounded-full transition-all duration-300"
                           style={{
-                            width: `${(orderData.patient ? 25 : 0) +
+                            width: `${((orderData.patient || orderData.isNewPatient) ? 25 : 0) +
                                    (orderData.tests.length > 0 ? 25 : 0) +
                                    (orderData.priority !== 'routine' || orderData.clinicalNotes ? 25 : 0) +
                                    (currentStep === 'summary' ? 25 : 0)}%`
@@ -803,7 +1355,7 @@ export const OrderCreationPage: React.FC = () => {
                       </div>
                     </div>
                     <p className="text-xs text-gray-500 mt-1 text-center">
-                      {currentStep === 'patient' && 'Select a patient'}
+                      {currentStep === 'patient' && 'Enter patient information'}
                       {currentStep === 'tests' && 'Choose tests'}
                       {currentStep === 'details' && 'Add order details'}
                       {currentStep === 'summary' && 'Review and submit'}

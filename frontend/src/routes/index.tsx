@@ -11,6 +11,7 @@ import { TestsPage } from '@/pages/tests/tests'
 import { ResultsPage } from '@/pages/results/ResultsPage'
 import { ResultEntryPage } from '@/pages/results/ResultEntryPage'
 import { ResultVerificationPage } from '@/pages/results/ResultVerificationPage'
+import { ResultDetailPage } from '@/pages/results/ResultDetailPage'
 import { ReportsPage } from '@/pages/reports/ReportsPage'
 import { SamplesPage } from '@/pages/samples/samples'
 import { SampleCollectionPage } from '@/pages/samples/SampleCollectionPage'
@@ -92,6 +93,10 @@ export const router = createBrowserRouter([
       {
         path: "results/verify",
         element: <ResultVerificationPage />,
+      },
+      {
+        path: "results/:id",
+        element: <ResultDetailPage />,
       },
       {
         path: "reports",

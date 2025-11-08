@@ -1,8 +1,8 @@
 import PDFDocument from 'pdfkit';
-import moment from 'moment';
+import * as fs from 'fs';
+import { GridFSBucket } from 'mongodb';
 import mongoose from 'mongoose';
-import { uploadPDFToGridFS } from '../utils/gridfs';
-import { ApiError } from '../utils/ApiError';
+import moment from 'moment';
 
 interface ResultData {
   result: any;
@@ -12,23 +12,38 @@ interface ResultData {
 }
 
 interface ResultPDFOptions {
-  template?: 'standard' | 'compact' | 'detailed';
-  includePatientInfo?: boolean;
-  includeReferenceRange?: boolean;
-  includeNormalRange?: boolean;
-  includeBarcode?: boolean;
-  includeQR?: boolean;
+  template?: 'standard' | 'compact' | 'detailed' | 'cbc-style';
   includeLabInfo?: boolean;
+  includePatientInfo?: boolean;
+  includeDoctorInfo?: boolean;
 }
 
-export class PDFResultService {
-  private labInfo = {
-    name: 'Central Laboratory Services',
-    address: '123 Medical Center Drive, Healthcare City',
-    phone: '+1 (555) 123-4567',
-    email: 'lab@centrallab.com',
-    website: 'www.centrallab.com',
-    logo: '/assets/lab-logo.png', // This would be a base64 image or file path
+interface PDFResult {
+  fileBuffer: Buffer;
+  filename: string;
+  fileSize: number;
+}
+
+export class PdfResultService {
+  private gridFSBucket?: GridFSBucket;
+
+  constructor() {
+    // Initialize GridFS bucket when connection is ready
+    mongoose.connection.on('connected', () => {
+      this.gridFSBucket = new GridFSBucket(mongoose.connection.db as any, {
+        bucketName: 'pdfs'
+      });
+    });
+  }
+
+  // Lab configuration
+  private labConfig = {
+    name: 'LAB SIIS',
+    address: 'A103-104, Tulsi Complex, Near Crystal Mall, S G Road, Ahmedabad',
+    phone: '88668 02121',
+    email: 'info@labsiis.com',
+    website: 'www.labsiis.com',
+    logo: '/assets/lab-logo.png',
     accreditation: 'ISO 15189:2022 Accredited Laboratory',
     licenseNo: 'LAB-2023-001'
   };
@@ -40,18 +55,18 @@ export class PDFResultService {
     const startTime = Date.now();
 
     try {
-      // Create PDF document
+      // Create PDF document with proper A4 sizing
       const doc = new PDFDocument({
         size: 'A4',
         margins: {
-          top: 50,
-          bottom: 50,
-          left: 50,
-          right: 50
+          top: 20,
+          bottom: 20,
+          left: 20,
+          right: 20
         },
         info: {
-          Title: `Laboratory Result - ${resultData.result.testName}`,
-          Author: 'Central Laboratory Services',
+          Title: `Laboratory Result - ${resultData.result.testName || 'CBC Test'}`,
+          Author: 'LAB SIIS',
           Subject: 'Medical Laboratory Test Result',
           Keywords: 'laboratory, result, medical, test',
           CreationDate: new Date(),
@@ -78,15 +93,21 @@ export class PDFResultService {
       });
 
       const generationTime = Date.now() - startTime;
-      const filename = `Result_${resultData.result.testCode || resultData.result.testName}_${moment().format('YYYY-MM-DD_HH-mm-ss')}.pdf`;
-      const fileSize = fileBuffer.length;
+      const testName = resultData.result.testName || resultData.test?.testName || 'CBC Test';
+      const testCode = resultData.result.testCode || resultData.test?.testCode || 'CBC';
+      const filename = `${testName}_${testCode}_${new Date().toISOString().split('T')[0]}.pdf`;
 
-      console.log(`Result PDF generated in ${generationTime}ms, size: ${fileSize} bytes`);
+      console.log(`🎯 [PDF SERVICE] PDF generated successfully in ${generationTime}ms, size: ${fileBuffer.length} bytes`);
 
-      return { fileBuffer, filename, fileSize };
+      return {
+        fileBuffer,
+        filename,
+        fileSize: fileBuffer.length
+      };
+
     } catch (error) {
-      console.error('Result PDF generation error:', error);
-      throw new ApiError('Failed to generate result PDF', 500);
+      console.error('❌ [PDF SERVICE] Error generating PDF:', error);
+      throw error;
     }
   }
 
@@ -96,24 +117,261 @@ export class PDFResultService {
     options: ResultPDFOptions = {}
   ): Promise<void> {
     const { result, patient, order, test } = resultData;
-    const template = options.template || 'standard';
+    const template = options.template || 'cbc-style';
 
     // Set default font
     doc.font('Helvetica');
 
     // Generate PDF based on template
+    console.log(`📄 [PDF SERVICE] Using template: ${template}`);
     switch (template) {
       case 'compact':
+        console.log(`📄 [PDF SERVICE] Generating compact PDF`);
         await this.generateCompactResultPDF(doc, result, patient, order, test, options);
         break;
       case 'detailed':
+        console.log(`📄 [PDF SERVICE] Generating detailed PDF`);
         await this.generateDetailedResultPDF(doc, result, patient, order, test, options);
         break;
+      case 'cbc-style':
+        console.log(`📄 [PDF SERVICE] Generating CBC-style PDF`);
+        await this.generateCBCStyleResultPDF(doc, result, patient, order, test, options);
+        break;
       default:
+        console.log(`📄 [PDF SERVICE] Generating standard PDF (default)`);
         await this.generateStandardResultPDF(doc, result, patient, order, test, options);
     }
   }
 
+  private async generateCBCStyleResultPDF(
+    doc: any,
+    result: any,
+    patient?: any,
+    order?: any,
+    test?: any,
+    options: ResultPDFOptions = {}
+  ): Promise<void> {
+    console.log('🎯 [CBC TEMPLATE] Starting CBC-style PDF generation');
+
+    // Helper function for drawing lines
+    const drawLine = (x1: number, y1: number, x2: number, y2: number, width: number = 1) => {
+      doc.moveTo(x1, y1).lineTo(x2, y2).lineWidth(width).stroke();
+    };
+
+    // Helper function for drawing rectangles
+    const drawRect = (x: number, y: number, width: number, height: number, fillColor?: string) => {
+      if (fillColor) {
+        doc.fillColor(fillColor).rect(x, y, width, height).fill();
+        doc.fillColor('black');
+      }
+      doc.rect(x, y, width, height).stroke();
+    };
+
+    // Constants for A4 layout
+    const pageWidth = 595.28; // A4 width in points
+    const pageHeight = 841.89; // A4 height in points
+    const margin = 20;
+    const contentWidth = pageWidth - (2 * margin);
+    let yPosition = margin;
+
+    // Header section - full width with left-aligned text
+    drawRect(margin, yPosition, contentWidth, 50, '#0066cc');
+    doc.fillColor('white');
+
+    // Lab title - left-aligned for better control
+    doc.fontSize(18).font('Helvetica-Bold');
+    doc.text('LAB SIIS - PATHOLOGY', margin + 15, yPosition + 15);
+
+    doc.fontSize(9).font('Helvetica');
+    doc.text('A103-104, Tulsi Complex, Near Crystal Mall, S G Road, Ahmedabad', margin + 15, yPosition + 35);
+    doc.fillColor('black');
+
+    yPosition += 60;
+
+    // Patient information section - compact
+    drawRect(margin, yPosition, contentWidth, 70);
+
+    // Left column - improved patient data extraction
+    doc.fontSize(10).font('Helvetica');
+
+    // Debug patient data
+    console.log('👤 [PDF PATIENT] Patient data:', patient);
+    console.log('👤 [PDF PATIENT] Result data:', result);
+
+    // Try multiple field names for patient info
+    const firstName = patient?.firstName || patient?.first_name || patient?.name?.split(' ')[0] || result?.patientFirstName || result?.patient?.firstName || '';
+    const lastName = patient?.lastName || patient?.last_name || patient?.name?.split(' ').slice(1).join(' ') || result?.patientLastName || result?.patient?.lastName || '';
+    const patientName = (firstName || lastName) ? `${firstName} ${lastName}`.trim() : 'John Doe'; // Default fallback
+
+    // Try multiple sources for age
+    let age = 'N/A';
+    if (patient?.dateOfBirth || patient?.dob) {
+      const dob = patient.dateOfBirth || patient.dob;
+      age = `${moment().diff(moment(dob), 'years')} years`;
+    } else if (patient?.age) {
+      age = `${patient.age} years`;
+    } else if (result?.patientAge) {
+      age = `${result.patientAge} years`;
+    }
+
+    const gender = patient?.gender || patient?.sex || result?.patientGender || result?.patient?.gender || 'Male';
+    const patientId = patient?.patientId || patient?.id || patient?.mrn || result?.patientId || result?.patient?.patientId || 'PID001';
+
+    // Left column with better spacing
+    doc.text('Name:', margin + 10, yPosition + 12);
+    doc.font('Helvetica-Bold').text(patientName, margin + 55, yPosition + 12);
+
+    doc.font('Helvetica').text('Age/Sex:', margin + 10, yPosition + 27);
+    doc.font('Helvetica-Bold').text(`${age} / ${gender}`, margin + 55, yPosition + 27);
+
+    doc.font('Helvetica').text('Patient ID:', margin + 10, yPosition + 42);
+    doc.font('Helvetica-Bold').text(patientId, margin + 65, yPosition + 42);
+
+    // Right column with better alignment
+    const sampleType = result.sampleType || test?.sampleType || order?.sampleType ||
+                      result.specimen || test?.specimen || 'Blood Sample';
+    const collectionDate = result.collectionDate || order?.collectionDate || result.collectedAt ||
+                          result.collectedDate || new Date();
+    const reportDate = result.reportDate || result.createdAt || result.updatedAt || new Date();
+
+    const rightColumnX = margin + 280; // Adjusted for better spacing
+    const rightValueX = margin + 330;
+
+    doc.font('Helvetica').text('Sample:', rightColumnX, yPosition + 12);
+    doc.font('Helvetica-Bold').text(sampleType, rightValueX, yPosition + 12);
+
+    doc.font('Helvetica').text('Collection:', rightColumnX, yPosition + 27);
+    doc.font('Helvetica-Bold').text(
+      collectionDate ? moment(collectionDate).format('DD/MM/YYYY') : moment().format('DD/MM/YYYY'),
+      rightValueX, yPosition + 27
+    );
+
+    doc.font('Helvetica').text('Report:', rightColumnX, yPosition + 42);
+    doc.font('Helvetica-Bold').text(
+      moment(reportDate).format('DD/MM/YYYY HH:mm'),
+      rightValueX, yPosition + 42
+    );
+
+    yPosition += 80;
+
+    // Test title - use actual test name
+    const testName = test?.testName || test?.name || result.testName || result.name || 'LABORATORY TEST RESULT';
+    doc.fontSize(14).font('Helvetica-Bold').text(testName.toUpperCase(), margin, yPosition);
+    yPosition += 20;
+
+    // Results table
+    const tableHeaders = ['Test Name', 'Result', 'Reference', 'Unit'];
+    const columnWidths = [160, 80, 140, 80];
+    const tableWidth = columnWidths.reduce((a, b) => a + b, 0);
+
+    // Table header
+    drawRect(margin, yPosition, tableWidth, 18, '#e8e8e8');
+    doc.fontSize(9).font('Helvetica-Bold').fillColor('black');
+
+    let xPos = margin;
+    tableHeaders.forEach((header, index) => {
+      doc.text(header, xPos + 4, yPosition + 5);
+      xPos += columnWidths[index];
+    });
+
+    yPosition += 18;
+
+    // Process actual test results dynamically
+    const testResults = this.processTestResults(result, test);
+
+    // Draw test results with row height check
+    const rowHeight = 16;
+    testResults.forEach((testItem, index) => {
+      // Check if we have space for another row
+      if (yPosition + rowHeight > pageHeight - 80) {
+        doc.addPage();
+        yPosition = margin;
+
+        // Redraw header on new page
+        drawRect(margin, yPosition, tableWidth, 18, '#e8e8e8');
+        doc.fontSize(9).font('Helvetica-Bold').fillColor('black');
+        xPos = margin;
+        tableHeaders.forEach((header, idx) => {
+          doc.text(header, xPos + 4, yPosition + 5);
+          xPos += columnWidths[idx];
+        });
+        yPosition += 18;
+      }
+
+      // Alternate row colors
+      if (index % 2 === 0) {
+        drawRect(margin, yPosition, tableWidth, rowHeight, '#f8f8f8');
+      }
+
+      xPos = margin;
+
+      // Test name
+      doc.fontSize(8).font('Helvetica').text(testItem.name, xPos + 4, yPosition + 3);
+      xPos += columnWidths[0];
+
+      // Result with abnormal value highlighting
+      const isAbnormal = testItem.value && testItem.refRange && this.isValueBelowRange(testItem.value, testItem.refRange);
+      if (isAbnormal) {
+        doc.font('Helvetica-Bold').fillColor('#d00');
+      } else {
+        doc.font('Helvetica').fillColor('black');
+      }
+      doc.fontSize(9).text(testItem.value, xPos + 4, yPosition + 3);
+      xPos += columnWidths[1];
+
+      // Reference range
+      doc.font('Helvetica').fillColor('black').fontSize(8).text(testItem.refRange, xPos + 4, yPosition + 3);
+      xPos += columnWidths[2];
+
+      // Unit
+      doc.fontSize(8).text(testItem.unit, xPos + 4, yPosition + 3);
+
+      yPosition += rowHeight;
+    });
+
+    // Table border
+    drawRect(margin, yPosition - (testResults.length * rowHeight) - 18, tableWidth, (testResults.length * rowHeight) + 18);
+
+    // Vertical column lines
+    xPos = margin;
+    columnWidths.forEach((width, index) => {
+      if (index < columnWidths.length - 1) {
+        xPos += width;
+        drawLine(xPos, yPosition - (testResults.length * rowHeight) - 18, xPos, yPosition);
+      }
+    });
+
+    yPosition += 25;
+
+    // Signature section
+    const signatureWidth = contentWidth / 3;
+    drawRect(margin, yPosition, signatureWidth, 40);
+    drawRect(margin + signatureWidth, yPosition, signatureWidth, 40);
+    drawRect(margin + (2 * signatureWidth), yPosition, signatureWidth, 40);
+
+    doc.fontSize(8).font('Helvetica');
+    doc.text('Pathologist', margin + 8, yPosition + 8);
+    doc.text('Lab Incharge', margin + signatureWidth + 8, yPosition + 8);
+    doc.text('Medical Technologist', margin + (2 * signatureWidth) + 8, yPosition + 8);
+
+    // Signature lines
+    drawLine(margin + 8, yPosition + 25, margin + signatureWidth - 8, yPosition + 25);
+    drawLine(margin + signatureWidth + 8, yPosition + 25, margin + (2 * signatureWidth) - 8, yPosition + 25);
+    drawLine(margin + (2 * signatureWidth) + 8, yPosition + 25, margin + contentWidth - 8, yPosition + 25);
+
+    yPosition += 50;
+
+    // Footer notes (simplified, no blue bar)
+    doc.fontSize(7).fillColor('#666');
+    doc.text('* This report is generated by an automated system and should be verified by a qualified professional.', margin, yPosition);
+    yPosition += 10;
+    doc.text('* Reference ranges may vary depending on laboratory, equipment, and methodology used.', margin, yPosition);
+    yPosition += 10;
+    doc.text(`Generated on: ${moment().format('DD/MM/YYYY hh:mm A')} | Page 1 of 1`, margin, yPosition);
+    doc.fillColor('black');
+  }
+
+  // Fallback templates (simplified)
   private async generateStandardResultPDF(
     doc: any,
     result: any,
@@ -122,134 +380,7 @@ export class PDFResultService {
     test?: any,
     options: ResultPDFOptions = {}
   ): Promise<void> {
-    let yPosition = 80;
-
-    // Lab Header
-    if (options.includeLabInfo !== false) {
-      await this.addLabHeader(doc, yPosition);
-      yPosition += 80;
-    }
-
-    // Title Section
-    doc.fontSize(20).font('Helvetica-Bold').text('LABORATORY TEST RESULT', 50, yPosition, { align: 'center' });
-    yPosition += 35;
-
-    // Patient Information
-    if (options.includePatientInfo !== false && patient) {
-      doc.fontSize(12).font('Helvetica-Bold').text('PATIENT INFORMATION', 50, yPosition);
-      yPosition += 20;
-
-      doc.fontSize(10).font('Helvetica');
-      doc.text(`Name: ${patient.firstName || ''} ${patient.lastName || ''}`, 70, yPosition);
-      yPosition += 15;
-      doc.text(`MRN: ${patient.mrn || 'N/A'}`, 70, yPosition);
-      yPosition += 15;
-      doc.text(`Age/Sex: ${patient.age || 'N/A'} / ${patient.gender || 'N/A'}`, 70, yPosition);
-      yPosition += 15;
-      doc.text(`Phone: ${patient.phone || 'N/A'}`, 70, yPosition);
-      yPosition += 25;
-    }
-
-    // Test Information
-    doc.fontSize(12).font('Helvetica-Bold').text('TEST INFORMATION', 50, yPosition);
-    yPosition += 20;
-
-    doc.fontSize(10).font('Helvetica');
-    doc.text(`Test Name: ${result.testName || 'N/A'}`, 70, yPosition);
-    yPosition += 15;
-    doc.text(`Test Code: ${result.testCode || 'N/A'}`, 70, yPosition);
-    yPosition += 15;
-    doc.text(`Order Number: ${result.orderNumber || 'N/A'}`, 70, yPosition);
-    yPosition += 15;
-    doc.text(`Specimen Type: ${result.specimenType || 'N/A'}`, 70, yPosition);
-    yPosition += 15;
-    doc.text(`Collection Date: ${result.collectionDate ? moment(result.collectionDate).format('YYYY-MM-DD') : 'N/A'}`, 70, yPosition);
-    yPosition += 15;
-    doc.text(`Analysis Date: ${result.analysisDate ? moment(result.analysisDate).format('YYYY-MM-DD') : 'N/A'}`, 70, yPosition);
-    yPosition += 25;
-
-    // Result Section - Highlight this as the main focus
-    doc.fontSize(12).font('Helvetica-Bold').text('TEST RESULT', 50, yPosition);
-    yPosition += 20;
-
-    // Create a highlighted box for the result
-    const resultBoxY = yPosition - 10;
-    doc.rect(45, resultBoxY, 510, 80).fillAndStroke('#f0f9ff', '#0ea5e9');
-
-    doc.fontSize(14).font('Helvetica-Bold').fill('#0c4a6e');
-    doc.text(`Result Value: ${result.value || 'N/A'} ${result.unit || ''}`, 60, yPosition + 10);
-    yPosition += 25;
-
-    doc.fontSize(12).font('Helvetica').fill('#0c4a6e');
-    doc.text(`Reference Range: ${result.referenceRange || 'N/A'}`, 60, yPosition);
-    yPosition += 20;
-
-    // Status indicator
-    const statusColor = result.isAbnormal ? '#dc2626' : '#059669';
-    const statusText = result.isAbnormal ? 'ABNORMAL' : 'NORMAL';
-    doc.fillColor(statusColor).font('Helvetica-Bold').text(`Status: ${statusText}`, 60, yPosition);
-    doc.fillColor('black');
-    yPosition += 25;
-
-    if (result.criticalValue) {
-      doc.fillColor('#dc2626').font('Helvetica-Bold').text('⚠ CRITICAL VALUE', 60, yPosition);
-      doc.fillColor('black');
-      yPosition += 20;
-    }
-
-    // Additional Information
-    if (result.method || result.equipment) {
-      doc.fontSize(12).font('Helvetica-Bold').text('METHODOLOGY', 50, yPosition);
-      yPosition += 20;
-
-      doc.fontSize(10).font('Helvetica');
-      if (result.method) {
-        doc.text(`Method: ${result.method}`, 70, yPosition);
-        yPosition += 15;
-      }
-      if (result.equipment) {
-        doc.text(`Equipment: ${result.equipment}`, 70, yPosition);
-        yPosition += 15;
-      }
-      yPosition += 10;
-    }
-
-    // Notes and Comments
-    if (result.notes || result.comments) {
-      doc.fontSize(12).font('Helvetica-Bold').text('NOTES & COMMENTS', 50, yPosition);
-      yPosition += 20;
-
-      doc.fontSize(10).font('Helvetica');
-      if (result.notes) {
-        doc.text(`Notes: ${result.notes}`, 70, yPosition);
-        yPosition += 15;
-      }
-      if (result.comments) {
-        doc.text(`Comments: ${result.comments}`, 70, yPosition);
-        yPosition += 15;
-      }
-      yPosition += 10;
-    }
-
-    // Verification Information
-    if (result.verifiedByUser || result.verificationDate) {
-      doc.fontSize(12).font('Helvetica-Bold').text('VERIFICATION', 50, yPosition);
-      yPosition += 20;
-
-      doc.fontSize(10).font('Helvetica');
-      if (result.verifiedByUser) {
-        doc.text(`Verified By: ${result.verifiedByUser}`, 70, yPosition);
-        yPosition += 15;
-      }
-      if (result.verificationDate) {
-        doc.text(`Verification Date: ${moment(result.verificationDate).format('YYYY-MM-DD HH:mm')}`, 70, yPosition);
-        yPosition += 15;
-      }
-      yPosition += 10;
-    }
-
-    // Footer with timestamps
-    this.addFooter(doc, result, patient, order);
+    this.generateCBCStyleResultPDF(doc, result, patient, order, test, options);
   }
 
   private async generateCompactResultPDF(
@@ -260,52 +391,7 @@ export class PDFResultService {
     test?: any,
     options: ResultPDFOptions = {}
   ): Promise<void> {
-    let yPosition = 80;
-
-    // Compact header
-    doc.fontSize(16).font('Helvetica-Bold').text('LABORATORY RESULT', 50, yPosition, { align: 'center' });
-    yPosition += 30;
-
-    // Patient info (compact)
-    if (patient) {
-      doc.fontSize(10).font('Helvetica').text(
-        `Patient: ${patient.firstName || ''} ${patient.lastName || ''} (${patient.mrn || 'N/A'})`,
-        50, yPosition
-      );
-      yPosition += 20;
-    }
-
-    // Test info (compact)
-    doc.fontSize(10).font('Helvetica-Bold').text(`Test: ${result.testName || 'N/A'} (${result.testCode || 'N/A'})`, 50, yPosition);
-    yPosition += 20;
-
-    // Result (prominent)
-    doc.fontSize(14).font('Helvetica-Bold').text(`Result: ${result.value || 'N/A'} ${result.unit || ''}`, 50, yPosition);
-    yPosition += 20;
-
-    doc.fontSize(10).font('Helvetica').text(`Reference: ${result.referenceRange || 'N/A'}`, 50, yPosition);
-    yPosition += 20;
-
-    // Status
-    const statusColor = result.isAbnormal ? '#dc2626' : '#059669';
-    const statusText = result.isAbnormal ? 'ABNORMAL' : 'NORMAL';
-    doc.fillColor(statusColor).font('Helvetica-Bold').text(`Status: ${statusText}`, 50, yPosition);
-    doc.fillColor('black');
-    yPosition += 20;
-
-    // Additional info
-    if (result.collectionDate) {
-      doc.text(`Collected: ${moment(result.collectionDate).format('YYYY-MM-DD')}`, 50, yPosition);
-      yPosition += 15;
-    }
-
-    if (result.verifiedByUser) {
-      doc.text(`Verified by: ${result.verifiedByUser}`, 50, yPosition);
-      yPosition += 15;
-    }
-
-    // Footer
-    this.addFooter(doc, result, patient, order);
+    this.generateCBCStyleResultPDF(doc, result, patient, order, test, options);
   }
 
   private async generateDetailedResultPDF(
@@ -316,276 +402,113 @@ export class PDFResultService {
     test?: any,
     options: ResultPDFOptions = {}
   ): Promise<void> {
-    let yPosition = 80;
+    this.generateCBCStyleResultPDF(doc, result, patient, order, test, options);
+  }
 
-    // Detailed lab header
-    if (options.includeLabInfo !== false) {
-      await this.addDetailedLabHeader(doc, yPosition);
-      yPosition += 120;
-    }
+  // Process test results dynamically based on result and test data
+  private processTestResults(result: any, test?: any): Array<{name: string, value: string, refRange: string, unit: string}> {
+    console.log('🔄 [PDF SERVICE] Processing test results:', { result, test });
 
-    // Title with barcode space
-    doc.fontSize(20).font('Helvetica-Bold').text('DETAILED LABORATORY TEST RESULT', 50, yPosition, { align: 'center' });
-    yPosition += 35;
+    const testResults: Array<{name: string, value: string, refRange: string, unit: string}> = [];
 
-    // Add space for barcode
-    doc.rect(200, yPosition, 200, 50).stroke();
-    doc.fontSize(8).font('Helvetica').text(`${result._id}`, 250, yPosition + 20, { align: 'center' });
-    yPosition += 60;
-
-    // Comprehensive patient information
-    if (patient) {
-      doc.fontSize(12).font('Helvetica-Bold').text('PATIENT DEMOGRAPHICS', 50, yPosition);
-      yPosition += 20;
-
-      doc.fontSize(10).font('Helvetica');
-      const patientInfo = [
-        `Name: ${patient.firstName || ''} ${patient.lastName || ''}`,
-        `MRN: ${patient.mrn || 'N/A'}`,
-        `Date of Birth: ${patient.dateOfBirth ? moment(patient.dateOfBirth).format('YYYY-MM-DD') : 'N/A'}`,
-        `Age: ${patient.age || 'N/A'}`,
-        `Gender: ${patient.gender || 'N/A'}`,
-        `Blood Type: ${patient.bloodType || 'N/A'}`,
-        `Phone: ${patient.phone || 'N/A'}`,
-        `Email: ${patient.email || 'N/A'}`,
-        `Address: ${patient.address || 'N/A'}`
-      ];
-
-      patientInfo.forEach(info => {
-        doc.text(info, 70, yPosition);
-        yPosition += 15;
+    // If result has components (like CBC with multiple parameters)
+    if (result.components && Array.isArray(result.components)) {
+      console.log('🔄 [PDF SERVICE] Found components in result:', result.components);
+      result.components.forEach((component: any) => {
+        testResults.push({
+          name: component.name || component.parameter || 'Unknown',
+          value: component.value || component.result || 'N/A',
+          refRange: component.referenceRange || component.refRange || 'N/A',
+          unit: component.unit || ''
+        });
       });
-      yPosition += 10;
+    }
+    // If result has a simple value structure
+    else if (result.value !== undefined) {
+      console.log('🔄 [PDF SERVICE] Using simple result value');
+      testResults.push({
+        name: test?.testName || test?.name || result.testName || 'Test Result',
+        value: result.value.toString(),
+        refRange: result.referenceRange || result.refRange || test?.referenceRange || 'N/A',
+        unit: result.unit || test?.unit || ''
+      });
+    }
+    // If result has values object (for multi-parameter tests)
+    else if (result.values && typeof result.values === 'object') {
+      console.log('🔄 [PDF SERVICE] Found values object:', result.values);
+      Object.entries(result.values).forEach(([key, value]) => {
+        if (typeof value === 'object' && value !== null) {
+          const val = (value as any).value || (value as any).result || 'N/A';
+          const ref = (value as any).referenceRange || (value as any).refRange || 'N/A';
+          const unit = (value as any).unit || '';
+
+          testResults.push({
+            name: this.formatTestName(key),
+            value: val.toString(),
+            refRange: ref,
+            unit: unit
+          });
+        } else {
+          testResults.push({
+            name: this.formatTestName(key),
+            value: value.toString(),
+            refRange: 'N/A',
+            unit: ''
+          });
+        }
+      });
+    }
+    // Default fallback - show test info
+    else {
+      console.log('🔄 [PDF SERVICE] Using fallback test data');
+      const testName = test?.testName || test?.name || result.testName || 'Unknown Test';
+      testResults.push({
+        name: testName,
+        value: result.result || result.value || 'N/A',
+        refRange: test?.referenceRange || 'N/A',
+        unit: test?.unit || ''
+      });
     }
 
-    // Comprehensive test information
-    doc.fontSize(12).font('Helvetica-Bold').text('TEST DETAILS', 50, yPosition);
-    yPosition += 20;
-
-    doc.fontSize(10).font('Helvetica');
-    const testInfo = [
-      `Test Name: ${result.testName || 'N/A'}`,
-      `Test Code: ${result.testCode || 'N/A'}`,
-      `Order Number: ${result.orderNumber || 'N/A'}`,
-      `Specimen Type: ${result.specimenType || 'N/A'}`,
-      `Collection Date/Time: ${result.collectionDate ? moment(result.collectionDate).format('YYYY-MM-DD HH:mm') : 'N/A'}`,
-      `Analysis Date/Time: ${result.analysisDate ? moment(result.analysisDate).format('YYYY-MM-DD HH:mm') : 'N/A'}`,
-      `Result Entry Date/Time: ${result.createdAt ? moment(result.createdAt).format('YYYY-MM-DD HH:mm') : 'N/A'}`,
-      `Turnaround Time: ${result.turnaroundTime ? `${result.turnaroundTime} minutes` : 'N/A'}`,
-      `Equipment: ${result.equipment || 'N/A'}`,
-      `Method: ${result.method || 'N/A'}`
-    ];
-
-    testInfo.forEach(info => {
-      doc.text(info, 70, yPosition);
-      yPosition += 15;
-    });
-    yPosition += 10;
-
-    // Detailed result section with normal ranges
-    doc.fontSize(12).font('Helvetica-Bold').text('RESULT ANALYSIS', 50, yPosition);
-    yPosition += 20;
-
-    // Result box with enhanced styling
-    doc.rect(45, yPosition - 10, 510, 100).fillAndStroke('#f8fafc', '#334155');
-
-    doc.fontSize(16).font('Helvetica-Bold').fill('#0f172a');
-    doc.text(`Result: ${result.value || 'N/A'} ${result.unit || ''}`, 60, yPosition + 10);
-    yPosition += 25;
-
-    doc.fontSize(11).font('Helvetica').fill('#475569');
-    doc.text(`Reference Range: ${result.referenceRange || 'N/A'}`, 60, yPosition);
-    yPosition += 20;
-
-    if (options.includeNormalRange !== false && result.normalRange) {
-      doc.text(`Normal Range: ${JSON.stringify(result.normalRange)}`, 60, yPosition);
-      yPosition += 20;
-    }
-
-    // Status with enhanced styling
-    const statusColor = result.isAbnormal ? '#dc2626' : '#059669';
-    const statusText = result.isAbnormal ? 'ABNORMAL' : 'NORMAL';
-    doc.fillColor(statusColor).font('Helvetica-Bold').fontSize(12).text(`Status: ${statusText}`, 60, yPosition);
-    doc.fillColor('black');
-    yPosition += 25;
-
-    if (result.criticalValue) {
-      doc.fillColor('#dc2626').font('Helvetica-Bold').text('⚠ CRITICAL VALUE - Immediate attention required', 60, yPosition);
-      doc.fillColor('black');
-      yPosition += 20;
-    }
-
-    yPosition += 20;
-
-    // Quality control information
-    if (result.qualityControl) {
-      doc.fontSize(12).font('Helvetica-Bold').text('QUALITY CONTROL', 50, yPosition);
-      yPosition += 20;
-
-      doc.fontSize(10).font('Helvetica');
-      if (result.qualityControl.controlId) {
-        doc.text(`Control ID: ${result.qualityControl.controlId}`, 70, yPosition);
-        yPosition += 15;
-      }
-      if (result.qualityControl.accepted !== undefined) {
-        const qcStatus = result.qualityControl.accepted ? 'Accepted' : 'Rejected';
-        const qcColor = result.qualityControl.accepted ? '#059669' : '#dc2626';
-        doc.fillColor(qcColor).text(`QC Status: ${qcStatus}`, 70, yPosition);
-        doc.fillColor('black');
-        yPosition += 15;
-      }
-      yPosition += 10;
-    }
-
-    // Notes and methodology
-    if (result.notes || result.comments || result.method) {
-      doc.fontSize(12).font('Helvetica-Bold').text('ADDITIONAL INFORMATION', 50, yPosition);
-      yPosition += 20;
-
-      doc.fontSize(10).font('Helvetica');
-      if (result.method) {
-        doc.text(`Methodology: ${result.method}`, 70, yPosition);
-        yPosition += 15;
-      }
-      if (result.notes) {
-        doc.text(`Notes: ${result.notes}`, 70, yPosition);
-        yPosition += 15;
-      }
-      if (result.comments) {
-        doc.text(`Comments: ${result.comments}`, 70, yPosition);
-        yPosition += 15;
-      }
-      yPosition += 10;
-    }
-
-    // Verification and audit trail
-    doc.fontSize(12).font('Helvetica-Bold').text('VERIFICATION & AUDIT TRAIL', 50, yPosition);
-    yPosition += 20;
-
-    doc.fontSize(10).font('Helvetica');
-    if (result.enteredByUser) {
-      doc.text(`Entered By: ${result.enteredByUser}`, 70, yPosition);
-      yPosition += 15;
-    }
-    if (result.verifiedByUser) {
-      doc.text(`Verified By: ${result.verifiedByUser}`, 70, yPosition);
-      yPosition += 15;
-    }
-    if (result.verificationDate) {
-      doc.text(`Verification Date: ${moment(result.verificationDate).format('YYYY-MM-DD HH:mm:ss')}`, 70, yPosition);
-      yPosition += 15;
-    }
-
-    // Audit trail
-    doc.text(`Created: ${moment(result.createdAt).format('YYYY-MM-DD HH:mm:ss')}`, 70, yPosition);
-    yPosition += 15;
-    doc.text(`Last Updated: ${moment(result.updatedAt).format('YYYY-MM-DD HH:mm:ss')}`, 70, yPosition);
-    yPosition += 15;
-
-    // Detailed footer
-    this.addDetailedFooter(doc, result, patient, order);
+    console.log('🔄 [PDF SERVICE] Processed test results:', testResults);
+    return testResults;
   }
 
-  private async addLabHeader(doc: any, yPosition: number): Promise<void> {
-    // Lab name and info
-    doc.fontSize(14).font('Helvetica-Bold').text(this.labInfo.name, 50, yPosition, { align: 'center' });
-    yPosition += 20;
-
-    doc.fontSize(10).font('Helvetica').text(this.labInfo.address, 50, yPosition, { align: 'center' });
-    yPosition += 15;
-
-    doc.fontSize(10).font('Helvetica').text(`${this.labInfo.phone} | ${this.labInfo.email}`, 50, yPosition, { align: 'center' });
-    yPosition += 15;
-
-    doc.fontSize(9).font('Helvetica-Oblique').text(this.labInfo.accreditation, 50, yPosition, { align: 'center' });
-    yPosition += 15;
-
-    // Separator line
-    doc.moveTo(50, yPosition).lineTo(560, yPosition).stroke();
+  // Format test names for better display
+  private formatTestName(name: string): string {
+    return name
+      .replace(/_/g, ' ')
+      .replace(/([A-Z])/g, ' $1')
+      .replace(/^./, str => str.toUpperCase())
+      .trim();
   }
 
-  private async addDetailedLabHeader(doc: any, yPosition: number): Promise<void> {
-    // Enhanced lab header with more details
-    doc.fontSize(16).font('Helvetica-Bold').text(this.labInfo.name, 50, yPosition, { align: 'center' });
-    yPosition += 25;
+  // Helper method to check if value is below reference range
+  private isValueBelowRange(value: any, refRange: string): boolean {
+    if (!value || !refRange) return false;
 
-    doc.fontSize(10).font('Helvetica').text(this.labInfo.address, 50, yPosition, { align: 'center' });
-    yPosition += 15;
+    try {
+      const numValue = parseFloat(value.toString());
+      if (isNaN(numValue)) return false;
 
-    doc.fontSize(10).font('Helvetica').text(`Phone: ${this.labInfo.phone} | Email: ${this.labInfo.email}`, 50, yPosition, { align: 'center' });
-    yPosition += 15;
+      if (refRange.includes('-')) {
+        const [min, max] = refRange.split('-').map(v => parseFloat(v.trim()));
+        if (!isNaN(min)) {
+          return numValue < min;
+        }
+      } else if (refRange.includes('>')) {
+        const min = parseFloat(refRange.replace('>', '').trim());
+        if (!isNaN(min)) {
+          return numValue <= min;
+        }
+      }
+    } catch (error) {
+      console.error('Error parsing reference range for low check:', error);
+    }
 
-    doc.fontSize(10).font('Helvetica').text(`Website: ${this.labInfo.website}`, 50, yPosition, { align: 'center' });
-    yPosition += 15;
-
-    doc.fontSize(9).font('Helvetica-Oblique').text(this.labInfo.accreditation, 50, yPosition, { align: 'center' });
-    yPosition += 15;
-
-    doc.fontSize(9).font('Helvetica').text(`License No: ${this.labInfo.licenseNo}`, 50, yPosition, { align: 'center' });
-    yPosition += 20;
-
-    // Enhanced separator
-    doc.moveTo(50, yPosition).lineTo(560, yPosition).lineWidth(2).stroke();
-    doc.lineWeight(1);
-  }
-
-  private addFooter(doc: any, result: any, patient?: any, order?: any): void {
-    const pageHeight = doc.page.height;
-    let yPosition = pageHeight - 100;
-
-    // Separator line
-    doc.moveTo(50, yPosition).lineTo(560, yPosition).stroke();
-    yPosition += 15;
-
-    // Footer information
-    doc.fontSize(8).font('Helvetica');
-    doc.text(`Result ID: ${result._id}`, 50, yPosition);
-    doc.text(`Generated on: ${moment().format('YYYY-MM-DD HH:mm:ss')}`, 300, yPosition, { align: 'center' });
-    doc.text(`Page 1 of 1`, 560, yPosition, { align: 'right' });
-    yPosition += 12;
-
-    doc.text(`${this.labInfo.name} - ${this.labInfo.accreditation}`, 50, yPosition);
-    yPosition += 12;
-
-    // Disclaimer
-    doc.fontSize(7).font('Helvetica-Oblique').text(
-      'This is a computer-generated document. No signature is required.',
-      50, yPosition
-    );
-  }
-
-  private addDetailedFooter(doc: any, result: any, patient?: any, order?: any): void {
-    const pageHeight = doc.page.height;
-    let yPosition = pageHeight - 120;
-
-    // Enhanced separator
-    doc.moveTo(50, yPosition).lineTo(560, yPosition).lineWidth(2).stroke();
-    doc.lineWeight(1);
-    yPosition += 20;
-
-    // Comprehensive footer information
-    doc.fontSize(9).font('Helvetica-Bold');
-    doc.text(`Result ID: ${result._id}`, 50, yPosition);
-    doc.text(`Report Generated: ${moment().format('YYYY-MM-DD HH:mm:ss')}`, 350, yPosition);
-    yPosition += 15;
-
-    doc.fontSize(8).font('Helvetica');
-    doc.text(`Order: ${result.orderNumber || 'N/A'}`, 50, yPosition);
-    doc.text(`Test Code: ${result.testCode || 'N/A'}`, 200, yPosition);
-    doc.text(`Status: ${result.status}`, 350, yPosition);
-    doc.text(`Page 1 of 1`, 560, yPosition, { align: 'right' });
-    yPosition += 15;
-
-    doc.text(`${this.labInfo.name} - ${this.labInfo.accreditation}`, 50, yPosition);
-    doc.text(`License: ${this.labInfo.licenseNo}`, 350, yPosition);
-    yPosition += 15;
-
-    // Detailed disclaimer
-    doc.fontSize(7).font('Helvetica-Oblique');
-    const disclaimer = 'This document contains confidential patient information. Handle with care and maintain confidentiality. ' +
-                      'This is a computer-generated report and does not require a manual signature. ' +
-                      'For questions or concerns, please contact the laboratory.';
-
-    doc.text(disclaimer, 50, yPosition, { width: 510, align: 'justify' });
+    return false;
   }
 }
+
+export const pdfResultService = new PdfResultService();
+export default pdfResultService;

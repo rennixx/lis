@@ -105,6 +105,10 @@ export const ENDPOINTS = {
     REVIEW: '/results/review',
     BY_ORDER: (orderId: string) => `/results/order/${orderId}`,
     BY_PATIENT: (patientId: string) => `/results/patient/${patientId}`,
+    // PDF Generation and Download for Results
+    GENERATE_PDF: (id: string) => `/results/${id}/pdf`,
+    DOWNLOAD_PDF: (id: string) => `/results/${id}/pdf/download`,
+    VIEW_PDF: (id: string) => `/results/${id}/pdf/view`,
   },
 
   // Report endpoints

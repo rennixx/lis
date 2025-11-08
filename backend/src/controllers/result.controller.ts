@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { ResultZodSchema } from '../validators/result.validator';
 import { ResultService } from '../services/result.service';
-import { PDFResultService } from '../services/pdfResult.service';
+import { PdfResultService } from '../services/pdfResult.service';
 import { uploadPDFToGridFS, downloadPDFFromGridFS } from '../utils/gridfs';
 import { asyncHandler } from '../utils/asyncHandler';
 import { ApiResponse } from '../utils/ApiResponse';
@@ -9,7 +9,7 @@ import { ApiError } from '../utils/ApiError';
 import { Result } from '../schemas/result.schema';
 
 const resultService = new ResultService();
-const pdfResultService = new PDFResultService();
+const pdfResultService = new PdfResultService();
 
 export class ResultController {
   // Create Result
@@ -362,7 +362,7 @@ export class ResultController {
   // Generate PDF for a specific result
   generateResultPDF = asyncHandler(async (req: Request, res: Response) => {
     const { resultId } = req.params;
-    const { template = 'standard', includePatientInfo = true, includeLabInfo = true } = req.body;
+    const { template = 'cbc-style', includePatientInfo = true, includeLabInfo = true } = req.body;
 
     console.log(`🔧 [RESULT PDF] Generating PDF for result: ${resultId}`);
 
@@ -478,8 +478,16 @@ export class ResultController {
   // Download PDF for a specific result
   downloadResultPDF = asyncHandler(async (req: Request, res: Response) => {
     const { resultId } = req.params;
+    const { template = 'cbc-style' } = req.query;
+
+    // Validate template parameter
+    const validTemplates = ['standard', 'compact', 'detailed', 'cbc-style'];
+    const selectedTemplate = validTemplates.includes(template as string)
+      ? (template as 'standard' | 'compact' | 'detailed' | 'cbc-style')
+      : 'cbc-style';
 
     console.log(`🔧 [RESULT PDF] Downloading PDF for result: ${resultId}`);
+    console.log(`🔧 [RESULT PDF] Using template: ${selectedTemplate}`);
 
     // Fetch the result
     const result = await Result.findById(resultId);
@@ -517,7 +525,7 @@ export class ResultController {
               order: populatedResult.order,
               test: populatedResult.test
             },
-            { template: 'standard' }
+            { template: selectedTemplate }
           );
 
           pdfBuffer = pdfResult.fileBuffer;
@@ -540,7 +548,7 @@ export class ResultController {
             order: populatedResult.order,
             test: populatedResult.test
           },
-          { template: 'standard' }
+          { template: selectedTemplate }
         );
 
         pdfBuffer = pdfResult.fileBuffer;
@@ -569,8 +577,16 @@ export class ResultController {
   // View PDF for a specific result (inline display)
   viewResultPDF = asyncHandler(async (req: Request, res: Response) => {
     const { resultId } = req.params;
+    const { template = 'cbc-style' } = req.query;
+
+    // Validate template parameter
+    const validTemplates = ['standard', 'compact', 'detailed', 'cbc-style'];
+    const selectedTemplate = validTemplates.includes(template as string)
+      ? (template as 'standard' | 'compact' | 'detailed' | 'cbc-style')
+      : 'cbc-style';
 
     console.log(`🔧 [RESULT PDF] Viewing PDF for result: ${resultId}`);
+    console.log(`🔧 [RESULT PDF] Using template: ${selectedTemplate}`);
 
     // Fetch the result
     const result = await Result.findById(resultId);
@@ -608,7 +624,7 @@ export class ResultController {
               order: populatedResult.order,
               test: populatedResult.test
             },
-            { template: 'standard' }
+            { template: selectedTemplate }
           );
 
           pdfBuffer = pdfResult.fileBuffer;
@@ -631,7 +647,7 @@ export class ResultController {
             order: populatedResult.order,
             test: populatedResult.test
           },
-          { template: 'standard' }
+          { template: selectedTemplate }
         );
 
         pdfBuffer = pdfResult.fileBuffer;

@@ -1,0 +1,434 @@
+[
+  {
+    "testName": "Hemoglobin A1c",
+    "testCode": "HBA1C",
+    "category": "hematology",
+    "description": "Glycated hemoglobin test for long-term blood glucose monitoring",
+    "price": 15.00,
+    "turnaroundTime": {
+      "value": 48,
+      "unit": "hours"
+    },
+    "specimenType": "blood",
+    "preparationInstructions": "No special preparation required",
+    "normalRange": {
+      "min": 4.0,
+      "max": 5.6,
+      "unit": "%"
+    },
+    "isActive": true
+  },
+  {
+    "testName": "Platelet Count",
+    "testCode": "PLT",
+    "category": "hematology",
+    "description": "Platelet count analysis for clotting function assessment",
+    "price": 12.00,
+    "turnaroundTime": {
+      "value": 12,
+      "unit": "hours"
+    },
+    "specimenType": "blood",
+    "preparationInstructions": "No special preparation required",
+    "normalRange": {
+      "min": 150,
+      "max": 450,
+      "unit": "K/uL"
+    },
+    "isActive": true
+  },
+  {
+    "testName": "Lipid Panel",
+    "testCode": "LP",
+    "category": "biochemistry",
+    "description": "Comprehensive lipid panel including total cholesterol, HDL, LDL, and triglycerides",
+    "price": 35.00,
+    "turnaroundTime": {
+      "value": 48,
+      "unit": "hours"
+    },
+    "specimenType": "blood",
+    "preparationInstructions": "Fasting required for 12 hours prior to test",
+    "normalRange": {
+      "min": 0,
+      "max": 200,
+      "unit": "mg/dL"
+    },
+    "isActive": true
+  },
+  {
+    "testName": "Liver Function Test",
+    "testCode": "LFT",
+    "category": "biochemistry",
+    "description": "Comprehensive liver function panel including ALT, AST, ALP, bilirubin, and albumin",
+    "price": 45.00,
+    "turnaroundTime": {
+      "value": 24,
+      "unit": "hours"
+    },
+    "specimenType": "blood",
+    "preparationInstructions": "Fasting required for 8 hours prior to test",
+    "normalRange": {
+      "min": 7,
+      "max": 56,
+      "unit": "U/L"
+    },
+    "isActive": true
+  },
+  {
+    "testName": "Kidney Function Test",
+    "testCode": "KFT",
+    "category": "biochemistry",
+    "description": "Kidney function panel including creatinine, BUN, and electrolytes",
+    "price": 30.00,
+    "turnaroundTime": {
+      "value": 24,
+      "unit": "hours"
+    },
+    "specimenType": "blood",
+    "preparationInstructions": "No special preparation required",
+    "normalRange": {
+      "min": 0.5,
+      "max": 1.3,
+      "unit": "mg/dL"
+    },
+    "isActive": true
+  },
+  {
+    "testName": "Glucose Fasting",
+    "testCode": "GLU",
+    "category": "biochemistry",
+    "description": "Fasting blood glucose test for diabetes screening",
+    "price": 10.00,
+    "turnaroundTime": {
+      "value": 6,
+      "unit": "hours"
+    },
+    "specimenType": "blood",
+    "preparationInstructions": "Fasting required for 8-12 hours prior to test",
+    "normalRange": {
+      "min": 70,
+      "max": 100,
+      "unit": "mg/dL"
+    },
+    "isActive": true
+  },
+  {
+    "testName": "Blood Culture",
+    "testCode": "BC",
+    "category": "microbiology",
+    "description": "Blood culture for bacterial detection and sensitivity testing",
+    "price": 80.00,
+    "turnaroundTime": {
+      "value": 72,
+      "unit": "hours"
+    },
+    "specimenType": "blood",
+    "preparationInstructions": "No special preparation required",
+    "normalRange": {
+      "text": "No growth"
+    },
+    "isActive": true
+  },
+  {
+    "testName": "Urine Culture",
+    "testCode": "UC",
+    "category": "microbiology",
+    "description": "Urine culture analysis for urinary tract infection detection",
+    "price": 40.00,
+    "turnaroundTime": {
+      "value": 48,
+      "unit": "hours"
+    },
+    "specimenType": "urine",
+    "preparationInstructions": "Clean-catch midstream urine sample required",
+    "normalRange": {
+      "text": "No growth"
+    },
+    "isActive": true
+  },
+  {
+    "testName": "Throat Swab Culture",
+    "testCode": "TSC",
+    "category": "microbiology",
+    "description": "Throat swab for bacterial detection and identification",
+    "price": 35.00,
+    "turnaroundTime": {
+      "value": 48,
+      "unit": "hours"
+    },
+    "specimenType": "swab",
+    "preparationInstructions": "No eating or drinking 30 minutes before sample collection",
+    "normalRange": {
+      "text": "No growth"
+    },
+    "isActive": true
+  },
+  {
+    "testName": "COVID-19 PCR",
+    "testCode": "COVID",
+    "category": "immunology",
+    "description": "COVID-19 PCR test for SARS-CoV-2 detection",
+    "price": 120.00,
+    "turnaroundTime": {
+      "value": 24,
+      "unit": "hours"
+    },
+    "specimenType": "swab",
+    "preparationInstructions": "No special preparation required",
+    "normalRange": {
+      "text": "Not detected"
+    },
+    "isActive": true
+  },
+  {
+    "testName": "HIV Test",
+    "testCode": "HIV",
+    "category": "immunology",
+    "description": "HIV antibody test for HIV screening",
+    "price": 50.00,
+    "turnaroundTime": {
+      "value": 60,
+      "unit": "minutes"
+    },
+    "specimenType": "blood",
+    "preparationInstructions": "No special preparation required",
+    "normalRange": {
+      "text": "Non-reactive"
+    },
+    "isActive": true
+  },
+  {
+    "testName": "Hepatitis B Surface Antigen",
+    "testCode": "HEP B",
+    "category": "immunology",
+    "description": "Hepatitis B surface antigen test for HBV infection",
+    "price": 45.00,
+    "turnaroundTime": {
+      "value": 60,
+      "unit": "minutes"
+    },
+    "specimenType": "blood",
+    "preparationInstructions": "No special preparation required",
+    "normalRange": {
+      "text": "Negative"
+    },
+    "isActive": true
+  },
+  {
+    "testName": "Thyroid Panel",
+    "testCode": "THY",
+    "category": "immunology",
+    "description": "Comprehensive thyroid panel including TSH, T3, and T4",
+    "price": 55.00,
+    "turnaroundTime": {
+      "value": 24,
+      "unit": "hours"
+    },
+    "specimenType": "blood",
+    "preparationInstructions": "No special preparation required",
+    "normalRange": {
+      "min": 0.4,
+      "max": 4.0,
+      "unit": "mIU/L"
+    },
+    "isActive": true
+  },
+  {
+    "testName": "Pap Smear",
+    "testCode": "PAP",
+    "category": "pathology",
+    "description": "Pap smear cervical screening for cervical cancer detection",
+    "price": 60.00,
+    "turnaroundTime": {
+      "value": 72,
+      "unit": "hours"
+    },
+    "specimenType": "other",
+    "preparationInstructions": "Avoid douching, sexual intercourse, and vaginal medications 48 hours before test",
+    "normalRange": {
+      "text": "Negative for intraepithelial lesion or malignancy"
+    },
+    "isActive": true
+  },
+  {
+    "testName": "Tissue Biopsy Examination",
+    "testCode": "BIO",
+    "category": "pathology",
+    "description": "Tissue biopsy examination for histopathological analysis",
+    "price": 150.00,
+    "turnaroundTime": {
+      "value": 96,
+      "unit": "hours"
+    },
+    "specimenType": "other",
+    "preparationInstructions": "No special preparation required",
+    "normalRange": {
+      "text": "Benign findings"
+    },
+    "isActive": true
+  },
+  {
+    "testName": "Fine Needle Aspiration Cytology",
+    "testCode": "FNA",
+    "category": "pathology",
+    "description": "Fine needle aspiration cytology for superficial lump evaluation",
+    "price": 100.00,
+    "turnaroundTime": {
+      "value": 72,
+      "unit": "hours"
+    },
+    "specimenType": "other",
+    "preparationInstructions": "No special preparation required",
+    "normalRange": {
+      "text": "Benign cellular findings"
+    },
+    "isActive": true
+  },
+  {
+    "testName": "Electrocardiogram",
+    "testCode": "ECG",
+    "category": "cardiology",
+    "description": "12-lead electrocardiogram for cardiac rhythm assessment",
+    "price": 25.00,
+    "turnaroundTime": {
+      "value": 6,
+      "unit": "hours"
+    },
+    "specimenType": "other",
+    "preparationInstructions": "Avoid caffeine 30 minutes before test",
+    "normalRange": {
+      "text": "Normal sinus rhythm"
+    },
+    "isActive": true
+  },
+  {
+    "testName": "Transthoracic Echocardiogram",
+    "testCode": "ECHO",
+    "category": "cardiology",
+    "description": "Transthoracic echocardiogram for cardiac structure and function assessment",
+    "price": 200.00,
+    "turnaroundTime": {
+      "value": 24,
+      "unit": "hours"
+    },
+    "specimenType": "other",
+    "preparationInstructions": "No special preparation required",
+    "normalRange": {
+      "text": "Normal cardiac structure and function"
+    },
+    "isActive": true
+  },
+  {
+    "testName": "Exercise Stress Test",
+    "testCode": "ETT",
+    "category": "cardiology",
+    "description": "Exercise stress test for cardiac function under stress",
+    "price": 300.00,
+    "turnaroundTime": {
+      "value": 12,
+      "unit": "hours"
+    },
+    "specimenType": "other",
+    "preparationInstructions": "Fasting for 4 hours, avoid caffeine and smoking 12 hours before test",
+    "normalRange": {
+      "text": "Normal exercise tolerance without ischemic changes"
+    },
+    "isActive": true
+  },
+  {
+    "testName": "Vitamin D Level",
+    "testCode": "VITD",
+    "category": "other",
+    "description": "Vitamin D (25-hydroxy) level test for bone health assessment",
+    "price": 35.00,
+    "turnaroundTime": {
+      "value": 24,
+      "unit": "hours"
+    },
+    "specimenType": "blood",
+    "preparationInstructions": "No special preparation required",
+    "normalRange": {
+      "min": 30,
+      "max": 100,
+      "unit": "ng/mL"
+    },
+    "isActive": true
+  },
+  {
+    "testName": "Vitamin B12 Level",
+    "testCode": "B12",
+    "category": "other",
+    "description": "Vitamin B12 level test for anemia and neurological assessment",
+    "price": 25.00,
+    "turnaroundTime": {
+      "value": 24,
+      "unit": "hours"
+    },
+    "specimenType": "blood",
+    "preparationInstructions": "Fasting required for 8-12 hours prior to test",
+    "normalRange": {
+      "min": 200,
+      "max": 900,
+      "unit": "pg/mL"
+    },
+    "isActive": true
+  },
+  {
+    "testName": "Complete Iron Panel",
+    "testCode": "IRON",
+    "category": "other",
+    "description": "Complete iron panel including serum iron, TIBC, and ferritin",
+    "price": 40.00,
+    "turnaroundTime": {
+      "value": 24,
+      "unit": "hours"
+    },
+    "specimenType": "blood",
+    "preparationInstructions": "Fasting required for 8-12 hours prior to test",
+    "normalRange": {
+      "min": 50,
+      "max": 170,
+      "unit": "μg/dL"
+    },
+    "isActive": true
+  },
+  {
+    "testName": "Erythrocyte Sedimentation Rate",
+    "testCode": "ESR",
+    "category": "other",
+    "description": "Erythrocyte sedimentation rate for inflammation assessment",
+    "price": 8.00,
+    "turnaroundTime": {
+      "value": 12,
+      "unit": "hours"
+    },
+    "specimenType": "blood",
+    "preparationInstructions": "No special preparation required",
+    "normalRange": {
+      "min": 0,
+      "max": 20,
+      "unit": "mm/hr"
+    },
+    "isActive": true
+  },
+  {
+    "testName": "C-Reactive Protein",
+    "testCode": "CRP",
+    "category": "other",
+    "description": "C-reactive protein test for inflammation and infection markers",
+    "price": 15.00,
+    "turnaroundTime": {
+      "value": 6,
+      "unit": "hours"
+    },
+    "specimenType": "blood",
+    "preparationInstructions": "No special preparation required",
+    "normalRange": {
+      "min": 0,
+      "max": 5,
+      "unit": "mg/L"
+    },
+    "isActive": true
+  }
+]
