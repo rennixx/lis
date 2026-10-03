@@ -1,5 +1,5 @@
 import React from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route, Navigate, useParams, useNavigate } from 'react-router-dom';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 
@@ -29,6 +29,13 @@ export const AppRoutes: React.FC = () => {
     console.log('🔍 [AppRoutes] AppRoutes component rendered');
     console.log('🔍 [AppRoutes] Current URL:', window.location.href);
     console.log('🔍 [AppRoutes] Current path:', window.location.pathname);
+
+    // Log all path segments for debugging
+    const pathSegments = window.location.pathname.split('/').filter(Boolean);
+    console.log('🔍 [AppRoutes] Path segments:', pathSegments);
+    console.log('🔍 [AppRoutes] First segment:', pathSegments[0]);
+    console.log('🔍 [AppRoutes] Second segment:', pathSegments[1]);
+    console.log('🔍 [AppRoutes] Third segment:', pathSegments[2]);
   }, []);
 
   return (
@@ -42,7 +49,8 @@ export const AppRoutes: React.FC = () => {
           </div>
         }
       />
-      {/* Debug route - always visible */}
+
+            {/* Debug route - always visible */}
       <Route
         path="/debug"
         element={
@@ -62,6 +70,18 @@ export const AppRoutes: React.FC = () => {
           </div>
         }
       />
+      {/* Test order routes outside ProtectedRoute */}
+      <Route
+        path="/orders-simple/:id"
+        element={
+          <div style={{ padding: '50px', background: 'magenta', color: 'white', minHeight: '100vh' }}>
+            <h1>SIMPLE ORDER DETAIL ROUTE!</h1>
+            <p>Order ID: {typeof window !== 'undefined' ? window.location.pathname.split('/')[2] : 'N/A'}</p>
+            <p>This route is OUTSIDE ProtectedRoute wrapper</p>
+          </div>
+        }
+      />
+
       {/* Public routes */}
       <Route path="/login" element={<LoginPage />} />
 
@@ -92,11 +112,51 @@ export const AppRoutes: React.FC = () => {
           }
         />
 
-        {/* Orders routes */}
+        {/* Test route at same level to verify nested routing works */}
+        <Route
+          path="test-route"
+          element={
+            <div style={{ padding: '20px', background: 'purple', color: 'white', position: 'fixed', top: '10px', right: '10px', zIndex: 9999 }}>
+              <h1>TEST ROUTE WORKING!</h1>
+              <p>If you can see this, basic routing is functional</p>
+            </div>
+          }
+        />
+
+        {/* Orders routes - test with different approach */}
         <Route path="orders" element={<OrdersPage />} />
+        <Route path="orders/test" element={
+          <div style={{ padding: '50px', background: 'cyan', color: 'white', minHeight: '100vh' }}>
+            <h1>ORDERS/TEST ROUTE!</h1>
+            <p>Simple test for orders route structure</p>
+          </div>
+        } />
         <Route path="orders/new" element={<OrderDetailPage />} />
+
+        {/* Try without ProtectedRoute to see if it's an auth issue */}
+        <Route path="orders/public/:id" element={
+          <div style={{ padding: '50px', background: 'orange', color: 'white', minHeight: '100vh' }}>
+            <h1>PUBLIC ORDER DETAIL!</h1>
+            <p>Order ID: {typeof window !== 'undefined' ? window.location.pathname.split('/')[2] : 'N/A'}</p>
+            <p>Current path: {typeof window !== 'undefined' ? window.location.pathname : 'N/A'}</p>
+          </div>
+        } />
+
         <Route path="orders/:id" element={<OrderDetailPage />} />
         <Route path="orders/:id/edit" element={<OrderDetailPage />} />
+
+        {/* Debug route for testing order detail - with absolute path */}
+        <Route
+          path="/orders/debug/:id"
+          element={
+            <div style={{ padding: '50px', background: 'red', color: 'white', minHeight: '100vh' }}>
+              <h1>ABSOLUTE DEBUG ROUTE WORKING!</h1>
+              <p>Order ID: {typeof window !== 'undefined' ? window.location.pathname.split('/')[2] : 'N/A'}</p>
+              <p>Full Path: {typeof window !== 'undefined' ? window.location.pathname : 'N/A'}</p>
+              <button onClick={() => alert('Route clicked!')}>Click Me</button>
+            </div>
+          }
+        />
 
         {/* Results routes */}
         <Route
@@ -159,35 +219,9 @@ export const AppRoutes: React.FC = () => {
           }
         />
 
-        {/* Debug fallback route - show what path is being requested */}
-        <Route
-          path="*"
-          element={
-            <div style={{
-              padding: '20px',
-              background: 'red',
-              color: 'white',
-              fontSize: '20px',
-              position: 'fixed',
-              top: '0',
-              left: '0',
-              right: '0',
-              zIndex: 9999
-            }}>
-              DEBUG: UNMATCHED ROUTE!
-              <br />
-              Path: {typeof window !== 'undefined' ? window.location.pathname : 'N/A'}
-              <br />
-              URL: {typeof window !== 'undefined' ? window.location.href : 'N/A'}
-              <br />
-              This should show you what route is not matching
-            </div>
-          }
-        />
+              {/* Catch all route - redirect to 404 page */}
+        <Route path="*" element={<NotFoundPage />} />
       </Route>
-
-      {/* Catch all route */}
-      <Route path="*" element={<Navigate to="/login" replace />} />
     </Routes>
   );
 };

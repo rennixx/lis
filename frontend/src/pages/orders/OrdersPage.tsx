@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { useOrders } from '@/api/hooks/useOrders';
-import { Order } from '@/types/api.types';
+import { Order, OrdersResponse, OrdersData } from '@/types/api.types';
 
 export const OrdersPage: React.FC = () => {
   const navigate = useNavigate();
@@ -21,7 +21,7 @@ export const OrdersPage: React.FC = () => {
   }, [ordersData, isLoading, error]);
 
   // Filter orders based on search term
-  const filteredOrders = ordersData?.orders?.filter((order: Order) =>
+  const filteredOrders = ordersData?.data?.orders?.filter((order: Order) =>
     order.patient?.firstName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     order.patient?.lastName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     order.orderNumber?.toLowerCase().includes(searchTerm.toLowerCase())

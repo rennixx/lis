@@ -25,14 +25,19 @@ export interface PaginatedResponse<T> {
 }
 
 // Specific response type for orders that matches backend structure
-export interface OrdersResponse {
-  success: boolean;
-  message: string;
+export interface OrdersData {
   orders: Order[];
   total: number;
   page: number;
   limit: number;
   pages: number;
+}
+
+// Specific response type for orders that matches backend structure
+export interface OrdersResponse {
+  success: boolean;
+  message: string;
+  data: OrdersData;
 }
 
 // Auth types

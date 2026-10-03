@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { orderService } from '../services/OrderService';
-import { CreateOrderRequest, UpdateOrderRequest, OrderQueryParams, OrdersResponse } from '@/types/api.types';
+import { CreateOrderRequest, UpdateOrderRequest, OrderQueryParams, OrdersResponse, OrdersData } from '@/types/api.types';
 
 // Query keys
 export const orderKeys = {

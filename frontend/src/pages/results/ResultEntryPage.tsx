@@ -71,9 +71,9 @@ export const ResultEntryPage: React.FC = () => {
 
   // Process orders to get pending tests
   const pendingOrders = React.useMemo(() => {
-    if (!ordersData?.orders) return [];
+    if (!ordersData?.data?.orders) return [];
 
-    return ordersData.orders
+    return ordersData.data.orders
       .filter((order: any) => order.status === 'sample_collected')
       .map((order: any) => ({
         _id: order._id,

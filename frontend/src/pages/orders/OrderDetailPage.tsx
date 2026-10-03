@@ -1,97 +1,47 @@
 import React from 'react';
-import { useParams } from 'react-router-dom';
-import { ArrowLeft, ClipboardList, FileText, User } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { useParams, useNavigate } from 'react-router-dom';
+import { ArrowLeft } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 export const OrderDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
+
+  // Debug: Log routing info
+  React.useEffect(() => {
+    console.log('🔍 [ORDER DETAIL] Component rendered');
+    console.log('🔍 [ORDER DETAIL] Order ID from URL:', id);
+    console.log('🔍 [ORDER DETAIL] Current URL:', window.location.pathname);
+    console.log('🔍 [ORDER DETAIL] Full URL:', window.location.href);
+  }, [id]);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 p-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center">
-          <button className="btn btn-ghost mr-4">
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to Orders
-          </button>
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-              Order Details
-            </h1>
-            <p className="text-gray-600 dark:text-gray-400 mt-2">
-              Order ID: {id || 'NEW'}
-            </p>
-          </div>
+      <div className="flex items-center">
+        <Button variant="ghost" onClick={() => navigate('/orders')} className="mr-4">
+          <ArrowLeft className="h-4 w-4 mr-2" />
+          Back to Orders
+        </Button>
+        <div>
+          <h1 className="text-3xl font-bold text-blue-600">Order Detail Page Working!</h1>
+          <p className="text-gray-600 mt-2">
+            Order ID from URL: <strong>{id || 'No ID found'}</strong>
+          </p>
+          <p className="text-gray-600">
+            Current URL: <strong>{typeof window !== 'undefined' ? window.location.pathname : 'N/A'}</strong>
+          </p>
+          <p className="text-gray-600">
+            Full URL: <strong>{typeof window !== 'undefined' ? window.location.href : 'N/A'}</strong>
+          </p>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Order Information */}
-        <div className="lg:col-span-2 space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center">
-                <ClipboardList className="h-5 w-5 mr-2" />
-                Order Information
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-center py-8">
-                <ClipboardList className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
-                  {id ? 'Order Not Found' : 'Create New Order'}
-                </h3>
-                <p className="text-gray-600 dark:text-gray-400">
-                  {id ? 'No order data available' : 'Fill in the form to create a new test order'}
-                </p>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center">
-                <FileText className="h-5 w-5 mr-2" />
-                Tests Ordered
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-center py-8">
-                <FileText className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
-                  No Tests Added
-                </h3>
-                <p className="text-gray-600 dark:text-gray-400">
-                  Add tests to this order to continue.
-                </p>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Patient Information */}
-        <div className="lg:col-span-1">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center">
-                <User className="h-5 w-5 mr-2" />
-                Patient Information
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-center py-8">
-                <User className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
-                  No Patient Selected
-                </h3>
-                <p className="text-gray-600 dark:text-gray-400">
-                  Select a patient to create an order.
-                </p>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+      <div className="bg-green-50 border border-green-200 rounded-lg p-6">
+        <h2 className="text-xl font-semibold text-green-800 mb-2">✅ Route Test Successful</h2>
+        <p className="text-green-700">
+          If you can see this page, the routing is working correctly and we can proceed to add the actual order fetching functionality.
+        </p>
       </div>
     </div>
   );
